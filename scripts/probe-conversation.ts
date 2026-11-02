@@ -160,7 +160,9 @@ finally {
   if (settingsChanged) await api('/api/settings', before.settings, 'PUT').catch(() => { evidence.settingsRestoreFailed = true; });
   if (evidence.sessionId) {
     const dir = join(env.OUTPUT_DIR, evidence.sessionId);
-    evidence.artifacts = ['events.jsonl', 'summary.json', 'mc.wav', 'mix.wav'].map(file => ({ file, exists: existsSync(join(dir, file)) }));
+    // A failed lookup can preserve human recording without ever creating AI audio.
+    // Keep missing AI output separate from missing recording exports.
+    evidence.artifacts = ['events.jsonl', 'summary.json', 'mc.wav', 'mix.wav'].map(file => ({ file, exists: existsSync(join(dir, file)), required: file !== 'mc.wav' || evidence.receivedNonSilentAiFrames > 0 }));
     if (existsSync(join(dir, 'events.jsonl'))) for (const line of readFileSync(join(dir, 'events.jsonl'), 'utf8').trim().split('\n').filter(Boolean)) { const e = JSON.parse(line); logs.set(e.id, e); }
   }
   const events = [...logs.values()].sort((a, b) => a.at - b.at);
@@ -192,7 +194,7 @@ finally {
     ...(!evidence.receivedNonSilentAiFrames ? ['no-receiver-audio'] : []),
     ...(!evidence.sources.length ? ['no-research-sources'] : []),
     ...(evidence.stopFailed || evidence.leaveFailed || evidence.sourceCloseFailed || evidence.settingsRestoreFailed ? ['cleanup'] : []),
-    ...(!evidence.artifacts?.every((a: any) => a.exists) ? ['missing-exports'] : []),
+    ...(!evidence.artifacts?.every((a: any) => a.exists || !a.required) ? ['missing-recording-exports'] : []),
     ...(evidence.error && !stage('provider-failure').length ? ['probe-incomplete'] : [])
   ];
   evidence.failureCategories = [...new Set(evidence.failureCategories)];

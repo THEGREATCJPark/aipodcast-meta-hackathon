@@ -62,17 +62,27 @@ test("synthetic Meta ASR WebSocket handshake, prebuffer, PCM and completion", as
   const { WebSocketServer } = await import("ws");
   const server = new WebSocketServer({port:0});
   await new Promise<void>(resolve => server.once("listening",resolve));
-  let handshake:Record<string,unknown>|undefined;let samples=0;
+  let handshake:Record<string,unknown>|undefined;const frames:Buffer[]=[];
   server.on("connection",ws=>ws.on("message",(raw,binary)=>{
     if(!binary){handshake=JSON.parse(raw.toString());ws.send(JSON.stringify({sessionId:"synthetic"}));}
-    else {samples+=Buffer.isBuffer(raw) ? raw.length : 0;ws.send(JSON.stringify({type:"speechStart",turnId:1,audioProcessedMs:0}));ws.send(JSON.stringify({type:"speechComplete",turnId:1,audioProcessedMs:20,transcript:"fixture"}));}
+    else if (Buffer.isBuffer(raw)) {
+      frames.push(Buffer.from(raw));
+      if(frames.length===1) {
+        ws.send(JSON.stringify({type:"speechStart",turnId:1,audioProcessedMs:0}));
+        // A paced stream legitimately sends silence while awaiting endpointing.
+        setTimeout(()=>{if(ws.readyState===1)ws.send(JSON.stringify({type:"speechComplete",turnId:1,audioProcessedMs:20,transcript:"fixture"}));},80);
+      }
+    }
   }));
   let resolveFinal!:()=>void;const final=new Promise<void>(resolve=>{resolveFinal=resolve;});
   const asr=new MetaAsr("fixture-secret","fixture-model",0,{complete:()=>resolveFinal(),failed:()=>undefined},`ws://127.0.0.1:${(server.address() as {port:number}).port}`);
   try {
     const ready=asr.connect();asr.append(new Int16Array(480).fill(12));await ready;await final;
     assert.deepEqual(handshake?.authorization,{accessToken:"Bearer fixture-secret"});
-    assert.equal(handshake?.audioEncoding,"PCM_24KHZ");assert.equal(handshake?.mode,"ENDPOINTING");assert.equal(samples,960);
+    assert.equal(handshake?.audioEncoding,"PCM_24KHZ");assert.equal(handshake?.mode,"ENDPOINTING");
+    assert.ok(frames.length>=1);assert.ok(frames.every(frame=>frame.length===960));
+    assert.deepEqual(frames[0],Buffer.from(new Int16Array(480).fill(12).buffer));
+    assert.ok(frames.slice(1).every(frame=>frame.every(byte=>byte===0)),"prebuffer is sent once, followed only by paced silence");
   } finally {asr.close();server.clients.forEach(ws=>ws.terminate());await new Promise<void>(resolve=>server.close(()=>resolve()));}
 });
 

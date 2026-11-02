@@ -1,3 +1,9 @@
+# Pre-filming preparation checkpoint — 2026-11-02
+
+Capture loss handling and private packaging are implemented. Current checks passed 107 tests, typecheck and web/guest builds. Actual Meta edge evaluation found and mitigated two source/uncertainty failures; results and retained failures are in EVALUATION.md. A read-only local check is available with `npx tsx scripts/preflight.ts`; after a reviewed clean commit, `npx tsx scripts/prepare-submission.ts` generates a private ZIP and hash manifest. Neither command publishes anything or proves human acceptance.
+
+Still not “only filming remains”: real two-human microphone/capture acceptance is unavailable without participants; the isolated external guest page is built but not hosted; public release/voice consent/terms/submission await owner approval. The ready English script includes a ten-second capture check and rehearsal order. Prompt mitigation does not guarantee source truth. Keep the original project untouched and do not expose the local operator server.
+
 # Status — 2026-11-02 KST
 
 ## Current stabilization — 2026-11-02

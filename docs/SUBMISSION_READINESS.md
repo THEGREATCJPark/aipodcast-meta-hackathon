@@ -1,3 +1,9 @@
+## Pre-filming update — 2026-11-02
+
+Current automated checks: 107/107 tests, typecheck and main/guest builds. Capture now rejects unusable inputs and stops with a warning if audio is lost, preserving available footage. Private committed-source packaging and read-only local preparation checks are ready. Fourteen real Meta synthetic-text calls exposed and mitigated research overclaim and uncertainty-attribution issues; broader factual accuracy remains unproven. See EVALUATION.md for failures as well as passes.
+
+**Decision: ready to attempt a supervised rehearsal, not certified as “only the final take remains.”** Remaining dependencies are actual microphone/capture acceptance, an HTTPS guest page if an external guest is used, and the owner's public-release/terms/submission approvals. Do not substitute synthetic trials for human acceptance. No public hosting or recording permission is silently assumed.
+
 # Submission readiness — 2026-11-02 KST
 
 Verdict: the stabilized whole-voice path passed three consecutive real-provider synthetic trials across two references, plus separate manual HOLD and automatic-interruption checks. Current checks passed 98 tests, typecheck, main/guest builds and script compilation. Final submission and human acceptance remain incomplete. Earlier failed calls are retained, and three passes do not establish broad statistical reliability or natural human usefulness.

@@ -40,11 +40,11 @@ const allowedHosts = new Set([`${HOST}:${env.PORT}`, `localhost:${env.PORT}`]);
 
 /** 로컬 전용: 다른 사이트에서 오는 요청(DNS rebinding·CSRF)을 막는다. */
 app.use((req: Request, res: Response, next: NextFunction) => {
-  if (!allowedHosts.has(req.headers.host ?? "")) return res.status(403).json({ success: false, error: "허용되지 않은 Host" });
+  if (!allowedHosts.has(req.headers.host ?? "")) return res.status(403).json({ success: false, error: "Host is not allowed" });
   if (req.method !== "GET" && req.path.startsWith("/api/")) {
     const origin = req.headers.origin;
     const okOrigin = origin && [...allowedHosts].some((h) => origin === `http://${h}`);
-    if (!okOrigin || req.headers["x-studio"] !== "1") return res.status(403).json({ success: false, error: "허용되지 않은 요청 출처" });
+    if (!okOrigin || req.headers["x-studio"] !== "1") return res.status(403).json({ success: false, error: "Request origin is not allowed" });
   }
   next();
 });
@@ -54,14 +54,14 @@ const api = (fn: Handler) => async (req: Request, res: Response) => {
   try {
     res.json({ success: true, data: await fn(req) });
   } catch (err: unknown) {
-    const message = err instanceof z.ZodError ? `입력값 오류: ${err.issues.map((i) => `${i.path.join(".")} ${i.message}`).join(", ")}` : err instanceof Error ? err.message : "알 수 없는 오류";
+    const message = err instanceof z.ZodError ? `Invalid input: ${err.issues.map((i) => `${i.path.join(".")} ${i.message}`).join(", ")}` : err instanceof Error ? err.message : "Unknown error";
     res.status(400).json({ success: false, error: message });
   }
 };
 
 const requireLivekit = () => {
   const cfg = livekitConfig();
-  if (!cfg) throw new Error("LiveKit 설정이 없습니다. .env의 LIVEKIT_URL / LIVEKIT_API_KEY / LIVEKIT_API_SECRET을 채워 주세요.");
+  if (!cfg) throw new Error("LiveKit is not configured. Set LIVEKIT_URL, LIVEKIT_API_KEY and LIVEKIT_API_SECRET in the local .env file.");
   return cfg;
 };
 
@@ -86,7 +86,7 @@ app.get("/api/sessions", api(() => bus.summaries()));
 /** 세션 폴더를 탐색기로 연다 (로컬 전용). 경로는 세션 id 형식 검증 후 서버가 만든다. */
 app.post("/api/sessions/:id/open", api((req) => {
   const dir = bus.sessionPath(String(req.params.id));
-  if (!dir) throw new Error("세션 폴더를 찾을 수 없습니다");
+  if (!dir) throw new Error("Session folder was not found");
   const opener = process.platform === "win32" ? "explorer.exe" : process.platform === "darwin" ? "open" : "xdg-open";
   execFile(opener, [dir], () => undefined); // explorer는 성공해도 종료 코드 1을 돌려줄 수 있어 결과를 무시한다
   return { dir };
@@ -94,7 +94,7 @@ app.post("/api/sessions/:id/open", api((req) => {
 
 app.post("/api/prompt-gen", api(async (req) => {
   const { description } = z.object({ description: z.string().min(5).max(32000) }).parse(req.body);
-  if (!env.OPENAI_API_KEY) throw new Error("OPENAI_API_KEY가 설정되지 않았습니다");
+  if (!env.OPENAI_API_KEY) throw new Error("OPENAI_API_KEY is not configured");
   return generatePrompts(env.OPENAI_API_KEY, store.get().gptLive.delegation.model, description);
 }));
 

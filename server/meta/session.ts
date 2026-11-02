@@ -21,13 +21,13 @@ export interface MetaServices {
   synthesize: typeof synthesize;
 }
 /** Only classifications and schema coordinates leave this boundary; never provider messages/payloads. */
-function safeResearchFailure(error: unknown): Record<string, unknown> {
+export function safeResearchFailure(error: unknown): Record<string, unknown> {
   if (error instanceof ZodError) return { category: "invalid_response", issues: error.issues.slice(0, 12).map(issue => ({ code: issue.code, path: issue.path.map(part => typeof part === "number" ? part : /^(id|status|output|content|type|role|text|annotations|url|title|start_index|end_index|responseId|sources|results|searchCallIds|requestedAt|completedAt|kind|startIndex|endIndex|snippet)$/.test(String(part)) ? String(part) : "[field]") })) };
   if (error instanceof Error) {
     if (error.name === "TimeoutError") return { category: "timeout" };
     if (error.name === "AbortError") return { category: "aborted" };
     if (error instanceof SyntaxError) return { category: "invalid_json" };
-    const http = /^Meta research HTTP ([1-5][0-9]{2})$/.exec(error.message);
+    const http = /^Meta research(?: review)? HTTP ([1-5][0-9]{2})$/.exec(error.message);
     if (http) return { category: "http_error", httpStatus: Number(http[1]) };
     const known: Record<string, string> = {
       "Meta did not complete a web search": "search_not_completed",
@@ -35,8 +35,20 @@ function safeResearchFailure(error: unknown): Record<string, unknown> {
       "Citation span is outside answer": "invalid_citation_span",
       "Research response too large": "response_size_limit",
       "Missing research response": "empty_response",
+      "Malformed research source link": "malformed_source_link",
+      "Research source count limit exceeded": "source_count_limit",
+      "Stale research review": "stale_review",
+      "Invalid research speech": "invalid_speech",
     };
     if (known[error.message]) return { category: known[error.message] };
+    const transportCodes = new Set(["ECONNRESET", "ECONNREFUSED", "ENOTFOUND", "EAI_AGAIN", "ETIMEDOUT", "UND_ERR_CONNECT_TIMEOUT", "UND_ERR_HEADERS_TIMEOUT", "UND_ERR_BODY_TIMEOUT", "UND_ERR_SOCKET", "CERT_HAS_EXPIRED", "UNABLE_TO_VERIFY_LEAF_SIGNATURE", "DEPTH_ZERO_SELF_SIGNED_CERT"]);
+    let cause: unknown = error;
+    // Bounded cause walk: arbitrary provider codes and all raw error details remain private.
+    for (let depth = 0; depth < 4 && cause && typeof cause === "object"; depth++) {
+      const current = cause as { code?: unknown; cause?: unknown };
+      if (typeof current.code === "string" && transportCodes.has(current.code)) return { category: "transport_error", code: current.code };
+      cause = current.cause;
+    }
   }
   return { category: "provider_error" };
 }

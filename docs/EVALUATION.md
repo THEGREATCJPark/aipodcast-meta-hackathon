@@ -1,3 +1,38 @@
+## Pre-filming stabilization — 2026-11-02
+
+This round adds capture input validation, detection of microphone/tab audio loss, preservation of the previous usable recording after an empty take, read-only local preflight and private committed-source packaging. Root verification after the fixes: **107/107 tests**, typecheck and both web/guest builds passed. Detailed local logs: `output/probes/final-preflight-tests-space-url.log`. Standalone compilation of the preparation/evaluation scripts also passed.
+
+A full-suite run before the test fix failed 102/103: the ASR WebSocket test assumed exactly one PCM frame before its synthetic completion. Under scheduling load the paced stream correctly sent extra silence (2,880 bytes vs 960 expected). The corrected test delays completion, verifies the exact original PCM once, and permits only silent, correctly sized subsequent frames. Subsequent full runs passed; the earlier failure log is retained at `output/probes/final-preflight-tests.log`. An earlier worker run had the same pass count but its failing detail was truncated; its cause is not established.
+
+One additional actual-provider synthetic whole-voice trial passed: `2026-11-02_1159_meta_fa6b`, Good scenario, 333 non-silent AI receiver frames; continued speech ended to first observed receiver audio was 11,577 ms. Evidence: `output/probes/conversation-1793588343453/evidence.json`. This trial preceded the source-uncertainty prompt changes below and is not human microphone or capture validation.
+
+### Actual Meta source/relevance edge evaluation
+
+Fourteen bounded actual Meta calls used synthetic text. Initial research returned three structurally accepted results, but manual source review found a semantic overclaim in the exact-date question: a population-growth mathematical-singularity source did not establish the technological-singularity claim or an exhaustive absence of laboratory proof. Six relevance cases returned expected DELIVER/WAIT/CANCEL/DISCARD actions, including continued speech, pending results, withdrawal, obsolete topics and quoted commands. Evidence: `output/probes/research-edge-1793588357446/`.
+
+The research prompt now distinguishes topic/entity/date/term meaning and says an unsuccessful search is not proof that a claim is false. Two real repetitions of the failing date query then stated that the claim could not be verified from the sources found and disclosed the different sense of singularity. The next compression check exposed unsupported attribution: the model's search limitation became something a publication reportedly said. The review prompt now preserves that uncertainty in the first person and attributes only source-supported facts. Two further real reviews preserved this distinction. Evidence: `output/probes/research-edge-1793588441948/`, including `post-fix-assessment.json` and before/after review files. The first review file was overwritten during retesting, then restored verbatim from captured tool output with the restoration documented.
+
+These are prompt mitigations validated on a few observed cases, not a semantic correctness guarantee. Secondary/blog sources still occur. No general factual accuracy, primary-source guarantee, human usefulness or cost savings is established. No human input was recorded in this round.
+
+### Latest whole-voice failure retained
+
+After the source/review prompt changes, Vinge session `2026-11-02_1202_meta_dc37` failed at research after 7,990 ms, classified only as `provider_error`. Evidence: `output/probes/conversation-1793588547257/evidence.json`. No answer was sent. The probe's `missing-exports` category means `mc.wav` is absent because no AI audio was sent; two participant WAVs, mix, transcript, report, events and summary were retained. Do not describe this as lost human recording. The original failure is not retroactively assigned a more precise cause without evidence.
+
+### Reproduced source-link rejection and repair
+
+Two direct calls for `1993 essay The Coming Technological Singularity author` failed with the new precise `malformed_source_link` category (6,780/7,324 ms). A bounded capture of only the synthetic final answer/source shape showed an exact returned Manchester PDF URL with literal spaces. The parser stopped at whitespace even though the exact URL existed in completed search results and a provider annotation. Evidence: `output/probes/research-diagnosis-1793588681792/` and `output/probes/link-shape-1793588733251.json`.
+
+The parser now accepts ordinary literal spaces inside balanced single-line destinations, retaining exact-source membership and safe URL validation. Controls, newlines, tabs, invented links and unbalanced destinations remain rejected. Regression cases were observed failing before the fix, then passed. Two real direct calls returned the same spaced PDF URL and passed after the fix (7,317/6,755 ms), so the changed path was exercised. Independently inspected original essay names Vernor Vinge and 1993. Evidence: `output/probes/research-diagnosis-1793588769558/`. These later calls do not establish the cause of the original generic failure retroactively.
+
+Before this parser repair, a separate whole-voice Vinge repeat `2026-11-02_1204_meta_51cf` passed with a different source, 400 non-silent frames and 9,197 ms from continued speech end to receiver audio (`output/probes/conversation-1793588695656/`). This illustrates variable provider source selection; a pass with another source did not resolve the reproducible parser issue.
+
+
+Final restarted-server Vinge whole-voice trial after the parser repair passed: `2026-11-02_1206_meta_f283`, 359 non-silent receiver frames, 11,472 ms continued-speech-end to first receiver audio. Evidence: `output/probes/conversation-1793588799347/evidence.json`; all 5 saved WAVs passed readable frame-length checks (`output/probes/final-filming-wav-audit.json`). This remains synthetic speech, not human/capture acceptance. Runtime changes were tested from a modified working tree based on 813a027 and are committed in this preparation checkpoint.
+
+### Readiness boundaries
+
+Read-only local checks passed configuration-presence, idle state, Meta selection, research mode, origin/marker/Host guards and the live update channel. The initial Host test used Fetch, which replaced the custom Host; the corrected raw HTTP test verified the server guard. No guard relaxation was made. Browser automation failed with a timeout and then an unattached debugger, so no new browser-picker/capture success is claimed. Actual microphone/tab mixing and exported WebM quality require the ten-second recording check.
+
 # Evaluation — latest summary first
 
 ## Current stabilization checkpoint — 2026-11-02 KST

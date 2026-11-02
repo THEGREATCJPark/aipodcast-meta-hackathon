@@ -1,6 +1,6 @@
 # Three-minute English demo: the co-host who can check a fact
 
-Status: production plan, NOT recorded runtime evidence. The earlier research pipeline passed synthetic-provider checks at 266d368. Preserving research through continued conversation and assessing current relevance before speech are now in progress, not verified. Do not film scripted AI replies as actual model outputs. Filming and human trials are deferred by the owner. Implementation, automated validation and explicitly labeled provider probes continue first.
+Status: production plan, NOT recorded human evidence. At checkpoint 813a027, the full voice path passed three consecutive real-provider synthetic trials across Good and Vinge references, including continued speech and fresh Meta relevance review. This supports rehearsal readiness, not human acceptance. Do not film scripted AI replies as actual model outputs. The owner will perform human input and filming after preparation; capture and real-microphone checks remain required.
 
 ## Editorial direction
 
@@ -8,7 +8,7 @@ Fixed reference: SPNS TV / Shoes Off conversational production pattern as descri
 
 ## Central scene — clues distributed across speakers
 
-These are English rehearsal/fixture prompts, not captured runtime evidence. Use separate participant identities. Do not supply a canned AI reply, expected author's name, exact year or paper title in the input. The revised research lifetime and fresh relevance check are in progress and must be validated before this scene is described as working.
+These are English rehearsal/fixture prompts, not captured runtime evidence. Use separate participant identities. Do not supply a canned AI reply, expected author's name, exact year or paper title in the input. The research lifetime and fresh relevance check passed synthetic integration trials; natural human performance remains unverified.
 
 Host: “What interests me is the loop: a machine designs a better machine, and that one improves the next.”
 
@@ -63,3 +63,12 @@ These sources support the script's factual target. This research was performed w
 - Test paraphrases, ambiguous references, unavailable sources and contradictory sources with actual providers before asking for human filming.
 
 A deterministic page prepared in advance is a source-pack demonstration, not a live internet search. A model answer without retrieval is recall, not a checked fact. Make the UI and narration match the real implementation.
+
+## Recording-day order
+
+1. Run `npx tsx scripts/preflight.ts` with the local Studio running. This is a read-only check, not a provider or microphone test.
+2. Confirm participant processing consent, wear headphones and connect microphones. External guests require the isolated guest page to be hosted over HTTPS and tested first; localhost links are not remote links.
+3. Record ten seconds and play it back: host, guest and AI must all be audible. This is the gate for the real take, not an optional polish task.
+4. Rehearse the central scene and separately test interruption/HOLD. Preserve the real wait. The latest three synthetic trials observed about 7.8–12.9 seconds from continued speech ending to receiver audio; no instant-answer claim.
+5. Record the English three-minute take. The built-in capture stops at 180 seconds; switch to Judge view after capture starts. Return to Studio controls to save the local WebM.
+6. Inspect the actual exported file for duration, all audio channels, readable sources and absence of credentials/invite links. Human acceptance and media permission are not established by the automated checks.

@@ -12,12 +12,12 @@ AI Conversation Director is a Meta-powered co-host for small creator teams. It l
 
 The project builds on our existing React/Vite, Node/Express and LiveKit studio and recording foundation. The work added for this entry is the Meta transcription/director integration, evidence-validated web research, speech permission and cancellation controls, and tests. The original baseline and subsequent contributions are disclosed in HACKATHON.md and docs/PROVENANCE.md. We do not claim that all code was created during the event.
 
-Actual-provider synthetic English input has traversed the full Studio, Meta ASR, contextual LOOKUP without a handoff button, Meta web search, cited response, OpenAI TTS and a separate LiveKit receiver. A separate synthetic interruption trial suppressed late audio during its defined observation window. These are synthetic-input trials, not human conversations or measured user benefits. Human acceptance and filming remain deferred. Automated validation includes 68 tests, typecheck, web/guest builds and CI passing at the documented checkpoint.
+Actual-provider synthetic English input has traversed the full Studio, Meta ASR, contextual LOOKUP without a handoff button, Meta web search, cited response, OpenAI TTS and a separate LiveKit receiver. A separate synthetic interruption trial suppressed late audio during its defined observation window. These are synthetic-input trials, not human conversations or measured user benefits. Human acceptance and filming remain deferred. Checkpoint 813a027 passed 98 automated tests, typecheck, web/guest builds and CI; three consecutive full voice trials used synthetic input. Consult EVALUATION.md for subsequent preparation checks.
 
 ## Public GitHub Repository — required
 https://github.com/THEGREATCJPark/aipodcast-meta-hackathon
 
-Current visibility: PRIVATE. This URL does not yet satisfy the public-repository requirement. Publication requires explicit owner approval after review. Branch: hackathon/meta-2026. Reviewed checkpoint: 786a773; final submission SHA is not frozen.
+Current visibility: PRIVATE. This URL does not yet satisfy the public-repository requirement. Publication requires explicit owner approval after review. Branch: hackathon/meta-2026. Verified voice checkpoint: 813a027; final submission SHA is not frozen.
 
 ## 3-Minute Demo Video — required
 No video URL exists. Filming is deferred by the owner. Do not enter a fabricated link or substitute a screenshot. The English production script and capture checklist are prepared in DEMO_SCRIPT.md and HUMAN_ACCEPTANCE.md. The guide requires the demo to focus on new work and distinguish event contributions.
