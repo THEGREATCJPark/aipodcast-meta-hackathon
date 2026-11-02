@@ -1,12 +1,24 @@
 # Status — 2026-11-02 KST
 
-## Implemented
+## Current priority — research alongside conversation
+
+Latest actual-provider repeat failed at the research stage (`2026-11-02_1130_meta_0b66`); recording was preserved and no unsupported speech was sent. An earlier two-speaker synthetic trial passed. Repeatable provider success, citation quality and human usefulness are not yet established. The revised cancellation policy is implemented and regression-tested; this is not a filming-only remainder.
+
+Established checkpoint: **266d368**, with 80 tests and actual-provider synthetic successes. Review identified that ordinary human speech cancelled the active search as well as audio output. That policy does not establish the intended experience of talking while the AI PD researches.
+
+A separate research lifetime is implemented: speech preserves the job while blocking audio; fresh Meta relevance assessment precedes playback. HOLD, Meta-detected withdrawal/topic changes, session end and permission revocation cancel the job. 92 tests, typecheck and both builds passed. Actual-provider synthetic two-speaker session `2026-11-02_1125_meta_69bb` preserved the same search through ten seconds of continued speech, waited, then delivered one short answer. Six additional actual-Meta text scenarios returned expected actions. See EVALUATION.md for exact scope, timestamps and the unverified title/URL mismatch in the latest source citation. Human relevance and factual source quality are not established.
+
+The independent repository default branch is now `hackathon/meta-2026` and remains PRIVATE. The original repository was not modified. This resolves the judge landing-page issue without rewriting either main branch.
+
+Human trials and filming remain deferred by the owner. No new rules inquiry or human input is needed to continue this engineering work.
+
+## Implemented at the established checkpoint
 
 Independent PRIVATE source-snapshot repository; baseline ac71d68, branch hackathon/meta-2026. Original repository preserved. Final submission SHA is not frozen.
 
 The co-host retains React/Vite/Express/LiveKit and recording. Meta handles per-participant ASR and contextual WAIT/ASK/CLARIFY/SUMMARIZE/LOOKUP decisions. OpenAI TTS voices selected text. Handoff remains the default speech gate. The optional local `researchEnabled` setting is off by default; when enabled, an explicit spoken lookup can run Meta Responses web_search and release a cited answer without another handoff. Ordinary conversation does not receive this speech exception.
 
-Research has completed-search/citation validation, bounded source evidence, eight attempts per session, one attempt per request utterance, a 25-second timeout and stale cancellation on speech, HOLD, stop or permission change. Errors remain WAIT/error and preserve recording; no other LLM substitutes. Source links need inspection and do not guarantee factual correctness. See ARCHITECTURE.md.
+Research has completed-search/citation validation, bounded source evidence, eight attempts per session, one attempt per request utterance, a 25-second timeout and the earlier cancellation policy on speech, HOLD, stop or permission change. The normal-speech part has been superseded by the separate research job described above. Errors remain WAIT/error and preserve recording; no other LLM substitutes. Source links need inspection and do not guarantee factual correctness. See ARCHITECTURE.md.
 
 English Studio/Judge views, local 180-second tab+microphone WebM capture and an isolated guest static build are implemented. Capture is local only; guest bundle is not deployed.
 

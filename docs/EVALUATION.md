@@ -1,4 +1,62 @@
-# Evaluation ledger
+# Evaluation — latest summary first
+
+## Latest verified research-policy revision — 2026-11-02 KST
+
+**Latest live outcome: mixed, not repeatably successful.** The first revised-policy conversation passed the control path; a second actual-provider run after release-race hardening, `2026-11-02_1130_meta_0b66` (`output/probes/conversation-1793586645035/evidence.json`), failed in research after 9,720 ms. No AI audio was received. Events, summary and mix were preserved; mc.wav was correctly absent because no AI audio was sent. The old generic error did not distinguish provider rejection from response validation, so the exact cause remains unknown. Do not infer a successful final run from the earlier pass. Safe failure classification and probe fail-fast behavior were subsequently added; their automated checks do not turn this failed call into a pass.
+
+A bounded direct-search diagnostic with that synthetic query then failed with `Model source link was not returned by completed search` (private `output/probes/research-diagnostic-before-citation-fix.json`). Code review exposed a separate over-strict parser branch: even a validated provider-annotated URL was required to occur in the truncated search-hit list. A failing regression reproduced it. The fix accepts that already validated provider annotation independently while continuing to reject unannotated/unmatched model links. A subsequent direct real search passed in 9,223 ms (`output/probes/research-diagnostic-followup.json`). This verifies the search adapter after the fix, not another complete voice-session pass, and does not retrospectively identify the exact earlier failure. The latest full voice trial remains the failed one.
+
+92 tests, typecheck, main/guest builds and standalone probe typechecks passed. Ordinary speech now interrupts output while preserving the separate bounded research job. A fresh Meta review can WAIT, DELIVER, DISCARD or CANCEL. Unit tests cover continued speech, explicit cancellation, topic change, stale review and expiry. This supersedes the cancellation policy at 266d368 below, not the historical measurements.
+
+Actual-provider synthetic two-speaker session `2026-11-02_1125_meta_69bb`, evidence `output/probes/conversation-1793586338929/evidence.json`, passed its conversation-path assertions. Two distinct identities supplied clues about an early-1990s essay, followed by the short request “AI, who wrote that essay? Please look it up and check a source for us.” A second participant continued for ten seconds. The same job survived, no AI audio arrived during continuation, a fresh Meta DELIVER followed, and the receiver observed 234 non-silent frames. No AI/research occurred before the explicit request. Transcript, events, summary and WAV exports existed, with no logged provider errors.
+
+Important quality limitation: Meta returned Vinge and a provider citation titled “Vernor Vinge - Wikipedia” whose URL was `/wiki/Zones_of_Thought`. The source title/URL pairing is suspicious and was not independently verified (page retrieval was rate-limited). This trial passes the control/transport path, **not factual citation quality**. No primary-source or answer-accuracy pass is claimed.
+
+| Observed interval in this one synthetic trial | Milliseconds |
+|---|---:|
+| Request sender API end → final requesting ASR event | 1,911 |
+| Final requesting ASR event → LOOKUP/research request | 3,412 |
+| Search request/completion (provider helper) | 8,328 |
+| Continued-speech sender API end → first receiver frame | 7,203 |
+| Meta release/TTS request → buffered TTS generated | 1,552 |
+| First server frame accepted → first receiver frame | 199 |
+| Request sender API end → first receiver frame | 22,732 |
+
+All times use the same computer clock. Sender API end is not physical utterance end; receiver arrival is not perceived hearing. Conversation continued within the total interval. No speed improvement, instant stop, average or p95 claim follows. The first probe completed cleanup and persisted `ok:true`, but rtc-node kept its process alive; the script now explicitly exits only after awaited cleanup and evidence writing. The second paid trial exercised that cleanup/exit path and exited 1 for its research failure. It waited out the conversation deadline after provider failure; fail-fast detection was added afterward.
+
+Six actual-Meta text scenarios in `output/probes/director-scenarios-1793586243616.json` returned expected actions: distributed clues LOOKUP, ordinary peer question WAIT, quoted command WAIT, ambiguous author CLARIFY, withdrawn request WAIT, and unsupported-claim check LOOKUP. This is six synthetic text observations, not audio accuracy or proof that an unsupported claim was successfully researched/refuted.
+
+## Previous checkpoint: 266d368, 2026-11-02 KST
+
+- 80 automated tests, typecheck, web and guest builds, and CI passed at this checkpoint.
+- Actual Meta ASR/director/web search → OpenAI TTS → separate LiveKit receiver succeeded with synthetic English input. Citation evidence and separated recording artifacts exist privately.
+- Separate synthetic automatic-interruption and manual HOLD trials observed no late frames during defined post-grace windows. This is not evidence of instantaneous acoustic stopping or natural human interruption.
+- No actual two-person human conversation, microphone/guest/capture acceptance or user-value measurement has been completed. Human trials and filming remain deferred by the owner.
+- A product-policy defect was identified: ordinary participant speech cancelled the research request as well as audio generation. The existing tests validated that behavior, not the desired “keep talking while the producer researches” experience.
+
+## Policy revision rationale
+
+Research and output lifetimes are now separate, as verified above. HOLD, explicit withdrawal, session end and permission revocation cancel jobs; normal conversation does not. Human acoustic relevance, source quality, external guests and filming remain unverified. The earlier checkpoint alone did not prove the revised policy.
+
+One reviewed screenshot reported 13,142 ms to first server audio for one case. Its complete measurement boundaries were not independently reconstructed here. It is neither an end-to-end listener measurement nor an average/p95. Existing search-only intervals below are also not total response latency. New trials must distinguish input speech end, ASR final, LOOKUP decision, search completion, fresh relevance decision, TTS output, first server send and first receiver audio; record unavailable timestamps as unavailable.
+
+## Broader evaluation matrix — planned, not passed
+
+Use independently identified participant tracks, record the actual query/answer/source and keep every failure. Expected factual targets belong to evaluator notes, never injected model answers. Keep fixture and human results separate.
+
+| Case | Input pattern | What must be checked |
+|---|---|---|
+| Distributed clues | Host mentions machines designing better machines; guest recalls an old paper; host asks “AI, who was that? Check a source.” | Resolve the request across speakers without an author/year packed into one utterance; allow clarification when clues are insufficient |
+| Continued discussion | Another participant keeps discussing the mechanism while research runs | Same research job survives; no speech over humans; fresh relevance decision precedes a short answer |
+| Different reference: Vinge, 1993 | Separate turns mention an early-nineties essay, a science-fiction writer and a warning about the technological singularity; then request source checking | Retrieve the appropriate reference independently, rather than reuse the Good answer; evaluator target Vinge/1993 is not supplied as the answer |
+| Correction | “No, I meant the later essay, not that older paper.” | Reassess or replace the pending request; do not speak the superseded answer |
+| Ambiguous origin | “Who invented the singularity?” | Clarify or distinguish different usages; no claim of a unique inventor without adequate evidence |
+| Unfounded claim | Ask for evidence that an old paper guarantees an exact future singularity date | Report lack of support rather than manufacture confirmation/citations |
+| Ordinary peer question | Guest asks host “Who was that again?” without addressing the AI or requesting research | WAIT/no unauthorized lookup; test context and paraphrases, not just a keyword match |
+| Withdrawal / HOLD | Explicitly cancel while a lookup is pending; test HOLD separately | Research job cancels, stale completion cannot revive speech; preserve recording |
+
+The following ledger preserves chronological checkpoints, including outdated initial states and failed calls. Historical “not run” entries describe their own time only; this summary is the current evaluation status.
+# Historical chronological ledger
 
 All entries dated 2026-11-02 KST unless specified. Historical Gemini sessions in the original project are not Meta evidence and their recordings were not imported.
 
@@ -13,11 +71,11 @@ All entries dated 2026-11-02 KST unless specified. Historical Gemini sessions in
 
 Baseline independent import: ac71d68. These results precede the Meta changes and must not substitute for a post-change rerun. Audit result is a point-in-time package check, not a full security review.
 
-## Live evidence
+## Initial credential checkpoint — historical, before 10:09 KST
 
-No successful Meta model invocation or human Meta conversation is recorded in this ledger. META_API_KEY, OPENAI_API_KEY, LIVEKIT_URL, LIVEKIT_API_KEY and LIVEKIT_API_SECRET were absent from the checked process environment. No values were printed or copied from the original app. Account model availability remains unverified.
+At this initial checkpoint, no successful Meta model invocation or human Meta conversation had yet been recorded. Later actual-provider successes are documented below. META_API_KEY, OPENAI_API_KEY, LIVEKIT_URL, LIVEKIT_API_KEY and LIVEKIT_API_SECRET were absent from the checked process environment. No values were printed or copied from the original app. Account model availability was unverified at this initial checkpoint; later provider probes supersede that condition.
 
-## Required separate trials
+## Initial outstanding trials — historical checklist, not current status
 
 | Trial | Current evidence |
 |---|---|

@@ -1,4 +1,7 @@
-import { research, researchSpeech, ResearchResultSchema } from "./research.js";
+import { ZodError } from "zod";
+import { reviewResearch, ResearchReviewSchema } from "./research-review.js";
+import type { ResearchResult } from "./research.js";
+import { research, ResearchResultSchema } from "./research.js";
 import { randomUUID } from "node:crypto";
 import { EventEmitter } from "node:events";
 import type { Settings } from "../../shared/settings.js";
@@ -13,9 +16,31 @@ type AsrTransport = Pick<MetaAsr, "connect" | "append" | "close">;
 export interface MetaServices {
   createAsr?: (key: string, model: string, offsetMs: number, callbacks: AsrCallbacks) => AsrTransport;
   research?: typeof research;
+  reviewResearch?: typeof reviewResearch;
   decide: typeof decide;
   synthesize: typeof synthesize;
 }
+/** Only classifications and schema coordinates leave this boundary; never provider messages/payloads. */
+function safeResearchFailure(error: unknown): Record<string, unknown> {
+  if (error instanceof ZodError) return { category: "invalid_response", issues: error.issues.slice(0, 12).map(issue => ({ code: issue.code, path: issue.path.map(part => typeof part === "number" ? part : /^(id|status|output|content|type|role|text|annotations|url|title|start_index|end_index|responseId|sources|results|searchCallIds|requestedAt|completedAt|kind|startIndex|endIndex|snippet)$/.test(String(part)) ? String(part) : "[field]") })) };
+  if (error instanceof Error) {
+    if (error.name === "TimeoutError") return { category: "timeout" };
+    if (error.name === "AbortError") return { category: "aborted" };
+    if (error instanceof SyntaxError) return { category: "invalid_json" };
+    const http = /^Meta research HTTP ([1-5][0-9]{2})$/.exec(error.message);
+    if (http) return { category: "http_error", httpStatus: Number(http[1]) };
+    const known: Record<string, string> = {
+      "Meta did not complete a web search": "search_not_completed",
+      "Model source link was not returned by completed search": "unverified_source_link",
+      "Citation span is outside answer": "invalid_citation_span",
+      "Research response too large": "response_size_limit",
+      "Missing research response": "empty_response",
+    };
+    if (known[error.message]) return { category: known[error.message] };
+  }
+  return { category: "provider_error" };
+}
+interface ResearchJob { id:string; query:string; sourceIds:string[]; requestUtterances:Utterance[]; controller:AbortController; result:ResearchResult|null; startedAt:number; expiresAt:number; timer:NodeJS.Timeout; generation:number; revision:number }
 export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngine {
   readonly id = "meta" as const;
   isReady = false;
@@ -33,6 +58,10 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
   private startedAt = 0;
   private calls = 0;
   private researchCalls = 0;
+  private researchJob: ResearchJob | null = null;
+  private reviewingResearch = false;
+  private reviewPending = false;
+  private reviewCalls = 0;
   private researchedRequests = new Set<string>();
   private busy = false;
   private pending = false;
@@ -87,6 +116,8 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
       this.emit("interrupted");
       if (!this.turns.held) this.state = "listening";
       this.evidence("automatic-interruption", { identity, listenerStopMeasured: false });
+    } else if (!this.turns.speakers.size && this.researchJob && !this.turns.held) {
+      void this.reviewJob();
     } else if (!this.turns.speakers.size && this.pending && !this.turns.held) {
       this.pending = false;
       void this.evaluate(false);
@@ -102,11 +133,11 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
     this.turns.changed(); this.emit("interrupted");
     this.utterances = [...this.utterances, u].sort((a,b) => a.startMs - b.startMs).slice(-30);
     this.emit("inputTranscript", { delta: u.text, startMs: u.startMs, endMs: u.endMs, identity: u.identity, utteranceId: u.id });
-    // Meta may recommend speech, but only a fresh explicit host handoff can release it.
-    void this.evaluate(false);
+    if (this.researchJob) void this.reviewJob();
+    else void this.evaluate(false);
   }
   cancel(reason: string): void { this.pendingHandoff = null; this.turns.invalidate(); this.emit("interrupted"); this.emit("info", `Cancelled: ${reason}`); }
-  hold(reason = "manual-hold"): void { this.pendingHandoff = null; this.pending = false; this.turns.hold(); this.evidence(reason); this.state = "held"; this.emit("interrupted"); }
+  hold(reason = "manual-hold"): void { this.cancelResearch(reason); this.pendingHandoff = null; this.pending = false; this.turns.hold(); this.evidence(reason); this.state = "held"; this.emit("interrupted"); }
   resume(): void {
     if (!this.isReady || this.limited) return;
     if ([...this.failedAsr].some(identity => this.retriedAsr.has(identity))) { this.emit("info", "ASR reconnect attempt exhausted; restart session to resume transcription."); return; }
@@ -126,12 +157,14 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
   applyLiveSettings(settings: Settings): string | null {
     if (Boolean(this.options.researchEnabled) === settings.researchEnabled) return null;
     this.options = { ...this.options, researchEnabled: settings.researchEnabled };
+    this.cancelResearch("Research permission changed");
     this.pending = false; this.cancel("Research permission changed");
     this.evidence("research-permission", { enabled: settings.researchEnabled });
     return "Research permission updated; pending output cancelled";
   }
   async evaluate(handoff: boolean): Promise<void> {
     if (!this.isReady || this.limited || this.turns.held || !this.utterances.length) return;
+    if (this.researchJob) { await this.reviewJob(); return; }
     if (this.unavailableAsr.size) { if (!handoff) this.pending = true; else this.emit("info", "Handoff blocked while transcription is unavailable."); return; }
     if (this.busy) {
       if (!handoff) this.pending = true;
@@ -146,8 +179,7 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
     this.calls++; this.pending = false;
     this.busy = true; const ticket = this.turns.begin(); const context = this.utterances.slice();
     this.state = "thinking"; this.evidence("director-request", { handoff, call: this.calls, model: this.options.director });
-    let researchStartedAt: number | null = null;
-    let phase: "director" | "research" | "tts" = "director";
+    let phase: "director" | "tts" = "director";
     try {
       const d: Decision = await this.services.decide(this.options.key, this.options.director, context, ticket.revision, handoff, ticket.signal);
       if (!this.turns.permits(ticket)) return;
@@ -161,32 +193,13 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
         if (!this.options.researchEnabled) { this.evidence("research-blocked", { reason: "Research is disabled in local settings" }); return; }
         if (this.researchedRequests.has(requestId) || this.researchCalls >= 8) { this.evidence("research-blocked", { reason: "Request already attempted or 8-call session cap reached" }); return; }
         this.researchedRequests.add(requestId); this.researchCalls++;
-        this.state = "thinking"; phase = "research"; researchStartedAt = Date.now();
-        this.evidence("research-request", { query: d.query, sourceUtteranceIds: d.sourceUtteranceIds, model: this.options.director, call: this.researchCalls });
-        const result = ResearchResultSchema.parse(await (this.services.research ?? research)(this.options.key, this.options.director, d.query!, context.slice(-3), ticket.signal));
-        if (!this.turns.permits(ticket) || !this.options.researchEnabled) return;
-        this.evidence("research-complete", { query: d.query, ...result, elapsedMs: result.completedAt - result.requestedAt, provider: "Meta", model: this.options.director });
-        researchStartedAt = null; speakText = researchSpeech(result);
+        this.startResearch(d, context, ticket);
+        return;
       } else if (d.action === "WAIT" || !handoff) return;
       if (!this.turns.permits(ticket)) return;
       phase = "tts";
-      this.evidence("tts-request", { provider: "OpenAI", model: this.options.tts, characters: speakText.length, text: speakText });
-      const pcm = await this.services.synthesize(this.options.ttsKey, this.options.tts, this.options.voice, speakText, ticket.signal);
-      if (!this.turns.permits(ticket)) return;
-      if (!pcm.length || pcm.length > 24000 * 30) throw new Error("Invalid TTS duration");
-      this.emit("generatedAudio", pcm, ticket.generation);
-      this.evidence("tts-generated", { samples: pcm.length, file: `tts-generated-${ticket.generation}.wav` });
-      this.state = "speaking";
-      // Every chunk rechecks permission; future delayed provider results cannot refill playout.
-      for (let offset = 0; offset < pcm.length; offset += 4800) {
-        if (!this.turns.permits(ticket)) return;
-        this.emit("audio", pcm.slice(offset, offset + 4800));
-      }
-      // Generated text stays in decision evidence, never claimed fully heard in transcript.
-      this.emit("info", "TTS queued; actual sent PCM saved separately in mc.wav. Listener receipt unmeasured.");
-      this.emit("turnEnd");
+      await this.speak(speakText, ticket);
     } catch {
-      if (researchStartedAt !== null) this.evidence(ticket.signal.aborted ? "research-cancelled" : "research-failed", { generation: ticket.generation, contextRevision: ticket.revision, elapsedMs: Date.now() - researchStartedAt, disposition: "WAIT", provider: "Meta" });
       if (!ticket.signal.aborted) { this.evidence("provider-failure", { phase, provider: phase === "tts" ? "OpenAI" : "Meta", generation: ticket.generation, contextRevision: ticket.revision, disposition: "WAIT", recordingPreserved: true }); this.state = "error"; this.emit("error", "Meta/TTS request failed or timed out; WAIT, recording continues, no fallback", "provider_failure"); }
     } finally {
       this.busy = false;
@@ -196,5 +209,68 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
       else if (this.pending) { this.pending = false; void this.evaluate(false); }
     }
   }
-  async close(): Promise<void> { this.pendingHandoff = null; this.pending = false; this.evidence("session-close"); this.isReady = false; this.turns.close(); clearTimeout(this.deadline); for (const stream of this.streams.values()) stream.close(); this.streams.clear(); this.emit("interrupted"); }
+  private cancelResearch(reason:string):void {
+    const job=this.researchJob;if(!job)return;
+    this.researchJob=null;this.reviewPending=false;clearTimeout(job.timer);job.controller.abort();
+    this.evidence("research-cancelled",{jobId:job.id,reason,generation:job.generation,contextRevision:job.revision,elapsedMs:Date.now()-job.startedAt});
+  }
+  private startResearch(d:Decision, context:Utterance[], ticket:{generation:number;revision:number}):void {
+    const startedAt=Date.now();const job:ResearchJob={id:randomUUID(),query:d.query!,sourceIds:d.sourceUtteranceIds,requestUtterances:context.filter(u=>d.sourceUtteranceIds.includes(u.id)),controller:new AbortController(),result:null,startedAt,expiresAt:startedAt+60000,timer:setTimeout(()=>{if(this.researchJob===job)this.cancelResearch("60-second TTL expired");},60000),generation:ticket.generation,revision:ticket.revision};
+    this.researchJob=job;
+    this.evidence("research-request",{jobId:job.id,query:job.query,sourceUtteranceIds:job.sourceIds,model:this.options.director,call:this.researchCalls,expiresAt:job.expiresAt});
+    void (async()=>{
+      try {
+        const result=ResearchResultSchema.parse(await(this.services.research??research)(this.options.key,this.options.director,job.query,context,job.controller.signal));
+        if(this.researchJob!==job||job.controller.signal.aborted)return;
+        job.result=result;
+        this.evidence("research-complete",{jobId:job.id,query:job.query,...result,elapsedMs:result.completedAt-result.requestedAt,provider:"Meta",model:this.options.director,delivery:"pending-fresh-context-review"});
+        await this.reviewJob();
+      }catch(error: unknown){
+        if(this.researchJob!==job||job.controller.signal.aborted)return;
+        this.evidence("research-failed",{jobId:job.id,elapsedMs:Date.now()-startedAt,disposition:"WAIT",provider:"Meta", failure: safeResearchFailure(error)});
+        this.cancelResearch("research-failure");this.state="error";this.emit("error","Meta research failed; recording continues, no fallback","research_failure");
+      }
+    })();
+  }
+  private async reviewJob():Promise<void> {
+    const job=this.researchJob;
+    if(!job||!this.isReady||this.turns.held||!this.options.researchEnabled)return;
+    if(this.reviewingResearch){this.reviewPending=true;return;}
+    if(this.reviewCalls>=60){this.cancelResearch("60 review-call cap reached");return;}
+    if(Date.now()>=job.expiresAt){this.cancelResearch("60-second TTL expired");return;}
+    this.reviewCalls++;this.reviewingResearch=true;this.reviewPending=false;
+    const revision=this.turns.revision;
+    const reviewedResult=job.result;
+    try{
+      const verdict=ResearchReviewSchema.parse(await(this.services.reviewResearch??reviewResearch)(this.options.key,this.options.director,{query:job.query,requestUtteranceIds:job.sourceIds,requestUtterances:job.requestUtterances,resultSources:reviewedResult?.sources.map(({title,url})=>({title,url}))??[],resultText:reviewedResult?.text??null,utterances:this.utterances.slice(),contextRevision:revision,humansSpeaking:this.turns.speakers.size>0},job.controller.signal));
+      if(this.researchJob!==job||job.controller.signal.aborted)return;
+      if(Date.now()>=job.expiresAt){this.cancelResearch("60-second TTL expired during review");return;}
+      if(revision!==this.turns.revision||verdict.contextRevision!==revision){this.reviewPending=true;return;}
+      this.evidence("research-review",{jobId:job.id,...verdict,resultReady:job.result!==null});
+      if(verdict.action==="CANCEL"||verdict.action==="DISCARD"){this.cancelResearch(`Meta ${verdict.action}: ${verdict.reason}`);return;}
+      if(verdict.action==="DELIVER"&&(!reviewedResult||reviewedResult!==job.result)){this.reviewPending=job.result!==null;return;}
+      if(verdict.action!=="DELIVER"||!job.result||this.turns.speakers.size||this.unavailableAsr.size||this.busy)return;
+      const ticket=this.turns.begin();if(!this.turns.permits(ticket))return;
+      // Consume exactly once. Subsequent human interruption cancels TTS, never replays this result.
+      const text=verdict.speakText!;this.researchJob=null;clearTimeout(job.timer);this.busy=true;
+      this.evidence("research-release",{jobId:job.id,reviewedRevision:revision});
+      try{await this.speak(text,ticket);}catch{if(!ticket.signal.aborted){this.evidence("provider-failure",{phase:"tts",provider:"OpenAI",generation:ticket.generation,contextRevision:ticket.revision,disposition:"WAIT",recordingPreserved:true});this.state="error";this.emit("error","OpenAI TTS failed; recording continues","tts_failure");}}
+      finally{this.busy=false;const handoff=this.pendingHandoff;this.pendingHandoff=null;if(handoff&&this.turns.permits(handoff)){this.pending=false;void this.evaluate(true);}else if(this.pending){this.pending=false;void this.evaluate(false);}}
+    }catch{
+      if(this.researchJob===job&&!job.controller.signal.aborted){this.evidence("research-review-failed",{jobId:job.id,disposition:"WAIT"});this.state="waiting";}
+    }finally{
+      this.reviewingResearch=false;
+      if(this.reviewPending&&this.researchJob){this.reviewPending=false;void this.reviewJob();}
+    }
+  }
+  private async speak(text:string,ticket:{generation:number;revision:number;signal:AbortSignal}):Promise<void>{
+    this.evidence("tts-request",{provider:"OpenAI",model:this.options.tts,characters:text.length,text});
+    const pcm=await this.services.synthesize(this.options.ttsKey,this.options.tts,this.options.voice,text,ticket.signal);
+    if(!this.turns.permits(ticket))return;
+    if(!pcm.length||pcm.length>24000*30)throw new Error("Invalid TTS duration");
+    this.emit("generatedAudio",pcm,ticket.generation);this.evidence("tts-generated",{samples:pcm.length,file:`tts-generated-${ticket.generation}.wav`});this.state="speaking";
+    for(let offset=0;offset<pcm.length;offset+=4800){if(!this.turns.permits(ticket))return;this.emit("audio",pcm.slice(offset,offset+4800));}
+    this.emit("info","TTS queued; actual sent PCM saved separately in mc.wav. Listener receipt unmeasured.");this.emit("turnEnd");
+  }
+  async close(): Promise<void> { this.cancelResearch("session-close"); this.pendingHandoff = null; this.pending = false; this.evidence("session-close"); this.isReady = false; this.turns.close(); clearTimeout(this.deadline); for (const stream of this.streams.values()) stream.close(); this.streams.clear(); this.emit("interrupted"); }
 }

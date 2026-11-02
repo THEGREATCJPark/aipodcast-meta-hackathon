@@ -62,3 +62,22 @@ test('same display name and identity suffix retain distinct recording files', ()
     assert.deepEqual(files.map(f => readFileSync(join(dir, f)).readInt16LE(44)).sort(), [100, 200]);
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
+
+test('server first audio evidence waits for transport acceptance and occurs once per generation', async () => {
+  const f = setup(); let release!: () => void;
+  try {
+    await f.agent.startSession(defaultSettings());
+    f.room.source.captureFrame = async () => { await new Promise<void>(resolve => { release = resolve; }); };
+    const pcm = new Int16Array(480).fill(1000);
+    f.session.emit('generatedAudio', pcm, 17);
+    f.session.emit('audio', pcm);
+    assert.equal(f.bus.history().filter(e => e.meta?.stage === 'server-first-audio-accepted').length, 0);
+    release(); await new Promise<void>(resolve => setImmediate(resolve));
+    const evidence = f.bus.history().filter(e => e.meta?.stage === 'server-first-audio-accepted');
+    assert.equal(evidence.length, 1);
+    assert.equal(evidence[0].meta?.generation, 17);
+    assert.equal(evidence[0].meta?.listenerReceiptMeasured, false);
+    f.session.emit('audio', pcm); release(); await new Promise<void>(resolve => setImmediate(resolve));
+    assert.equal(f.bus.history().filter(e => e.meta?.stage === 'server-first-audio-accepted').length, 1);
+  } finally { await f.cleanup(); }
+});

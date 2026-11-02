@@ -72,11 +72,18 @@ export class McAgent {
   private lastAnnounced: string | null = null;
   private turnEndedAt: number | null = null;
   private latencies: number[] = [];
+  private pendingAudioGeneration: number | null = null;
   private statusTimer: NodeJS.Timeout;
 
   constructor(private readonly deps: AgentDeps) {
     this.room = deps.room ?? new AgentRoom();
-    this.playout = new Playout(this.room.source, ROOM_SAMPLE_RATE, FRAME_MS, () => this.onMcSound(), (frame) => this.recorder?.mc(frame), () => {
+    this.playout = new Playout(this.room.source, ROOM_SAMPLE_RATE, FRAME_MS, () => this.onMcSound(), (frame) => {
+      this.recorder?.mc(frame);
+      if (this.session instanceof MetaSession && this.pendingAudioGeneration !== null && rmsDb(frame) > -50) {
+        this.deps.bus.log("system", "First non-silent AI frame accepted by server transport", { meta: { stage: "server-first-audio-accepted", at: Date.now(), runId: this.session.runId, generation: this.pendingAudioGeneration, listenerReceiptMeasured: false } });
+        this.pendingAudioGeneration = null;
+      }
+    }, () => {
       if (this.session instanceof MetaSession) this.session.hold("playout-failure");
       this.deps.bus.log("error", "LiveKit output failed; speech held, human recording continues");
     });
@@ -368,6 +375,7 @@ export class McAgent {
   }
 
   private onHumanEnd(p: Participant, atMs: number): void {
+    if (this.session instanceof MetaSession) this.deps.bus.log("system", "Human speech end detected by server VAD", { meta: { stage: "human-vad-end", at: Date.now(), identity: p.identity, inputMs: atMs, acousticEndMeasured: false } });
     if (this.session instanceof MetaSession) this.session.humanSpeaking(p.identity, false);
     this.timeline.end(p.identity, atMs);
     const anyoneSpeaking = [...this.participants.values()].some((x) => x.vad.isSpeaking);
@@ -429,6 +437,7 @@ export class McAgent {
     session.on("generatedAudio", (pcm, generation) => {
       const dir = bus.currentSessionDir();
       if (!dir || this.session !== session) return;
+      this.pendingAudioGeneration = generation;
       const wav = new WavTrack(join(dir, `tts-generated-${generation}.wav`), ROOM_SAMPLE_RATE);
       wav.writeAt(pcm, 0); wav.finalize();
     });
@@ -443,6 +452,7 @@ export class McAgent {
     });
     session.on("interrupted", () => {
       if (this.session !== session) return;
+      this.pendingAudioGeneration = null;
       this.count("interruptions");
       // 서버가 생성을 취소했으므로 아직 재생하지 않은 음성을 버린다.
       this.playout.flush();

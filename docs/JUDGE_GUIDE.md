@@ -43,7 +43,7 @@ The inherited studio and recorder are disclosed infrastructure, not claimed as n
 
 ## Reliability audit checkpoint — 2026-11-02
 
-The current local suite passed 80/80 tests, typecheck and both web/guest builds; large-chunk warnings remain. This supersedes the earlier 68-test checkpoint for local automated coverage, not its live-provider evidence. No current live probe result is claimed for these newest audit fixes yet.
+The latest suite passed 87/92 tests, typecheck and both web/guest builds; large-chunk warnings remain. Research now survives ordinary speech, then requires fresh Meta relevance/permission review before delivery. `npx tsx scripts/probe-conversation.ts` is an explicit paid two-synthetic-speaker real-provider probe; `npx tsx scripts/evaluate-director.ts` runs six paid text scenarios. Both were exercised with results scoped in EVALUATION.md. Neither proves human acceptance or source accuracy. The independent repository default branch now opens the Meta version.
 
 Review the ASR gap/reconnect evidence, queued-handoff generation checks, session transition guards and full-identity recording filename suffixes. If transcription fails, inspect the error, use Resume once to authorize recovery, and expect a possible transcript gap. Handoff cannot bypass failed transcription. A second failed attempt requires a session restart. Speech or HOLD must invalidate any queued handoff before it can speak.
 

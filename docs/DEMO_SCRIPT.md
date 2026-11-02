@@ -1,29 +1,36 @@
 # Three-minute English demo: the co-host who can check a fact
 
-Status: production plan, NOT recorded runtime evidence. The research-PD extension is now implemented in the working branch; provider and human validation must be reported separately in EVALUATION.md. Do not film scripted AI replies as actual model outputs. Filming and human trials are deferred by the owner. Implementation, automated validation and explicitly labeled provider probes continue first.
+Status: production plan, NOT recorded runtime evidence. The earlier research pipeline passed synthetic-provider checks at 266d368. Preserving research through continued conversation and assessing current relevance before speech are now in progress, not verified. Do not film scripted AI replies as actual model outputs. Filming and human trials are deferred by the owner. Implementation, automated validation and explicitly labeled provider probes continue first.
 
 ## Editorial direction
 
 Fixed reference: SPNS TV / Shoes Off conversational production pattern as described by the owner: people talk naturally and briefly ask a producer to find a missing fact. Our independent English AI co-host should perform that narrow research task and return the floor. No presenter impersonation, copied catchphrases, show branding or invented personal memories.
 
-## Central scene — singularity / intelligence explosion
+## Central scene — clues distributed across speakers
 
-Human lines are rehearsal prompts. AI lines below are illustrative acceptance targets; actual model wording must be generated from real retrieval evidence, not injected or hardcoded.
+These are English rehearsal/fixture prompts, not captured runtime evidence. Use separate participant identities. Do not supply a canned AI reply, expected author's name, exact year or paper title in the input. The revised research lifetime and fresh relevance check are in progress and must be validated before this scene is described as working.
 
-Host: “Everyone talks about the singularity like it has a launch date. I'm more interested in what happens when AI starts designing better AI.”
-Guest: “That intelligence-explosion idea has been around for decades. Who was the researcher behind that old ultraintelligent-machine paper? I'm blanking.”
-Host: “Can you check that for us?”
+Host: “What interests me is the loop: a machine designs a better machine, and that one improves the next.”
 
-Expected AI behavior: resolve the reference from conversation, retrieve a credible source, wait until humans stop speaking, answer briefly, show the source card and return the floor.
-Illustrative AI response: “You mean I. J. Good? His 1965 paper describes an intelligence explosion from machines designing better machines.”
+Guest: “That argument was in an old paper, wasn't it? Long before today's chatbots. I can't remember who wrote it.”
 
-Guest: “So that's a mechanism, not a date on the calendar.”
-Host: “Exactly. The interesting question is what would make that feedback loop work—or stall.”
-Expected behavior: WAIT while people continue; no unsolicited lecture.
+Host: “AI, who was that? Check a source.”
 
-Ambiguity variation: Host says “Who first came up with the singularity?” The co-host should distinguish the broad singularity idea from the specific intelligence-explosion paper, ask what is meant or qualify its answer; it must not assert Good uniquely originated all singularity concepts.
-Failure variation: if retrieval fails, say the source could not be checked; never claim to have searched or found a source based only on model memory.
+While the actual research job is pending, Guest continues: “While you look, I think the bottleneck could still be experiments. A clever design doesn't build its own factory.”
 
+Host: “Right. Faster thinking and faster real-world testing aren't the same thing.”
+
+Expected behavior, not a scripted answer: resolve the short request from both participants' earlier clues, preserve the research job during their conversation and show its pending status. When a result is ready and the floor clears, Meta must reassess whether the original question remains relevant. It may deliver a brief sourced answer, clarify uncertainty or withhold an outdated result. Let the actual model produce the words; do not inject Good as the answer. The clues may be insufficient, in which case clarification is a legitimate outcome.
+
+Guest after an actual answer: “So the argument describes a feedback loop, not a guaranteed date.”
+
+Host: “What would make that loop work—or stall?”
+
+Expected behavior: return the floor and WAIT during ordinary discussion. Keep the actual wait visible, or explicitly label any time cut. No “instant answer” claim.
+
+Correction take: while the first research job is pending, Host says, “No, I meant the later essay by a science-fiction writer, around the early nineties. Check that instead.” The evaluator target is Vinge's 1993 reference, but it must not be hardcoded or fed as a prewritten answer. Log whether the old result is discarded or superseded and whether the new source supports the response.
+
+Additional takes: “Who invented the singularity?” tests ambiguity; a request to substantiate a guaranteed exact future date tests unsupported claims; Guest asking Host “Who was that again?” tests an ordinary peer question that should not authorize AI lookup. Explicit withdrawal (“Never mind, don't look it up”) and operator HOLD are separate cancellation tests. Ordinary continued speech is not a withdrawal.
 ## Fact checked for scenario writing
 
 Stuart Russell's Berkeley research page identifies I. J. Good's 1965 article, *Speculations Concerning the First Ultraintelligent Machine*, and discusses machines designing more capable machines and an intelligence explosion.
@@ -38,9 +45,9 @@ These sources support the script's factual target. This research was performed w
 |---|---|---|
 | 0:00–0:15 | Lounge and two participants | “When a conversation stalls on a forgotten fact, someone usually turns to the producer. We want an AI co-host to handle that moment—and then get out of the way.” |
 | 0:15–0:35 | Brief product and provider roles | “Meta listens to the discussion and decides whether to wait, ask a question, or help check a specific fact. People retain control.” Show only the observed request and actual answer. |
-| 0:35–1:20 | Central human scene above, actual search and reply | Preserve actual audible reply and source card. Show real elapsed lookup; label any edited wait. Do not pre-record a model answer and represent it as current inference. |
+| 0:35–1:20 | Distributed-clue scene, continued conversation during research, actual result | Preserve actual audible reply and source card. Show real elapsed lookup; label any edited wait. Do not pre-record a model answer and represent it as current inference. |
 | 1:20–1:40 | Humans continue discussing feedback loops | “The answer is short. The source stays on screen. The people keep the conversation.” Show actual WAIT evidence. |
-| 1:40–2:05 | New lookup cancelled by topic change or HOLD | Show real cancellation and no late answer. Distinguish human-voice interruption from a button stop. |
+| 1:40–2:05 | Separate correction/withdrawal or HOLD take | Show current relevance assessment or explicit cancellation and no stale answer. Ordinary speech must preserve research while stopping audio; distinguish this from HOLD. |
 | 2:05–2:30 | Source/evidence, transcript, generated and sent audio | “The record separates the question, retrieved evidence, generated answer and audio actually sent.” Show the recorded request/completion times; do not call them individual webpage fetch timestamps. |
 | 2:30–2:50 | Engineering and provenance | “The new Meta pipeline builds on our existing React and LiveKit studio. We validate evidence, limit calls and discard stale results. OpenAI provides speech synthesis.” |
 | 2:50–3:00 | Honest status and access links | “A conversational co-host with a producer's research instinct. Built to help the discussion, not take it over.” |
@@ -50,7 +57,7 @@ These sources support the script's factual target. This research was performed w
 - Real search/retrieval integrated into the Meta decision path; no silent fallback LLM.
 - Meta recognizes an explicit spoken lookup request from context. Owner-enabled research mode controls permission; arbitrary transcript instructions cannot change security, recording or permissions.
 - Brief factual answer grounded in retrieved evidence, URL/title and request/completion timestamps visible and saved, with no fake citation.
-- Search cancellation on human speech, HOLD, stop and changed context; late results never play.
+- Ordinary human speech preserves pending research but blocks/interrupts audio. Fresh Meta assessment must withhold irrelevant completed results. Explicit withdrawal, HOLD, stop and permission revocation cancel the research job. No late audio resumes.
 - Bounded search calls and timeouts; failure disclosed without interrupting recording.
 - Measure actual end-of-speech, ASR final, search and first audio timings. No “instant” or numeric speed claim before measurement.
 - Test paraphrases, ambiguous references, unavailable sources and contradictory sources with actual providers before asking for human filming.
