@@ -1,3 +1,8 @@
+# Local submission video completed — 2026-11-02
+
+The owner-approved synthetic-input / actual-Meta English video is now rendered locally with FilmCraft: `output/video/render-final-v1/submission.mp4` (180-second picture, 1080p, 30 fps). Actual research and separate manual-HOLD runs both passed. Full export decoding, source-audio preservation and selected visual previews passed; full human listening review remains unperformed. See [VIDEO_PRODUCTION.md](VIDEO_PRODUCTION.md) for evidence, editing disclosure and exact artifacts. No personal voice recording is required for this version. Human trials remain outside this video's claims. Public upload and final submission still require approval.
+
+The sections below are earlier checkpoints and should not be read as the current filming task status.
 # Pre-filming preparation checkpoint — 2026-11-02
 
 Capture loss handling and private packaging are implemented. Current checks passed 107 tests, typecheck and web/guest builds. Actual Meta edge evaluation found and mitigated two source/uncertainty failures; results and retained failures are in EVALUATION.md. A read-only local check is available with `npx tsx scripts/preflight.ts`; after a reviewed clean commit, `npx tsx scripts/prepare-submission.ts` generates a private ZIP and hash manifest. Neither command publishes anything or proves human acceptance.
@@ -58,3 +63,4 @@ Current local audit checks passed: **80/80 tests**, typecheck, main web build an
 ASR failure now holds output, records a gap and blocks decisions while transcription is unavailable. Resume grants one reconnect attempt per identity, with possible lost transcription explicitly recorded; this is not an automatic retry loop. Fresh queued handoffs retain their generation/revision and are invalidated by speech, HOLD, context or permission changes.
 
 Concurrent stop/leave operations now share completion, and session start is blocked during transitions. Failed startup leaves the room. Participant recording filenames use a hash of the full identity to avoid collisions between equal name/suffix combinations. Browser join/control/capture operations have duplicate-action and cleanup guards, and disconnected studio controls expose a recoverable error state. These changes do not establish a successful human microphone/capture trial: both remain deferred by the owner.
+

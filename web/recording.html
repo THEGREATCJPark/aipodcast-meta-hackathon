@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Meta Co-host · recording console</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#0b1019;color:#edf4ff;font:14px/1.4 system-ui,sans-serif}header{padding:10px 18px;border-bottom:1px solid #344153;background:#111c2a}.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.disclosure{font-size:17px;font-weight:650;color:#a8e7dc;margin-right:auto}button,a.download{border:1px solid #51677d;border-radius:7px;padding:7px 12px;color:#edf4ff;background:#20374c;font:inherit;text-decoration:none;cursor:pointer}button:disabled{opacity:.45;cursor:default}#stop{background:#763c42}#status{font-size:12px;margin-top:7px;color:#c0cfdf;font-variant-numeric:tabular-nums}#error{color:#ffb0ad;margin-top:5px}iframe{display:block;border:0;width:100vw;height:calc(100vh - 115px);background:#10151e}.hint{font-size:11px;color:#8fa4bb;margin-top:4px}a[hidden]{display:none}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="top">
+      <span class="disclosure">Synthetic speaker input · Actual Meta API responses</span>
+      <button id="connect">Connect audio · listen only</button>
+      <button id="start" disabled>Start tab capture</button>
+      <button id="stop" disabled>Stop &amp; save</button>
+      <a id="video" class="download" hidden>Save WebM again</a>
+      <a id="metadata" class="download" hidden>Save timing JSON</a>
+    </div>
+    <div id="status" role="status">Disconnected · no microphone is requested or published.</div>
+    <div id="error" role="alert"></div>
+    <div class="hint">Select this tab and enable Share tab audio. Local capture only, maximum 150 seconds. Do not use Connect mic inside the embedded studio.</div>
+  </header>
+  <iframe src="/" title="Actual local Meta Conversation Co-host studio" allow="autoplay"></iframe>
+  <script type="module">
+    import { Room, RoomEvent, Track } from 'livekit-client';
+
+    const connectButton = document.querySelector('#connect');
+    const startButton = document.querySelector('#start');
+    const stopButton = document.querySelector('#stop');
+    const status = document.querySelector('#status');
+    const error = document.querySelector('#error');
+    const videoLink = document.querySelector('#video');
+    const metadataLink = document.querySelector('#metadata');
+    const mediaElements = new Set();
+    let room = null, recorder = null, captureStream = null, timer = null, limit = null;
+    let connected = false, pending = false, record = null;
+    const urls = [];
+    const format = epoch => `${new Date(epoch).toISOString()} · epoch ${epoch}`;
+    function update() {
+      const active = recorder && recorder.state !== 'inactive';
+      connectButton.disabled = pending || connected || !!active;
+      startButton.disabled = pending || !connected || !!recorder;
+      stopButton.disabled = !active;
+      if (active && record?.recorderStartAt) {
+        status.textContent = `CAPTURING ${(Date.now()-record.recorderStartAt)/1000|0}s / 150s · start ${format(record.recorderStartAt)} · listen only`;
+      } else if (!record) status.textContent = connected ? 'Audio connected · listen only · no microphone requested or published.' : 'Disconnected · no microphone requested or published.';
+    }
+    function stop(reason) {
+      if (!recorder || recorder.state === 'inactive') return;
+      record.stopRequestedAt ??= Date.now();
+      record.stopReason ??= reason;
+      recorder.stop();
+      update();
+    }
+    function releaseCapture() {
+      clearInterval(timer); clearTimeout(limit); timer = limit = null;
+      if (captureStream) {
+        for (const track of captureStream.getTracks()) { track.onended = null; track.stop(); }
+        captureStream = null;
+      }
+    }
+    function offer(link, blob, name) {
+      const url = URL.createObjectURL(blob); urls.push(url);
+      link.href = url; link.download = name; link.hidden = false;
+    }
+    connectButton.onclick = async () => {
+      if (pending || connected) return;
+      pending = true; error.textContent = ''; update();
+      const candidate = new Room({ adaptiveStream: false, dynacast: false });
+      candidate.on(RoomEvent.TrackSubscribed, track => {
+        if (track.kind !== Track.Kind.Audio) return;
+        const element = track.attach(); element.style.display = 'none';
+        element.autoplay = true; document.body.appendChild(element); mediaElements.add(element);
+      });
+      candidate.on(RoomEvent.TrackUnsubscribed, track => {
+        for (const element of track.detach()) { element.remove(); mediaElements.delete(element); }
+      });
+      candidate.on(RoomEvent.Disconnected, () => {
+        connected = false;
+        if (recorder) { error.textContent = 'Audio room disconnected. Capture stopped; inspect the partial recording.'; stop('audio-room-disconnected'); }
+        for (const element of mediaElements) element.remove(); mediaElements.clear();
+        room = null; update();
+      });
+      try {
+        const response = await fetch('/api/host-token', { method: 'POST', headers: { 'Content-Type':'application/json', 'x-studio':'1' }, body:'{}', signal:AbortSignal.timeout(10000) });
+        const result = await response.json();
+        if (!response.ok || !result.success || !result.data?.url || !result.data?.token) throw new Error('Cannot obtain local listening access. Check the studio configuration.');
+        // The existing host token grants room access, but this helper publishes no track.
+        // Never call getUserMedia, setMicrophoneEnabled or publishTrack here.
+        await candidate.connect(result.data.url, result.data.token);
+        await candidate.startAudio(); room = candidate; connected = true;
+      } catch {
+        await candidate.disconnect().catch(() => undefined);
+        error.textContent = 'Could not connect listening audio. Check the local studio and LiveKit connection.';
+      } finally { pending = false; update(); }
+    };
+    startButton.onclick = async () => {
+      if (pending || recorder || !connected) return;
+      pending = true; error.textContent = ''; update();
+      try {
+        if (!navigator.mediaDevices?.getDisplayMedia || !window.MediaRecorder) throw new Error('Tab recording requires Chrome or Edge.');
+        const stream = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: 30 }, audio: true, preferCurrentTab: true });
+        captureStream = stream;
+        if (!connected) throw new Error('The audio room disconnected while choosing a tab.');
+        if (!stream.getAudioTracks().length) throw new Error('No shared tab audio. Select this tab and enable Share tab audio.');
+        if (!stream.getVideoTracks().length) throw new Error('No screen video was selected.');
+        const mimeType = ['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'].find(type => MediaRecorder.isTypeSupported(type));
+        if (!mimeType) throw new Error('This browser cannot record WebM.');
+        const instance = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 7000000 });
+        recorder = instance;
+        const chunks = [];
+        const fileId = new Date().toISOString().replace(/[:.]/g,'-');
+        record = { kind:'actual-studio-tab-capture', syntheticInput:true, actualMetaResponses:true, physicalMicrophoneRequested:false, physicalMicrophonePublished:false, mimeType, file:`meta-studio-raw-${fileId}.webm`, startRequestedAt:Date.now(), recorderStartAt:null, firstDataAt:null, stopRequestedAt:null, recorderStoppedAt:null, stopReason:null, byteLength:0, frameTimingNote:'Recorder event timestamps on this machine; not per-frame presentation timestamps.' };
+        instance.onstart = () => { record.recorderStartAt = Date.now(); update(); };
+        instance.ondataavailable = event => { if (event.data.size) { chunks.push(event.data); record.firstDataAt ??= Date.now(); } };
+        instance.onerror = () => { error.textContent = 'Recording error. Inspect any partial file before use.'; stop('recorder-error'); };
+        instance.onstop = () => {
+          record.recorderStoppedAt = Date.now(); releaseCapture(); recorder = null;
+          const blob = new Blob(chunks, { type:mimeType }); record.byteLength = blob.size;
+          if (blob.size) {
+            offer(videoLink, blob, record.file);
+            offer(metadataLink, new Blob([JSON.stringify(record,null,2)],{type:'application/json'}),`meta-studio-raw-${fileId}.json`);
+            videoLink.click();
+          } else error.textContent = 'The capture is empty; any previous saved take remains available.';
+          status.textContent = `CAPTURE ENDED · start ${record.recorderStartAt ? format(record.recorderStartAt) : 'unknown'} · end ${format(record.recorderStoppedAt)} · ${blob.size} bytes`;
+          update();
+        };
+        for (const track of stream.getTracks()) track.onended = () => stop('screen-share-ended');
+        instance.start(1000);
+        timer = setInterval(update, 250); limit = setTimeout(() => stop('150-second-limit'), 150000);
+      } catch (e) { releaseCapture(); recorder = null; error.textContent = e instanceof Error ? e.message : 'Capture failed.'; }
+      finally { pending = false; update(); }
+    };
+    stopButton.onclick = () => stop('operator-stop');
+    window.addEventListener('beforeunload', () => {
+      stop('page-unload'); releaseCapture(); void room?.disconnect();
+      for (const element of mediaElements) element.remove();
+      for (const url of urls) URL.revokeObjectURL(url);
+    });
+  </script>
+</body>
+</html>
