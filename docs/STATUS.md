@@ -32,3 +32,5 @@ Per-identity realtime ASR, validated Meta director decisions, manual handoff spe
 
 ## Latest local verification
 2026-11-02 10:00 KST: 41 tests passed; typecheck and build passed. Local server and Judge view inspected in Playwright. No live Meta call or real human audio session performed; authentication-free work explicitly selected by owner. Source and docs prepared, submission not sent.
+
+2026-11-02 10:11 KST update: supplied credentials now verified for Meta ASR handshake/director, OpenAI TTS and LiveKit. Synthetic audio traversed real ASR → director → TTS → separate LiveKit receiver with local WAV evidence. Human microphone sessions, automatic/manual audible cancellation and external guests remain unverified. Server restarted with chosen models.

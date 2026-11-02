@@ -56,3 +56,15 @@ Two offline token tests passed: signed guest grants restrict room/microphone pri
 - Private screenshot: output/playwright/judge.png (UI only; not live conversation evidence).
 - Secret-free CI workflow added. Remote CI outcome is separate from these local results.
 - These tests do not verify real Meta decisions, actual human interruption, microphone/LiveKit transport or production permission isolation. User explicitly elected authentication-free implementation/testing this session.
+
+## Actual provider checks — 2026-11-02 10:09–10:11 KST
+
+Owner supplied credentials locally and authorized model/voice selection. Defaults explicitly saved in ignored .env: muse-voice-transcribe-1.0, muse-spark-1.3, OpenAI tts-1 / alloy. Gemini is not used as fallback.
+
+Real Meta director returned ASK on a synthetic Korean transcript with a valid evidence ID. Real Meta ASR handshake authenticated. OpenAI TTS returned 83,700 PCM samples. LiveKit room-list authentication succeeded; room names were not retained.
+
+A separate synthetic-audio trial used actual providers: OpenAI-generated Korean fixture → Meta ASR first utterance → Spark ASK decision → OpenAI TTS → LiveKit sender and separate receiver → local WAVs/evidence. Sender output had 129,900 samples, receiver captured 193,920 samples including transport silence; non-silent audio was observed. These lengths are not a latency measurement. Only the first final ASR utterance was selected for this probe; complete multi-turn coverage is not claimed.
+
+Private artifacts: output/probes/provider-check.json and output/probes/audio-1793581812413/{synthetic-input.wav,tts-generated.wav,livekit-received.wav,evidence.json}. Not committed. This is synthetic input with real network/model calls, NOT a human conversation, listening-quality assessment, live barge-in test or complete Studio integration test.
+
+Reproduce explicitly (uses existing paid provider quotas): npx tsx scripts/probe-providers.ts and npx tsx scripts/probe-audio.ts. These scripts are excluded from npm test and CI. Prior no-auth observations above describe the earlier checkpoint; this section supersedes account-access blockers for the tested models only.

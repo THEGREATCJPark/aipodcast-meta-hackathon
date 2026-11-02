@@ -2,7 +2,7 @@
 
 A Meta-powered co-host that listens to human discussions, waits when it should, and asks grounded follow-up questions when useful.
 
-**Private development build. Actual Meta account access and human voice sessions remain unverified.** This project reuses an existing studio; see [provenance](docs/PROVENANCE.md) and [hackathon disclosure](HACKATHON.md). Eligibility is unresolved pending final participant rules.
+**Private development build. Meta ASR/director, OpenAI TTS and LiveKit passed a real-provider probe with synthetic Korean audio. Human voice sessions remain unverified.** This project reuses an existing studio; see [provenance](docs/PROVENANCE.md) and [hackathon disclosure](HACKATHON.md). Eligibility is unresolved pending final participant rules.
 
 ## Run locally
 
@@ -42,3 +42,4 @@ Session artifacts stay in ignored output/ and include sensitive audio/transcript
 Set `META_API_KEY`, `OPENAI_API_KEY`, `LIVEKIT_URL`, `LIVEKIT_API_KEY` and `LIVEKIT_API_SECRET` locally for live operation. The model defaults come from documentation; availability in this account has not been tested. Authentication work is deferred at the owner's direction.
 
 The initial mode requires operator handoff to release speech. Ordinary turns can produce WAIT or a recommendation but do not automatically speak. Input context is capped at 30 recent utterances. Provider work is limited to 15 minutes, four ASR streams, 60 director calls and 30 seconds of TTS per response, without retries. These are usage limits, **not a verified dollar spending cap**. ASR handshake gaps are logged while source WAV recording is retained. Automatic ASR reconnection is not implemented; restart the session.
+
