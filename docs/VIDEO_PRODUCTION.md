@@ -1,3 +1,9 @@
+# Audio QA correction and podcast revision — 2026-11-02
+
+The earlier v1 waveform correlation and non-zero-sample checks verified preservation of the tab-capture source, not dialogue audibility. Claude subsequently reported near-silent tab audio and used matching app session mixes for v2. A matching source/export waveform and LUFS figure alone do not establish listening quality. Full listening review must be recorded separately.
+
+The product engine is frozen. The current revision changes the editorial emphasis to a podcast demonstration with post-answer discussion. Synthetic fixtures remain prewritten and clearly disclosed. Actual Meta responses are never replaced. A new browser-native video capture is video-only; its matching app-recorded mix is the audio source, not a browser-listener recording. Preserve pauses and document alignment uncertainty. Existing v2 stays the fallback.
+
 # Current phase: Claude owns the final edit
 
 Codex provided the raw v2 handoff at output/handoff/claude-v2.zip. New 1600x900 natural-input evidence and a retained failed take are separate from the earlier edit described below. No new narration or final render was generated in this phase.

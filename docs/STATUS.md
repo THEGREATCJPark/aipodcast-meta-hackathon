@@ -1,3 +1,13 @@
+## Podcast revision outcome — 2026-11-02, 18:38 KST
+
+**New podcast-focused take not completed. Existing Claude v2 remains the fallback; no successful v3 is claimed.** Product display name is now Conversation Co-host. Engine behavior was frozen. A standalone podcast fixture added longer topic discussion and two prewritten post-answer lines, conditional on a real sourced response.
+
+Two bounded actual-provider attempts at HEAD `7c3ed789c0a107a58146b09c63201c7c200fd427` failed: `2026-11-02_1835_meta_1781` and `2026-11-02_1837_meta_12dc`. Both returned search results and real Meta WAIT decisions, then rejected a relevance review as `invalid_response / invalid_type` at root. Zero received non-silent AI frames; no post-answer lines were sent. Recording exports survived. Root cause is unresolved; no engine fix, third attempt or substituted response was made. The second run's dirty tree contained in-progress packaging/documentation work.
+
+`output/handoff/claude-v3.zip` is a **failure/status handoff**, containing both actual 1600x900 video-only captures, matching app mixes, transcripts, events and hashes. It is NOT a replacement successful demo. HANDOFF.md instructs Claude to preserve v2 and not combine old answers with new dialogue. Both video/mix files decoded successfully, selected text files matched no configured secret values, and archive integrity passed. Full listening review remains unperformed.
+
+Current preparation checks: 112 tests, typecheck, build:web and build:guest passed; bundle-size warnings remain. These checks do not establish actual-provider reliability. Public release and final submission remain unperformed.
+
 ## Minimal submission improvement / Claude handoff — 2026-11-02
 
 Product promise: **An AI research producer that lets speakers keep talking while it checks a requested reference.** New Judge summary displays recent identified speech, the actual research job, event-based state, answer/source and HOLD; details remain expandable. Model WAIT, application speech gating, generated TTS and server transport are distinguished. No listener-receipt claim appears in the UI.
