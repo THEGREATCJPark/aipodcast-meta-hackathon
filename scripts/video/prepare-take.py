@@ -59,4 +59,3 @@ srt.write_text('\n\n'.join(f'{i+1}\n{stamp(a)} --> {stamp(b)}\n'+ '\n'.join(text
 spec=dict(outputDir='render-final-v1',duration=180,clips=clips,audio=sounds,captionsSRT=str(srt),previewSeconds=[5,18,55,88,112,145,159,176])
 (out/'submission-manifest.json').write_text(json.dumps(spec,indent=2),encoding='utf-8')
 print('Prepared actual-take framing, captions and 180-second FilmCraft manifest.')
-

@@ -43,4 +43,3 @@ try{
  evidence.decisions=readFileSync(join(dir,'events.jsonl'),'utf8').trim().split('\n').map(line=>JSON.parse(line)).filter(e=>e.meta?.stage==='generated-decision').map(e=>e.meta);
  evidence.ok=evidence.holdState==='held'&&evidence.lateAiFramesAfterHoldGrace===0&&evidence.artifacts.every((f:any)=>f.exists);
 }catch(e){evidence.ok=false;evidence.error=e instanceof Error?e.message:'Failed';}finally{if(started)await api('/api/session/stop',{}).catch(()=>undefined);await participant.leave();clearTimeout(deadline);writeFileSync(`${root}/evidence.json`,JSON.stringify(evidence,null,2));console.log(JSON.stringify(evidence,null,2));process.exit(evidence.ok?0:1)}
-

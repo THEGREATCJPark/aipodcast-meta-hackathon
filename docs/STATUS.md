@@ -63,4 +63,3 @@ Current local audit checks passed: **80/80 tests**, typecheck, main web build an
 ASR failure now holds output, records a gap and blocks decisions while transcription is unavailable. Resume grants one reconnect attempt per identity, with possible lost transcription explicitly recorded; this is not an automatic retry loop. Fresh queued handoffs retain their generation/revision and are invalidated by speech, HOLD, context or permission changes.
 
 Concurrent stop/leave operations now share completion, and session start is blocked during transitions. Failed startup leaves the room. Participant recording filenames use a hash of the full identity to avoid collisions between equal name/suffix combinations. Browser join/control/capture operations have duplicate-action and cleanup guards, and disconnected studio controls expose a recoverable error state. These changes do not establish a successful human microphone/capture trial: both remain deferred by the owner.
-
