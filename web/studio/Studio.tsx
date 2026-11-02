@@ -17,6 +17,8 @@ const MC_LABEL: Record<McState, string> = {
 export function Studio() {
   const { settings, status, logs, socketOpen, setSettings, refresh } = useStudio();
   const [error, setError] = useState<string | null>(null);
+  const [demo, setDemo] = useState(false);
+  const [consent, setConsent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [mic, setMic] = useState<VoiceRoomHandle | null>(null);
   const [muted, setMuted] = useState(false);
@@ -61,11 +63,11 @@ export function Studio() {
       await refresh();
     });
 
-  const engineReady = settings.engine === "gemini-live" ? status.geminiConfigured : status.openaiConfigured;
+  const engineReady = settings.engine === "meta" ? status.metaConfigured && status.openaiConfigured : settings.engine === "gemini-live" ? status.geminiConfigured : status.openaiConfigured;
 
   const createInvite = (): Promise<void> =>
     run(async () => {
-      const r = await api<{ link: string; local: boolean }>("/api/invites", { method: "POST", body: { name: guestName.trim(), ttlHours: 6 } });
+      const r = await api<{ link: string; local: boolean }>("/api/invites", { method: "POST", body: { name: guestName.trim(), ttlHours: 1 } });
       setInvite(r);
     });
 
@@ -73,27 +75,29 @@ export function Studio() {
     <div className="studio">
       <header className="topbar">
         <div className="brand">
-          <span className={`onair ${status.sessionActive ? "live" : ""}`}>ON AIR</span>
-          <h1>AI MC 스튜디오</h1>
+          <span className={`onair ${status.sessionActive ? "live" : ""}`}>{status.sessionActive ? "ON AIR" : "IDLE"}</span>
+          <h1>Meta Conversation Co-host</h1>
           {status.recording && <span className="rec" title="세션 종료 시 output 폴더에 정리됩니다">● REC <Elapsed sessionId={status.sessionId} /></span>}
         </div>
         <div className="badges">
           <Badge ok={socketOpen} label="서버" />
           <Badge ok={status.livekitConfigured} label="LiveKit" />
-          <Badge ok={status.openaiConfigured} label="OpenAI" />
+          <Badge ok={status.metaConfigured} label="Meta key configured" />
+          <Badge ok={status.openaiConfigured} label="OpenAI TTS key" />
           <Badge ok={status.geminiConfigured} label="Gemini" />
           <Badge ok={Boolean(mic)} label="내 마이크" />
         </div>
         <div className="top-actions">
+          <button className="btn ghost" onClick={() => setDemo(!demo)}>{demo ? "Studio controls" : "Judge view"}</button>
           {mic ? (
             <>
               <button className="btn ghost" onClick={() => void mic.setMuted(!muted).then(() => setMuted(!muted))}>{muted ? "음소거 해제" : "음소거"}</button>
               <button className="btn ghost" onClick={() => void mic.leave().then(() => setMic(null))}>마이크 연결 끊기</button>
             </>
           ) : (
-            <button className="btn ghost" disabled={busy || !status.livekitConfigured} onClick={() => void connectMic()}>마이크 연결</button>
+            <button className="btn ghost" disabled={busy || !status.livekitConfigured || !consent} onClick={() => void connectMic()}>마이크 연결</button>
           )}
-          <button className={`btn ${status.sessionActive ? "stop" : "primary"}`} disabled={busy || !status.livekitConfigured || !engineReady} onClick={() => void toggleSession()}>
+          <button className={`btn ${status.sessionActive ? "stop" : "primary"}`} disabled={busy || (!status.sessionActive && (!status.livekitConfigured || !engineReady || !consent))} onClick={() => void toggleSession()}>
             {status.sessionActive ? "세션 종료" : `세션 시작 · ${ENGINE_LABEL[settings.engine]}`}
           </button>
         </div>
@@ -101,12 +105,18 @@ export function Studio() {
 
       {error && <div className="toast" role="alert">{error}</div>}
 
-      <main className="stage">
+      <div className="cohost-notice">
+        <strong>{status.sessionActive ? "LIVE SESSION" : "LOCAL LIVE SETUP"}</strong> · New microphone input uses actual providers when connected. This is not replay or a synthetic demo.
+        {status.providerModels && <p>ASR: {status.providerModels.asr} · Director: {status.providerModels.director} · TTS: OpenAI {status.providerModels.tts} / {status.providerModels.voice}</p>}
+        <p>Human-controlled co-host · Meta speech recognition and decisions · OpenAI speech synthesis. Key badges indicate configuration, not successful model access.</p>
+        {!status.sessionActive && <label><input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} /> I consent to local recording and transmission to LiveKit, Meta and the selected speech provider. Publication needs separate permission.</label>}
+      </div>
+      <main className={`stage ${demo ? "judge-view" : ""}`}>
         <section className="room">
           <div className="people">
             <PersonTile
-              name="AI MC"
-              state={status.engine ? `${MC_LABEL[status.mcState]} · ${ENGINE_LABEL[status.engine]}${status.persona ? ` · ${status.persona}` : ""}` : MC_LABEL[status.mcState]}
+              name="Meta Co-host"
+              state={status.engine ? `${status.engine === "meta" ? status.metaState ?? MC_LABEL[status.mcState] : MC_LABEL[status.mcState]} · ${ENGINE_LABEL[status.engine]}${status.persona ? ` · ${status.persona}` : ""}` : MC_LABEL[status.mcState]}
               active={status.mcState === "speaking"}
               accent
             />
@@ -132,12 +142,12 @@ export function Studio() {
               <button className="btn ghost" onClick={() => void openFolder(status.lastOutputDir!, fail)}>폴더 열기</button>
             </div>
           )}
-          <Metrics status={status} />
-          <ComparePanel refreshKey={`${status.sessionActive}-${status.sessionId ?? ""}`} />
+          <Metrics status={status} selectedEngine={settings.engine} />
+          {!demo && <ComparePanel refreshKey={`${status.sessionActive}-${status.sessionId ?? ""}`} />}
           <LogPanel logs={logs} />
           <ControlBar status={status} onError={fail} />
         </section>
-        <SettingsPanel settings={settings} locked={status.sessionActive} activeEngine={status.engine} onSaved={setSettings} onError={fail} />
+        {!demo && <SettingsPanel settings={settings} locked={status.sessionActive} activeEngine={status.engine} onSaved={setSettings} onError={fail} />}
       </main>
     </div>
   );
@@ -177,7 +187,8 @@ function PersonTile({ name, state, active, accent, level }: { name: string; stat
   );
 }
 
-function Metrics({ status }: { status: StudioStatus }) {
+function Metrics({ status, selectedEngine }: { status: StudioStatus; selectedEngine: string }) {
+  if ((status.engine ?? selectedEngine) === "meta") return <div className="metrics"><span>Timing: turn end / handoff → server first audio <b>{status.lastLatencyMs ?? "–"}</b> ms</span><span>Listener latency not measured · Cost not measured / provider limits only</span></div>;
   const extra = status.engine === "gemini-live" ? "검색 별도" : "백엔드 별도";
   return (
     <div className="metrics">

@@ -70,12 +70,17 @@ export function SettingsPanel({ settings, locked, activeEngine, onSaved, onError
               </button>
             ))}
           </div>
-          <p className="hint">MC 캐릭터와 프롬프트는 두 엔진이 같이 씁니다. 엔진만 바꿔 세션을 다시 열면 같은 조건으로 비교할 수 있습니다.</p>
+          <p className="hint">Meta is the submission co-host. Legacy engines remain available for development comparisons.</p>
         </section>
 
-        <PersonaSection draft={draft} saved={settings} setDraft={setDraft} locked={locked} onSaved={onSaved} onError={onError} />
+        {engine !== "meta" && <PersonaSection draft={draft} saved={settings} setDraft={setDraft} locked={locked} onSaved={onSaved} onError={onError} />}
 
-        {engine === "gpt-live" ? (
+        {engine === "meta" ? (
+          <Section title="Meta co-host" hint="Human-controlled handoff. No fallback LLM.">
+            <p>Muse Voice Transcribe listens. Muse Spark chooses WAIT, ASK, CLARIFY or SUMMARIZE. OpenAI TTS voices only the approved text.</p>
+            <p className="hint">Models are configured on the server. Account access and live audio must be verified separately. HOLD cancels pending speech; handoff asks for a fresh decision.</p>
+          </Section>
+        ) : engine === "gpt-live" ? (
           <GptSection draft={draft} setDraft={setDraft} locked={locked} models={models} />
         ) : (
           <GeminiSection draft={draft} setDraft={setDraft} locked={locked} models={models} />

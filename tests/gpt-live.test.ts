@@ -4,11 +4,14 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
 import { WebSocketServer, type WebSocket } from "ws";
-import { defaultSettings } from "../shared/settings.js";
+import { defaultSettings as baselineSettings } from "../shared/settings.js";
 import { pcmToBase64 } from "../server/audio/mixer.js";
 import { GptLiveSession, buildSessionStart } from "../server/engines/gpt-live.js";
 import { SettingsStore } from "../server/settings/store.js";
 import { inviteLink } from "../server/livekit/tokens.js";
+
+// Explicit legacy talk-first fixture; submission defaults now wait for humans.
+const defaultSettings = () => ({ ...baselineSettings(), persona: { track: "custom" as const, openingMode: "smalltalk" as const } });
 
 test("session.start: 설정이 문서 형식대로 들어간다", () => {
   const s = defaultSettings();

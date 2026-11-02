@@ -4,10 +4,11 @@ import {
   type PersonaChoice,
 } from "./personas.js";
 
-export const ENGINES = ["gpt-live", "gemini-live"] as const;
+export const ENGINES = ["meta", "gpt-live", "gemini-live"] as const;
 export type EngineId = (typeof ENGINES)[number];
 
 export const ENGINE_LABEL: Record<EngineId, string> = {
+  meta: "Meta co-host",
   "gpt-live": "OpenAI GPT-Live",
   "gemini-live": "Gemini Live",
 };
@@ -64,6 +65,7 @@ export const DEFAULT_BACKEND_PROMPT = `너는 팟캐스트 AI MC를 보조하는
  * 검색은 응답을 늦추고 말투를 요약봇으로 바꾸므로, 분명히 요청받았을 때만 쓰게 한다.
  */
 export const ENGINE_APPENDIX: Record<EngineId, string> = {
+  meta: "Meta independent discussion co-host",
   "gpt-live": `# 검색·사실 확인 (엔진: GPT-Live)
 - CJ님이나 게스트가 최신 뉴스·수치·사실 확인을 분명히 요청할 때만 Generate <|SpawnThinking|> 로 백엔드에 맡긴다.
 - 그 외에는 검색하지 말고 자체 상식과 일상 비유로 바로 받아친다. 모르면 모른다고 솔직하게 말한다.
@@ -103,12 +105,12 @@ export function openingInstruction(settings: ComposeInput & { prompt: { opening:
 export const PERSONA_CHOICES = [...TRACK_IDS, "custom"] as const;
 
 export const SettingsSchema = z.object({
-  engine: z.enum(ENGINES).default("gpt-live"),
+  engine: z.enum(ENGINES).default("meta"),
   /** MC 캐릭터 트랙. custom이면 prompt.instructions / prompt.opening을 쓴다. */
   persona: z.object({
-    track: z.enum([...TRACK_IDS, "custom"]).default("track_1_pinggyego"),
+    track: z.enum([...TRACK_IDS, "custom"]).default("custom"),
     /** smalltalk: 트랙별 스몰토크로 먼저 연다 / wait: CJ의 첫마디를 듣고 받아친다 */
-    openingMode: z.enum(["smalltalk", "wait"]).default("smalltalk"),
+    openingMode: z.enum(["smalltalk", "wait"]).default("wait"),
   }).prefault({}),
   /** 두 엔진 공통 */
   prompt: z.object({

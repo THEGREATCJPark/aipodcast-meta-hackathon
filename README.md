@@ -1,85 +1,44 @@
-# AI MC 스튜디오
+# AI Conversation Director
 
-AI MC가 진행하는 한국어 팟캐스트용 로컬 스튜디오입니다. CJ는 웹 화면에서 **OpenAI GPT-Live 또는 Gemini Live**를 선택하고, MC의 말투·오프닝을 설정하며 방송 중에 제어합니다. 게스트는 링크로 입장하는 구조입니다.
+A Meta-powered co-host that listens to human discussions, waits when it should, and asks grounded follow-up questions when useful.
 
-**2026-10-28 기준:** 두 음성 엔진·페르소나·진행 제어·분리 녹음이 구현되어 있습니다. Gemini Live로 진행자와 AI가 대화한 43초 기록을 확인했고, 자동 테스트 29개와 타입 검사를 통과했습니다. 10분 연속 대화·게스트 포함 3인 대화·장시간 방송 품질은 아직 검증하지 않았습니다.
+**Private development build. Actual Meta account access and human voice sessions remain unverified.** This project reuses an existing studio; see [provenance](docs/PROVENANCE.md) and [hackathon disclosure](HACKATHON.md). Eligibility is unresolved pending final participant rules.
 
-- [현재 구현과 검증 상태](docs/STATUS.md)
-- [구조와 단계별 수락 기준](docs/PLAN.md)
-- [앞으로의 작업 순서](docs/ROADMAP.md)
+## Run locally
 
-## 처음 한 번 준비
+Use Node 22.22 or later within the supported Node 22 line, and npm. Earlier Node 22.18 installed successfully but emitted a dependency engine warning.
 
-1. **Node.js 22.12 이상**이 필요합니다.
-2. 의존성 설치: `npm ci`
-3. [.env.example](.env.example)을 `.env`로 복사하고, 사용할 엔진과 LiveKit 값을 로컬에서 입력합니다. `.env`는 Git에 포함하지 않습니다.
-
-| 변수 | 입력할 값 |
-|---|---|
-| `PORT` | 스튜디오 포트. 기본값 `4400` |
-| `OPENAI_API_KEY` | GPT-Live를 사용할 OpenAI 계정의 API 키 |
-| `GEMINI_API_KEY` | Gemini Live를 사용할 Google AI Studio API 키 |
-| `LIVEKIT_URL` | LiveKit 프로젝트의 연결 URL |
-| `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET` | 같은 LiveKit 프로젝트의 API Key와 Secret |
-| `GUEST_PAGE_URL` | 공개 배포한 게스트 페이지 주소. 비우면 로컬 초대 링크를 생성 |
-
-한 엔진만 시험할 때는 해당 엔진의 키와 LiveKit 설정부터 준비하면 됩니다. 계정에서 선택한 모델에 접근할 수 있어야 하며, 실제 음성 API 사용에는 비용이 발생할 수 있습니다.
-
-LiveKit은 다음 중 하나를 사용합니다.
-
-- **LiveKit Cloud:** [프로젝트](https://cloud.livekit.io)의 Settings → Keys에서 URL·API Key·Secret을 확인합니다.
-- **로컬 개발 서버:** `livekit-server --dev`를 별도로 실행한 뒤 `LIVEKIT_URL=ws://localhost:7880`, `LIVEKIT_API_KEY=devkey`, `LIVEKIT_API_SECRET=secret`을 사용합니다. 같은 PC에서 혼자 시험하는 설정입니다.
-
-## 실행
-
-```bash
+```sh
+npm ci
 npm run dev
 ```
 
-브라우저에서 http://localhost:4400 을 엽니다.
+Open http://localhost:4400. The studio can be inspected without provider credentials. Audio operation needs local server-only credentials and a LiveKit service. Put credentials only in this independent project's ignored .env, using .env.example as the variable reference. Never copy original private settings, recordings or tokens. Do not send key values through chat.
 
-1. 오른쪽 설정 패널에서 **음성 엔진**을 고릅니다. GPT-Live는 Voice model·음성·Delegated model을, Gemini Live는 모델·음성·생각 깊이·검색 설정을 확인합니다.
-2. 페르소나 트랙 또는 직접 작성 프롬프트를 고르고, 오프닝을 스몰토크/진행자 첫마디 대기 중 선택한 뒤 **저장**합니다.
-3. 헤드셋을 쓰고 **마이크 연결**을 누릅니다.
-4. **세션 시작**을 누르면 AI MC가 방에 들어옵니다. 첫마디 대기 모드에서는 진행자가 먼저 말합니다.
-5. 방송 중 조작
-
-   - **MC에게 넘기기** (Space): MC가 바로 이어서 말합니다.
-   - **AI 즉시 정지** (Esc): 재생 중인 MC 음성을 버리고, 재개할 때까지 MC 음성을 내보내지 않습니다.
-   - **귓속말**: 메모만 보내거나, "바로 말하게"를 켜고 지시합니다.
-
-6. 게스트를 부를 때는 이름을 넣고 **초대 링크**를 눌러 복사해 보냅니다. 외부 게스트는 공개 게스트 페이지와 외부에서 접속 가능한 LiveKit 연결이 필요합니다. `GUEST_PAGE_URL` 값을 입력하는 것만으로 페이지가 배포되지는 않습니다. 공개 배포와 실제 게스트 접속 시험은 남아 있습니다.
-
-스튜디오 제어 서버는 `127.0.0.1`에서 실행됩니다. 모델·음성·프롬프트 변경은 새 세션에서 확인합니다.
-
-## 시범 녹음 기록 (output 폴더)
-
-세션을 시작하면 상단에 **● REC**가 표시되고, **세션 종료**를 누르면 그 세션이 `output/<날짜_시각_엔진_id>/`에 정리됩니다. 화면의 **폴더 열기**로 바로 열 수 있습니다.
-
-| 파일 | 내용 |
-|---|---|
-| `report.md` | 한눈에 보는 리포트: 엔진·길이·응답 지연(중앙값·p95)·추정 비용·이벤트 횟수·오디오 목록 + 전체 대화록 |
-| `transcript.md` | 대화록 (경과 시간·화자·MC 발화·검색·진행 지시) |
-| `mix.wav` | 전체 믹스 |
-| `mc.wav`, `host-*.wav`, `guest-*.wav` | 사람별·MC 분리 트랙 (24kHz 모노, 같은 시간축). MC 트랙에는 실제로 송출된 음성만 |
-| `summary.json` | 기계가 읽는 요약 (사용량, 토큰, 지연 전체 목록, 이벤트 횟수) |
-| `settings.json` | 그 세션에 쓴 설정과 프롬프트 |
-| `events.jsonl` | 원본 로그 (같은 id가 여러 줄이면 마지막 줄이 최종본) |
-
-화면의 **엔진 비교 기록**에서 세션별 지연·비용을 나란히 볼 수 있습니다.
-
-현재 사람별 WAV는 **서버가 LiveKit에서 수신한 PCM**을 저장합니다. 브라우저에서 별도로 녹음한 원음 파일을 업로드하는 기능은 아직 구현하지 않았습니다. 수신 전 네트워크에서 손실된 음성을 이 녹음으로 복원할 수는 없습니다.
-
-녹음·대화록·프롬프트·원본 이벤트는 로컬 `output/`과 `data/`에 보관하며 저장소 공개 자료에 포함하지 않습니다. 짧은 시범 녹음이 존재하는 것과 실제 회차의 녹음 품질·복구가 검증된 것은 구분합니다.
-
-## 개발
-
-```bash
+```sh
 npm test
-```
-
-```bash
 npm run typecheck
+npm run build:web
 ```
 
-2026-10-28 확인 결과: 테스트 **29/29 통과**, 서버·웹 타입 검사 통과. 테스트에는 오디오/VAD, 엔진 프로토콜, 페르소나, 설정, 녹음 리포트가 포함됩니다. 실제 계정으로 진행하는 장시간 통화·네트워크 장애·음질 평가는 별도입니다.
+## Experience and evidence
+
+The intended path is human audio → Meta transcription → Meta contextual decision → human-controlled speech gate → separate TTS → LiveKit playback → separated audio and execution evidence. Meta errors must remain visible and must not silently route to another LLM. Live means new human input and actual model calls; replay means a previously recorded consenting session; synthetic tests are fixtures. These are not interchangeable.
+
+The operator can use HOLD, resume and handoff. A completed build or a passing fixture does not prove automatic interruption at the listener. [Evaluation](docs/EVALUATION.md) records baseline and subsequent checks separately and lists unverified real-world behavior.
+
+## Judge access and limits
+
+Local source execution is the current access path. No public app, public replay or submitted video is available. Do not tunnel the management server. External guest use requires consent and a verified deployment/access path. No latency, accuracy or time-savings claim has been measured for Meta.
+
+Session artifacts stay in ignored output/ and include sensitive audio/transcripts/settings. Do not publish them automatically. See [architecture](docs/ARCHITECTURE.md), [status](docs/STATUS.md), [rules](docs/hackathon/RULES.md), [demo script](docs/DEMO_SCRIPT.md) and [submission draft](docs/SUBMISSION.md).
+
+## Implemented provider roles
+
+- Meta realtime ASR: `META_ASR_MODEL` (default `muse-voice-transcribe-1.0`), using one ENDPOINTING stream per participant identity.
+- Meta director: `META_DIRECTOR_MODEL` (default `muse-spark-1.3`), with validated WAIT/ASK/CLARIFY/SUMMARIZE output and utterance references.
+- **OpenAI TTS**: `TTS_MODEL` (default `tts-1`) and `TTS_VOICE` (default `alloy`). It renders Meta's chosen text; it does not decide how to moderate.
+
+Set `META_API_KEY`, `OPENAI_API_KEY`, `LIVEKIT_URL`, `LIVEKIT_API_KEY` and `LIVEKIT_API_SECRET` locally for live operation. The model defaults come from documentation; availability in this account has not been tested. Authentication work is deferred at the owner's direction.
+
+The initial mode requires operator handoff to release speech. Ordinary turns can produce WAIT or a recommendation but do not automatically speak. Input context is capped at 30 recent utterances. Provider work is limited to 15 minutes, four ASR streams, 60 director calls and 30 seconds of TTS per response, without retries. These are usage limits, **not a verified dollar spending cap**. ASR handshake gaps are logged while source WAV recording is retained. Automatic ASR reconnection is not implemented; restart the session.

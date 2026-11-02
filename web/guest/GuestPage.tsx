@@ -25,6 +25,7 @@ export function GuestPage() {
   const invite = INITIAL_INVITE;
   const [handle, setHandle] = useState<VoiceRoomHandle | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [consent, setConsent] = useState(false);
   const [joining, setJoining] = useState(false);
   const [muted, setMuted] = useState(false);
   const [speakers, setSpeakers] = useState<string[]>([]);
@@ -45,6 +46,7 @@ export function GuestPage() {
   if (!invite) return <div className="guest"><div className="guest-card"><h1>초대 링크가 올바르지 않습니다</h1><p className="muted">진행자에게 새 링크를 요청해 주세요.</p></div></div>;
 
   const join = async (): Promise<void> => {
+    if (!consent) return;
     setJoining(true);
     setError(null);
     try {
@@ -68,7 +70,9 @@ export function GuestPage() {
         {!handle ? (
           <>
             <p>AI MC가 진행하는 팟캐스트 녹음에 초대되었습니다. <b>이어폰이나 헤드셋</b>을 착용한 뒤 입장해 주세요.</p>
-            <button className="btn primary big" disabled={joining} onClick={() => void join()}>{joining ? "입장 중…" : "마이크 허용하고 입장"}</button>
+            <p>Audio and transcripts may be recorded locally by the host. Audio is carried by LiveKit and sent to Meta for transcription and co-host decisions. Generated speech uses OpenAI TTS. Ask the host about retention and deletion. Joining does not grant permission to publish your voice or face.</p>
+            <label className="consent"><input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} /> I consent to recording and provider processing / 녹음 및 공급자 전송에 동의합니다.</label>
+            <button className="btn primary big" disabled={joining || !consent} onClick={() => void join()}>{joining ? "입장 중…" : "마이크 허용하고 입장"}</button>
           </>
         ) : (
           <>

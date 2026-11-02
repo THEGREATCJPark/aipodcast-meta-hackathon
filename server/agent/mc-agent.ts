@@ -1,3 +1,6 @@
+import { MetaSession } from "../meta/session.js";
+import { WavTrack } from "../recording/wav-track.js";
+import { join } from "node:path";
 import { randomUUID } from "node:crypto";
 import { relative } from "node:path";
 import type { ControlCommand, LogEntry, McState, StudioStatus } from "../../shared/events.js";
@@ -24,6 +27,7 @@ interface Participant {
 
 export interface AgentDeps {
   bus: StudioBus;
+  metaKey: () => string | undefined;
   openaiKey: () => string | undefined;
   geminiKey: () => string | undefined;
   livekit: () => { url: string; agentToken: (room: string) => Promise<string> } | null;
@@ -74,6 +78,7 @@ export class McAgent {
     });
     this.room.on("participantLeft", (id) => {
       const p = this.participants.get(id);
+      if (this.session instanceof MetaSession) this.session.participantLeft(id);
       this.participants.delete(id);
       this.mixer.remove(id);
       if (p) this.deps.bus.log("system", `${p.name} 퇴장`);
@@ -89,6 +94,8 @@ export class McAgent {
     const sorted = [...this.latencies].sort((a, b) => a - b);
     return {
       livekitConfigured: this.deps.livekit() !== null,
+      metaConfigured: Boolean(this.deps.metaKey()),
+      ...(this.session instanceof MetaSession ? { providerModels: this.session.models, metaState: this.session.state } : {}),
       openaiConfigured: Boolean(this.deps.openaiKey()),
       geminiConfigured: Boolean(this.deps.geminiKey()),
       engine: this.session ? this.session.id : null,
@@ -119,7 +126,7 @@ export class McAgent {
     const lk = this.deps.livekit();
     if (!lk) throw new Error("LiveKit 설정이 없습니다 (.env)");
     // 키가 없으면 방에 들어가기 전에 바로 알린다.
-    const engine = createEngine(settings, { openai: this.deps.openaiKey(), gemini: this.deps.geminiKey() });
+    const engine = createEngine(settings, { meta: this.deps.metaKey(), openai: this.deps.openaiKey(), gemini: this.deps.geminiKey() });
     this.abortStart = false;
     this.starting = this.doStart(engine, lk, settings);
     try {
@@ -205,13 +212,13 @@ export class McAgent {
         this.count("holds");
         this.held = true;
         this.playout.flush();
-        s.instruct(HOLD_TEXT);
+        if (s instanceof MetaSession) s.hold(); else s.instruct(HOLD_TEXT);
         this.deps.bus.log("note", "AI 즉시 정지", { speaker: this.hostName() });
         return;
       case "resume":
         this.playout.flush();
         this.held = false;
-        s.instruct(RESUME_TEXT);
+        if (s instanceof MetaSession) s.resume(); else s.instruct(RESUME_TEXT);
         this.deps.bus.log("note", "자동 진행 재개", { speaker: this.hostName() });
         return;
       case "handoff":
@@ -317,7 +324,8 @@ export class McAgent {
     const db = rmsDb(pcm);
     p.levelDb = p.levelDb * 0.7 + db * 0.3;
     if (!this.session) return;
-    this.mixer.push(identity, pcm);
+    if (this.session instanceof MetaSession) this.session.appendParticipant(identity, pcm);
+    else this.mixer.push(identity, pcm);
     this.recorder?.human(identity, name, pcm);
     // 이 프레임은 믹서 버퍼에 쌓인 만큼 뒤에 전송되므로 그 위치를 발화 시각으로 쓴다.
     const queuedMs = Math.max(0, this.mixer.bufferedSamples(identity) - pcm.length) / (ROOM_SAMPLE_RATE / 1000);
@@ -327,6 +335,7 @@ export class McAgent {
   }
 
   private onHumanStart(p: Participant, atMs: number): void {
+    if (this.session instanceof MetaSession) this.session.humanSpeaking(p.identity, true);
     this.timeline.start(p.identity, atMs);
     this.turnEndedAt = null;
     if (this.settings?.floor.announceSpeakers && this.lastAnnounced !== p.identity && this.participants.size > 1) {
@@ -336,6 +345,7 @@ export class McAgent {
   }
 
   private onHumanEnd(p: Participant, atMs: number): void {
+    if (this.session instanceof MetaSession) this.session.humanSpeaking(p.identity, false);
     this.timeline.end(p.identity, atMs);
     const anyoneSpeaking = [...this.participants.values()].some((x) => x.vad.isSpeaking);
     if (!anyoneSpeaking && !this.playout.speaking) this.turnEndedAt = Date.now();
@@ -388,10 +398,19 @@ export class McAgent {
   private wireSession(session: LiveEngine): void {
     const bus = this.deps.bus;
     session.on("audio", (pcm) => {
-      if (this.held) return;
+      if (this.session !== session || this.held || (session.id === "meta" && [...this.participants.values()].some(p => p.vad.isSpeaking))) return;
       if (pcm.length > 0) this.playout.enqueue(pcm);
     });
+    session.on("decision", (d) => { if (this.session === session) bus.log("system", `${d.action}: ${d.reason}`, { meta: { ...d, stage: "generated-decision" } }); });
+    session.on("generatedAudio", (pcm, generation) => {
+      const dir = bus.currentSessionDir();
+      if (!dir || this.session !== session) return;
+      const wav = new WavTrack(join(dir, `tts-generated-${generation}.wav`), ROOM_SAMPLE_RATE);
+      wav.writeAt(pcm, 0); wav.finalize();
+    });
     session.on("inputTranscript", (d) => {
+      if (this.session !== session) return;
+      if (d.identity && d.utteranceId) { bus.log("human", d.delta, { id: d.utteranceId, speaker: this.names.get(d.identity) ?? d.identity, meta: { identity: d.identity, startMs: d.startMs, endMs: d.endMs } }); this.count("humanUtterances"); return; }
       const r = this.humanTx.add(d);
       if (!r) return;
       const who = this.timeline.attribute(r.utterance.startMs, r.utterance.endMs, this.inputMs());

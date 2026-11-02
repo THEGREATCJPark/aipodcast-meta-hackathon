@@ -28,12 +28,12 @@ export function ControlBar({ status, onError }: ControlBarProps) {
     <div className="controls">
       <div className="control-buttons">
         <button className="btn handoff" disabled={!live} onClick={() => void send({ action: "handoff" })} title="단축키 Space (입력창 밖)">
-          MC에게 넘기기
+          Handoff · MC에게 넘기기
         </button>
         {held ? (
-          <button className="btn resume" disabled={!live} onClick={() => void send({ action: "resume" })}>자동 진행 재개</button>
+          <button className="btn resume" disabled={!live} onClick={() => void send({ action: "resume" })}>Resume listening · 듣기 재개</button>
         ) : (
-          <button className="btn stop" disabled={!live} onClick={() => void send({ action: "hold" })} title="단축키 Esc">AI 즉시 정지</button>
+          <button className="btn stop" disabled={!live} onClick={() => void send({ action: "hold" })} title="단축키 Esc">HOLD · AI 즉시 정지</button>
         )}
       </div>
       <form

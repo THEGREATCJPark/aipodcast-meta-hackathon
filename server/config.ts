@@ -3,6 +3,11 @@ import { z } from "zod";
 
 const EnvSchema = z.object({
   PORT: z.coerce.number().int().min(1024).max(65535).default(4400),
+  META_API_KEY: z.string().optional(),
+  META_ASR_MODEL: z.string().default("muse-voice-transcribe-1.0"),
+  META_DIRECTOR_MODEL: z.string().default("muse-spark-1.3"),
+  TTS_MODEL: z.string().default("tts-1"),
+  TTS_VOICE: z.string().default("alloy"),
   OPENAI_API_KEY: z.string().optional(),
   GEMINI_API_KEY: z.string().optional(),
   LIVEKIT_URL: z.string().optional(),

@@ -1,11 +1,14 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { WebSocketServer, type WebSocket } from "ws";
-import { ENGINE_APPENDIX, composeInstructions, defaultSettings } from "../shared/settings.js";
+import { ENGINE_APPENDIX, composeInstructions, defaultSettings as baselineSettings } from "../shared/settings.js";
 import { pcmToBase64 } from "../server/audio/mixer.js";
 import { GeminiLiveSession, buildGeminiSetup, estimateGeminiCost } from "../server/engines/gemini-live.js";
 
 const tick = (ms = 30): Promise<void> => new Promise((r) => setTimeout(r, ms));
+
+// Explicit legacy talk-first fixture; submission defaults now wait for humans.
+const defaultSettings = () => ({ ...baselineSettings(), persona: { track: "custom" as const, openingMode: "smalltalk" as const } });
 
 test("공통 프롬프트: 같은 본문에 엔진별 부록만 다르게 붙는다", () => {
   const custom = { ...defaultSettings(), persona: { track: "custom" as const, openingMode: "smalltalk" as const }, prompt: { opening: "", instructions: "본문" } };

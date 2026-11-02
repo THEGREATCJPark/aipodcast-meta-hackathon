@@ -22,10 +22,13 @@ export type McState = "offline" | "connecting" | "listening" | "speaking" | "hel
 
 export interface StudioStatus {
   livekitConfigured: boolean;
+  metaConfigured: boolean;
+  providerModels?: { asr: string; director: string; tts: string; voice: string };
+  metaState?: "listening" | "thinking" | "waiting" | "speaking" | "held" | "error";
   openaiConfigured: boolean;
   geminiConfigured: boolean;
   /** 진행 중인 세션의 엔진 */
-  engine: "gpt-live" | "gemini-live" | null;
+  engine: "meta" | "gpt-live" | "gemini-live" | null;
   /** 진행 중인 세션의 MC 트랙 이름 */
   persona: string | null;
   /** 공개 요금 기준 추정 비용 (USD) */
@@ -58,7 +61,7 @@ export type ControlCommand =
 
 export interface SessionSummary {
   sessionId: string | null;
-  engine: "gpt-live" | "gemini-live";
+  engine: "meta" | "gpt-live" | "gemini-live";
   engineLabel: string;
   /** MC 캐릭터 트랙 이름 (예전 세션에는 없을 수 있음) */
   persona?: string;

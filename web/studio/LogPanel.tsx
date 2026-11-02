@@ -36,13 +36,20 @@ export function LogPanel({ logs }: { logs: LogEntry[] }) {
       }}
     >
       {logs.map((e, i) => (
-        <li key={e.id} className={`log-item k-${e.kind}`}>
+        <li id={`utterance-${e.id}`} key={e.id} className={`log-item k-${e.kind}`}>
           <div className="log-head">
             <span className="log-n">{i + 1}</span>
             <span className="log-who">{e.speaker ?? LABEL[e.kind]}</span>
             <time>{time(e.at)}</time>
           </div>
           <p className="log-text">{e.text}</p>
+          {Array.isArray(e.meta?.sourceUtteranceIds) && <div className="evidence">
+            <span>Evidence: </span>
+            {e.meta.sourceUtteranceIds.filter((id): id is string => typeof id === "string").map((id) => (
+              <a key={id} href={`#utterance-${id}`}>{logs.find((entry) => entry.id === id)?.speaker ?? id} · {id}</a>
+            ))}
+            {typeof e.meta.reason === "string" && <p>{e.meta.reason}</p>}
+          </div>}
         </li>
       ))}
     </ol>

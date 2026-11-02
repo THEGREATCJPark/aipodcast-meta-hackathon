@@ -19,6 +19,7 @@ const bus = new StudioBus(resolve(env.OUTPUT_DIR));
 const store = new SettingsStore(dataDir);
 const agent = new McAgent({
   bus,
+  metaKey: () => env.META_API_KEY,
   openaiKey: () => env.OPENAI_API_KEY,
   geminiKey: () => env.GEMINI_API_KEY,
   livekit: () => {

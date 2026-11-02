@@ -39,7 +39,7 @@ export function ComparePanel({ refreshKey }: { refreshKey: string }) {
                 <td>{r.turns}</td>
                 <td>{ms(r.latencyMedianMs)}</td>
                 <td>{ms(r.latencyP95Ms)}</td>
-                <td>${r.costUsd.toFixed(3)}</td>
+                <td>{r.engine === "meta" ? "Not measured" : `$${r.costUsd.toFixed(3)}`}</td>
                 <td>{r.sessionId && <button className="btn ghost tiny" onClick={() => void openFolder(r.sessionId!, () => undefined)}>폴더</button>}</td>
               </tr>
             ))}

@@ -27,6 +27,8 @@ export class Playout {
   }
 
   enqueue(pcm: Int16Array): void {
+    // Limit queued PCM to 30 seconds; provider output is independently capped.
+    if (this.queue.length * this.frameMs + pcm.length / this.sampleRate * 1000 > 30000) { this.flush(); return; }
     const frameSamples = (this.sampleRate * this.frameMs) / 1000;
     const joined = new Int16Array(this.pending.length + pcm.length);
     joined.set(this.pending);
