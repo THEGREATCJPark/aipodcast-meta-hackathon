@@ -116,3 +116,19 @@ Ran `npx tsx scripts/probe-research-studio.ts --interrupt` against real provider
 This is a synthetic-input automatic-interruption test, distinct from the earlier manual HOLD check. It does not measure precise stopping latency or establish human acoustic acceptance. This trial's research request/completion interval was 6,626 ms, not total conversational latency.
 
 Browser inspection verified the actual research result card, Meta source citation and displayed retrieval-time field, with zero console errors and one warning. The displayed time corresponds to application research completion, not a measured independent fetch time for each page. Final root checks passed: 68 tests, typecheck, main web build and guest-only build.
+
+## Reliability audit validation — 2026-11-02
+
+Root ran the full current suite: `npm test` **80/80 passed**, `npm run typecheck` passed, `npm run build:web` passed and `npm run build:guest` passed. Large-chunk warnings remain. This is local automated/build evidence for the audit changes, not a fresh real-provider integration or human trial; the root will record any subsequent live probe separately.
+
+The reviewed changes address ASR failure hold and a single Resume-authorized reconnect per identity, stale queued-handoff invalidation, failed-stream callback rejection, serialized stop/leave/start transitions, failed-start room cleanup, and recording filename collisions. Browser updates guard duplicate joins/controls/capture starts, clean up resources on failed or abandoned operations, use participant identity for guest lists, and handle disconnected or malformed studio updates. Provider failure evidence now identifies the actual phase/provider; a later TTS failure is not mislabeled as a completed search failure.
+
+Human microphone dialogue, external guest acceptance and actual tab/microphone capture remain deferred by the owner. Automated coverage must not be described as proving those browser/device experiences.
+
+## Post-audit real-provider checks — November 2, 11:03–11:06 KST
+
+Synthetic English input, not human speech: `output/probes/research-studio-1793585031062/evidence.json`, session `2026-11-02_1103_meta_8d3c`, passed against Meta ASR/director/search, OpenAI TTS and a separate LiveKit receiver. Four transcripts, cited Good-paper lookup, 52 received non-silent AI frames (31 before interruption), automatic cancellation and a subsequent Meta WAIT were observed. Zero late frames arrived during the three-second observation after the interruption, trailing silence and two-second grace. Research request/completion was 6,739 ms; this is not end-to-end latency. No provider errors were logged. Events, summary, sent AI WAV and mix were exported.
+
+Manual HOLD was independently exercised during received speech in session `2026-11-02_1105_meta_62e4`, evidence `output/probes/studio-1793585130380/evidence.json`. Ten non-silent frames had arrived when HOLD was requested; state became held and zero late frames arrived during a three-second observation after two-second grace. No interruption utterance was sent in this test. This proves the bounded observation, not instantaneous stopping. All four checked export artifacts existed. Both probes exited successfully.
+
+Chrome inspection observed the real result/citation card. After intentionally stopping the idle local server, the page displayed the disconnected notice and disabled controls; after restart it restored the Studio connection, saved research setting and current session output. Invalid guest links showed the English recovery message. No console errors were reported by the inspected tab. Actual microphone permission, external guest networking and capture are still deferred. ASR retry behavior is covered by injected transport regressions, not an induced live-provider outage.

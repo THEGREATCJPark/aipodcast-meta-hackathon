@@ -16,7 +16,7 @@ const MC_LABEL: Record<McState, string> = {
 };
 
 export function Studio() {
-  const { settings, status, logs, socketOpen, setSettings, refresh } = useStudio();
+  const { settings, status, logs, socketOpen, connectionError, setSettings, refresh } = useStudio();
   const [error, setError] = useState<string | null>(null);
   const [demo, setDemo] = useState(false);
   const [consent, setConsent] = useState(false);
@@ -25,6 +25,8 @@ export function Studio() {
   const [muted, setMuted] = useState(false);
   const [invite, setInvite] = useState<{ link: string; local: boolean } | null>(null);
   const [guestName, setGuestName] = useState("");
+  const busyRef = useRef(false);
+  const mounted = useRef(true);
   const errTimer = useRef<number | undefined>(undefined);
 
   const fail = (msg: string): void => {
@@ -34,28 +36,34 @@ export function Studio() {
   };
 
   const run = async (fn: () => Promise<unknown>): Promise<void> => {
+    if (busyRef.current) return;
+    busyRef.current = true;
     setBusy(true);
     try {
       await fn();
     } catch (e: unknown) {
       fail(e instanceof Error ? e.message : "Failed");
     } finally {
-      setBusy(false);
+      busyRef.current = false;
+      if (mounted.current) setBusy(false);
     }
   };
 
-  useStudioShortcuts(status);
-  useEffect(() => () => void mic?.leave(), [mic]);
+  useStudioShortcuts(status, socketOpen, fail);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; window.clearTimeout(errTimer.current); }; }, []);
+  useEffect(() => () => { void mic?.leave().catch(() => undefined); }, [mic]);
 
-  if (!settings || !status) return <div className="boot">Connecting to the studio…</div>;
+  if (!settings || !status) return <div className="boot"><div><p role={connectionError ? "alert" : undefined}>{connectionError ?? "Connecting to the studio…"}</p>{connectionError && <button className="btn" onClick={() => void refresh().catch(() => undefined)}>Retry connection</button>}</div></div>;
 
   const connectMic = (): Promise<void> =>
     run(async () => {
       const { url, token } = await api<{ url: string; token: string }>("/api/host-token", { method: "POST", body: {} });
-      setMic(await joinVoiceRoom(url, token, () => {
+      const joined = await joinVoiceRoom(url, token, () => {
         setMic(null);
         fail("Microphone disconnected. Please reconnect.");
-      }));
+      });
+      if (!mounted.current) { await joined.leave(); return; }
+      setMuted(false); setMic(joined);
     });
 
   const toggleSession = (): Promise<void> =>
@@ -78,7 +86,7 @@ export function Studio() {
         <div className="brand">
           <span className={`onair ${status.sessionActive ? "live" : ""}`}>{status.sessionActive ? "ON AIR" : "IDLE"}</span>
           <h1>Meta Conversation Co-host</h1>
-          {status.recording && <span className="rec" title="Saved locally when the session ends">● REC <Elapsed sessionId={status.sessionId} /></span>}
+          {status.recording && <span className="rec" title="Saved locally when the session ends">● REC <Elapsed key={status.sessionId} sessionId={status.sessionId} /></span>}
         </div>
         <div className="badges">
           <Badge ok={socketOpen} label="Studio" />
@@ -92,18 +100,19 @@ export function Studio() {
           <button className="btn ghost" onClick={() => setDemo(!demo)}>{demo ? "Studio controls" : "Judge view"}</button>
           {mic ? (
             <>
-              <button className="btn ghost" onClick={() => void mic.setMuted(!muted).then(() => setMuted(!muted))}>{muted ? "Unmute" : "Mute"}</button>
-              <button className="btn ghost" onClick={() => void mic.leave().then(() => setMic(null))}>Disconnect mic</button>
+              <button className="btn ghost" disabled={busy} onClick={() => void run(async () => { await mic.setMuted(!muted); setMuted(!muted); })}>{muted ? "Unmute" : "Mute"}</button>
+              <button className="btn ghost" disabled={busy} onClick={() => void run(async () => { await mic.leave(); setMic(null); setMuted(false); })}>Disconnect mic</button>
             </>
           ) : (
-            <button className="btn ghost" disabled={busy || !status.livekitConfigured || !consent} onClick={() => void connectMic()}>Connect mic</button>
+            <button className="btn ghost" disabled={busy || !socketOpen || !status.livekitConfigured || !consent} onClick={() => void connectMic()}>Connect mic</button>
           )}
-          <button className={`btn ${status.sessionActive ? "stop" : "primary"}`} disabled={busy || (!status.sessionActive && (!status.livekitConfigured || !engineReady || !consent))} onClick={() => void toggleSession()}>
+          <button className={`btn ${status.sessionActive ? "stop" : "primary"}`} disabled={busy || !socketOpen || (!status.sessionActive && (!status.livekitConfigured || !engineReady || !consent))} onClick={() => void toggleSession()}>
             {status.sessionActive ? "End session" : `Start session · ${ENGINE_LABEL[settings.engine]}`}
           </button>
         </div>
       </header>
 
+      {connectionError && <div className="connection-warning" role="alert">{connectionError} <button className="btn tiny" onClick={() => void refresh().catch(() => undefined)}>Refresh state</button></div>}
       {error && <div className="toast" role="alert">{error}</div>}
 
       <div className="cohost-notice">
@@ -128,13 +137,13 @@ export function Studio() {
             ))}
             {!demo && <div className="invite">
               <input value={guestName} onChange={(e) => setGuestName(e.target.value)} placeholder="Guest name" maxLength={40} />
-              <button className="btn ghost" disabled={busy || !guestName.trim() || !status.livekitConfigured} onClick={() => void createInvite()}>Invite link</button>
+              <button className="btn ghost" disabled={busy || !socketOpen || !guestName.trim() || !status.livekitConfigured} onClick={() => void createInvite()}>Invite link</button>
             </div>}
           </div>
           {invite && !demo && (
             <div className="invite-result">
               <code>{invite.link}</code>
-              <button className="btn ghost" onClick={() => void navigator.clipboard.writeText(invite.link)}>Copy</button>
+              <button className="btn ghost" onClick={() => void run(async () => { if (!navigator.clipboard) throw new Error("Clipboard unavailable. Copy the invitation text manually."); await navigator.clipboard.writeText(invite.link); })}>Copy</button>
               {invite.local && <span className="muted">Local-only link. Remote guests need a separately hosted guest page.</span>}
               <button className="btn ghost" onClick={() => setInvite(null)}>Close</button>
             </div>
@@ -149,7 +158,7 @@ export function Studio() {
           <div hidden={demo}><CapturePanel mic={mic} /></div>
           {!demo && <ComparePanel refreshKey={`${status.sessionActive}-${status.sessionId ?? ""}`} />}
           <LogPanel logs={logs} />
-          <ControlBar status={status} selectedEngine={settings.engine} researchEnabled={settings.researchEnabled} onError={fail} />
+          <ControlBar status={status} selectedEngine={settings.engine} researchEnabled={settings.researchEnabled} available={socketOpen} onError={fail} />
         </section>
         {!demo && <SettingsPanel settings={settings} locked={status.sessionActive} activeEngine={status.engine} onSaved={setSettings} onError={fail} />}
       </main>
@@ -157,20 +166,20 @@ export function Studio() {
   );
 }
 
-function useStudioShortcuts(status: StudioStatus | null): void {
+function useStudioShortcuts(status: StudioStatus | null, available: boolean, onError: (message: string) => void): void {
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
-      if (!status?.sessionActive || e.repeat) return;
+      if (!status?.sessionActive || !available || e.repeat) return;
       const target = e.target as HTMLElement;
       if (["INPUT", "TEXTAREA", "SELECT", "BUTTON"].includes(target.tagName) || target.isContentEditable) return;
       const action = e.key === "Escape" ? "hold" : e.code === "Space" ? "handoff" : null;
       if (!action) return;
       e.preventDefault();
-      void api("/api/control", { method: "POST", body: { action } }).catch(() => undefined);
+      void api("/api/control", { method: "POST", body: { action } }).catch(() => onError("Control request failed. Check the studio connection."));
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [status?.sessionActive]);
+  }, [status?.sessionActive, available, onError]);
 }
 
 function Badge({ ok, label }: { ok: boolean; label: string }) {

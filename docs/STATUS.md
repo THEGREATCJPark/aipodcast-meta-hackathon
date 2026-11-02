@@ -29,6 +29,15 @@ Repository remains private pending explicit publication approval. No public app,
 
 ## Limits and scope
 
-No automatic ASR reconnect; restart required. Usage limits are not a verified dollar spending ceiling. The research addition is focused lookup on request, not broad autonomous fact checking. Advanced lip sync, long editing, multiple AI panels and social publishing remain excluded. The independent presentation uses relaxed, candid pacing and short witty questions without presenter voice imitation or show branding.
+No automatic ASR retries. After ASR failure, Resume authorizes one reconnect attempt per participant identity; another failure requires session restart. Usage limits are not a verified dollar spending ceiling. The research addition is focused lookup on request, not broad autonomous fact checking. Advanced lip sync, long editing, multiple AI panels and social publishing remain excluded. The independent presentation uses relaxed, candid pacing and short witty questions without presenter voice imitation or show branding.
 
 Internal package target: November 4 evening KST. Publicly announced deadline: November 5, 11:00 KST, subject to official change. Preparation is not submission.
+
+
+## Reliability audit — 2026-11-02
+
+Current local audit checks passed: **80/80 tests**, typecheck, main web build and guest-only build. Large-chunk build warnings remain. Post-audit real-provider synthetic sessions `2026-11-02_1103_meta_8d3c` (lookup/automatic interruption/WAIT) and `2026-11-02_1105_meta_62e4` (separate manual HOLD) also passed, with zero late receiver frames in their bounded observation windows and saved exports. See EVALUATION.md for timing limits and private evidence paths. Human tests remain deferred.
+
+ASR failure now holds output, records a gap and blocks decisions while transcription is unavailable. Resume grants one reconnect attempt per identity, with possible lost transcription explicitly recorded; this is not an automatic retry loop. Fresh queued handoffs retain their generation/revision and are invalidated by speech, HOLD, context or permission changes.
+
+Concurrent stop/leave operations now share completion, and session start is blocked during transitions. Failed startup leaves the room. Participant recording filenames use a hash of the full identity to avoid collisions between equal name/suffix combinations. Browser join/control/capture operations have duplicate-action and cleanup guards, and disconnected studio controls expose a recoverable error state. These changes do not establish a successful human microphone/capture trial: both remain deferred by the owner.

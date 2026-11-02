@@ -24,11 +24,11 @@ A persistent Node worker is required for LiveKit and recording. There is no veri
 
 ## Meta implementation in this branch
 
-Each LiveKit participant identity has a separate Meta realtime ENDPOINTING stream with PCM 24 kHz input. Handshake gaps are explicitly logged; the original recorder retains the incoming source audio. There is no automatic ASR reconnect; restart is required. Anonymous ASR labels are not used to invent participant identity.
+Each LiveKit participant identity has a separate Meta realtime ENDPOINTING stream with PCM 24 kHz input. Handshake gaps are explicitly logged; the original recorder retains the incoming source audio. There is no automatic ASR retry loop. ASR failure holds output and records a gap; Resume authorizes one reconnect attempt per identity, and a failed retry requires session restart. Anonymous ASR labels are not used to invent participant identity.
 
 The Meta director uses the 30 most recent utterances and validates action, evidence references and context revision. Manual host handoff is the default speech permission gate. The optional explicit-lookup exception is described below. Ordinary discussion turns can recommend or WAIT but do not start autonomous playback. Meta-selected text is rendered by OpenAI TTS (tts-1/alloy defaults), not a second moderation LLM. Environment overrides exist for the documented models; the configured models passed actual provider probes with synthetic input.
 
-Generated decision metadata, generated TTS WAV and server-sent mc.wav are separate evidence. Limits are 15 minutes of provider work, four ASR streams, 60 director calls and 30 seconds of TTS per response; no retry loop is used. There is no verified dollar-denominated cost ceiling. These source-level controls require actual session evaluation and must not be presented as measured voice performance.
+Generated decision metadata, generated TTS WAV and server-sent mc.wav are separate evidence. Limits are 15 minutes of provider work, four ASR streams, 60 director calls and 30 seconds of TTS per response; no automatic provider retry loop is used. The explicit ASR recovery exception is described below. There is no verified dollar-denominated cost ceiling. These source-level controls require actual session evaluation and must not be presented as measured voice performance.
 
 ## Optional research PD
 
@@ -41,3 +41,14 @@ The bounded research path allows eight attempted searches per session, one attem
 A successful opted-in lookup can release its short answer without another Handoff, after the floor/context guard passes. Other spoken responses still require handoff. Human speech, HOLD, stop, changed context or permission changes invalidate pending work; checks repeat before TTS and chunks. Failure stays WAIT/error and recording continues, with no fallback model. Disabling research cancels pending output. TTS remains OpenAI and only renders the Meta answer.
 
 Implementation and provider-probe results are tracked in EVALUATION.md; human research dialogue and listener-observed cancellation remain separate acceptance work. Broad autonomous fact checking is outside scope.
+
+
+## Audit controls — 2026-11-02
+
+ASR streams are marked unavailable while connecting or failed. Decisions and handoffs are blocked until required transcription is available. A failed stream is closed, output is held and an `asr-gap-start` event records retry availability. Resume explicitly authorizes one new connection per failed participant identity; subsequent audio creates that stream. Successful recovery records `asr-connected` with a possible audio gap. It does not backfill untranscribed audio or promise uninterrupted context. Late callbacks from replaced/failed streams are ignored. Repeated failure requires restart.
+
+A handoff made while previous work is cancelling may be queued only with the current generation and context revision and a clear human floor. The queue is checked again before execution and cleared by cancellation/HOLD/close; a newer conversation cannot inherit an old permission to speak. Handoff during human speech is not queued.
+
+McAgent serializes repeated stop and leave requests and blocks start during lifecycle transitions, avoiding export/recorder ownership crossing into a new session. Failed startup leaves the room. Recording filenames now include a 16-hex-character SHA-256 prefix of the full participant identity rather than only its last four characters; this prevents the observed name/suffix collision class without claiming mathematical collision impossibility.
+
+The UI blocks ordinary duplicate controls while requests are pending but keeps HOLD available. WebSocket recovery refreshes current state and ignores stale/unreadable updates; controls are unavailable while disconnected. Guest joins and capture starts have in-flight guards and cleanup for abandoned browser operations. Capture remains local and still requires real audio/channel acceptance.

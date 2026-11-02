@@ -82,3 +82,14 @@ test("speech removes selected Markdown URL markup while retaining spoken source 
   const { researchSpeech }=await import("../server/meta/research.js");const body:any=raw();const block=body.output[1].content[0];block.annotations=[];block.text="According to [Source](https://example.org/source), the count is ten.";
   const spoken=researchSpeech(parseResearchResponse(body,0,1));assert.equal(spoken,"According to Source, the count is ten.");assert.ok(!spoken.includes("http"));
 });
+
+test("TTS failure after successful research is attributed to OpenAI, never research-failed",async()=>{
+  const evidence:Record<string,unknown>[]=[];
+  const s=new MetaSession(options,{decide:async(_k,_m,us,r)=>lookup(r,us),research:async()=>result(),synthesize:async()=>{throw new Error("fixture TTS rejection");}});
+  s.on("error",()=>undefined);s.on("evidence",e=>evidence.push(e));await s.connect();try{s.acceptUtterance(u);await tick();assert.ok(evidence.some(e=>e.stage==="research-complete"));assert.ok(!evidence.some(e=>e.stage==="research-failed"));assert.ok(evidence.some(e=>e.stage==="provider-failure"&&e.phase==="tts"&&e.provider==="OpenAI"));}finally{await s.close();}
+});
+test("late research cancellation evidence retains the cancelled generation, not a new control generation",async()=>{
+  const evidence:Record<string,unknown>[]=[];let reject!:(e:Error)=>void;
+  const s=new MetaSession(options,{decide:async(_k,_m,us,r)=>lookup(r,us),research:()=>new Promise((_resolve,rej)=>{reject=rej;}),synthesize:async()=>new Int16Array(480)});
+  s.on("evidence",e=>evidence.push(e));await s.connect();try{s.acceptUtterance(u);await tick();const request=evidence.find(e=>e.stage==="research-request")!;s.hold();reject(new Error("aborted"));await tick();const cancellation=evidence.find(e=>e.stage==="research-cancelled")!;assert.equal(cancellation.generation,request.generation);assert.notEqual(cancellation.generation,s.turns.generation);}finally{await s.close();}
+});

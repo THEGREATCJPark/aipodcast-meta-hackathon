@@ -105,7 +105,7 @@ app.post("/api/session/start", api(async () => {
 
 /** MC 트랙·엔진을 바꿀 때: 지금 세션을 정리(output 저장)하고 저장된 설정으로 곧바로 새 세션을 연다. */
 app.post("/api/session/restart", api(async () => {
-  await agent.stopSession();
+  await agent.leaveRoom();
   await agent.startSession(store.get());
   return agent.status();
 }));
@@ -135,7 +135,7 @@ app.post("/api/control", api((req) => {
 
 app.post("/api/host-token", api(async () => {
   const cfg = requireLivekit();
-  const s = store.get();
+  const s = agent.activeSettings ?? store.get();
   const { token } = await createToken(cfg, { room: s.show.roomName, role: "host", name: s.show.hostName, ttlSeconds: 8 * 3600 });
   return { url: cfg.url, token };
 }));
@@ -143,7 +143,7 @@ app.post("/api/host-token", api(async () => {
 app.post("/api/invites", api(async (req) => {
   const { name, ttlHours } = z.object({ name: z.string().min(1).max(40), ttlHours: z.number().min(1).max(72).default(6) }).parse(req.body);
   const cfg = requireLivekit();
-  const { token } = await createToken(cfg, { room: store.get().show.roomName, role: "guest", name, ttlSeconds: ttlHours * 3600 });
+  const { token } = await createToken(cfg, { room: (agent.activeSettings ?? store.get()).show.roomName, role: "guest", name, ttlSeconds: ttlHours * 3600 });
   const base = env.GUEST_PAGE_URL ?? `http://localhost:${env.PORT}`;
   return { link: inviteLink(base, cfg.url, token, name), local: !env.GUEST_PAGE_URL, expiresInHours: ttlHours };
 }));

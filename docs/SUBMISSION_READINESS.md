@@ -1,12 +1,12 @@
 # Submission readiness — 2026-11-02 KST
 
-Verdict: not submission-ready. Filming is deferred by the owner; engineering and provider validation continue. The prior manual-handoff co-host has actual-provider synthetic evidence. The research-PD path now also passed a real-provider synthetic-input Studio trial. This establishes that tested path, not human conversational acceptance or release readiness.
+Verdict: ready for the owner's human acceptance session, not final submission. The reliability audit passed 80 tests, typecheck and both builds. Fresh real-provider synthetic trials passed research, automatic interruption, separate manual HOLD and export checks. No known blocking defect remains from this audit; actual microphone/guest/capture acceptance and release approvals remain open. This establishes the tested paths, not human conversational acceptance or release readiness.
 
 ## Engineering gates
 
 | Area | Observed state | Next evidence required |
 |---|---|---|
-| Existing English co-host | 49 offline tests, typecheck, web/guest builds and CI passed at 1999c92; real synthetic-English Studio run produced WAIT, handoff ASK, audio receipt, HOLD and export | Research regression checkpoint: 68 tests and typecheck passed; final root main and guest builds passed |
+| Existing English co-host | Current audit: 80 tests, typecheck and web/guest builds passed; fresh real-provider synthetic lookup and manual-handoff sessions passed | Human acceptance; see EVALUATION.md for exact probe scopes |
 | Meta runtime web research | Implemented; direct and integrated Studio synthetic-input lookup passed with provider-annotated source after clock-based pacing fix. Earlier failed buffer-overflow trial retained in ledger | Human conversational acceptance, broader paraphrase/contradictory-source trials and listener quality remain |
 | Spoken request permission | Local opt-in research mode implemented, off by default; intended only for explicit spoken lookup requests | Verify disabled mode, contextual paraphrases and no unsolicited research/speech |
 | Search citations / stages | Runtime source evidence and cancellation implemented; verification tracked separately | Verify retrieved URL/title and request/completion timestamps, actual call evidence, failure handling and stale-result rejection |

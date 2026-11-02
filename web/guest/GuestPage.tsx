@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RoomEvent, type Participant } from "livekit-client";
 import { joinVoiceRoom, type VoiceRoomHandle } from "../lib/voice-room";
 
@@ -12,8 +12,9 @@ function readInvite(): Invite | null {
   const p = new URLSearchParams(location.hash.slice(1));
   const url = p.get("u");
   const token = p.get("t");
-  if (!url || !token || !/^wss?:\/\//.test(url)) return null;
-  return { url, token, name: p.get("n") ?? "Guest" };
+  if (!url || !token || token.length > 8192) return null;
+  try { const endpoint = new URL(url); if (!["ws:", "wss:"].includes(endpoint.protocol) || endpoint.username || endpoint.password) return null; } catch { return null; }
+  return { url, token, name: (p.get("n") ?? "Guest").slice(0, 40) };
 }
 
 // 페이지를 열 때 한 번만 읽고, 토큰이 주소창·방문 기록에 남지 않게 지운다.
@@ -29,13 +30,18 @@ export function GuestPage() {
   const [joining, setJoining] = useState(false);
   const [muted, setMuted] = useState(false);
   const [speakers, setSpeakers] = useState<string[]>([]);
-  const [people, setPeople] = useState<string[]>([]);
+  const [people, setPeople] = useState<{ identity: string; name: string }[]>([]);
+  const [busy, setBusy] = useState(false);
+  const busyRef = useRef(false);
+  const mounted = useRef(true);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
+  useEffect(() => () => { void handle?.leave().catch(() => undefined); }, [handle]);
 
   useEffect(() => {
     if (!handle) return;
     const room = handle.room;
-    const update = (): void => setPeople([...room.remoteParticipants.values()].map((p) => p.name ?? p.identity));
-    const onSpeakers = (list: Participant[]): void => setSpeakers(list.map((p) => p.name ?? p.identity));
+    const update = (): void => setPeople([...room.remoteParticipants.values()].map((p) => ({ identity: p.identity, name: p.name || p.identity })));
+    const onSpeakers = (list: Participant[]): void => setSpeakers(list.map((p) => p.identity));
     update();
     room.on(RoomEvent.ParticipantConnected, update).on(RoomEvent.ParticipantDisconnected, update).on(RoomEvent.ActiveSpeakersChanged, onSpeakers);
     return () => {
@@ -46,20 +52,32 @@ export function GuestPage() {
   if (!invite) return <div className="guest"><div className="guest-card"><h1>Invalid invitation</h1><p className="muted">Ask your host for a fresh invitation.</p></div></div>;
 
   const join = async (): Promise<void> => {
-    if (!consent) return;
+    if (!consent || busyRef.current) return;
+    busyRef.current = true;
     setJoining(true);
     setError(null);
     try {
-      setHandle(await joinVoiceRoom(invite.url, invite.token, () => {
+      const joined = await joinVoiceRoom(invite.url, invite.token, () => {
         setHandle(null);
         setError("Disconnected. Please rejoin.");
-      }));
+      });
+      if (!mounted.current) { await joined.leave(); return; }
+      setMuted(false); setHandle(joined);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "";
-      setError(/permission|denied|NotAllowed/i.test(msg) ? "Microphone permission is required. Allow it in your browser." : `Unable to join. Your invitation may have expired. (${msg})`);
+      setError(/permission|denied|NotAllowed/i.test(msg) ? "Microphone permission is required. Allow it in your browser." : "Unable to join. Check your connection or ask the host for a fresh invitation.");
     } finally {
-      setJoining(false);
+      busyRef.current = false;
+      if (mounted.current) setJoining(false);
     }
+  };
+
+  const control = async (action: () => Promise<void>): Promise<void> => {
+    if (busyRef.current) return;
+    busyRef.current = true; setBusy(true); setError(null);
+    try { await action(); }
+    catch { setError("Microphone control failed. Check your connection and try again."); }
+    finally { busyRef.current = false; if (mounted.current) setBusy(false); }
   };
 
   return (
@@ -78,11 +96,11 @@ export function GuestPage() {
           <>
             <p className="muted">Connected. Make yourself comfortable and join the conversation.</p>
             <ul className="guest-people">
-              {people.map((n) => <li key={n} className={speakers.includes(n) ? "active" : ""}>{n}</li>)}
+              {people.map((p) => <li key={p.identity} className={speakers.includes(p.identity) ? "active" : ""}>{p.name}</li>)}
             </ul>
             <div className="row">
-              <button className="btn ghost" onClick={() => void handle.setMuted(!muted).then(() => setMuted(!muted))}>{muted ? "Unmute" : "Mute"}</button>
-              <button className="btn stop" onClick={() => void handle.leave().then(() => setHandle(null))}>Leave</button>
+              <button className="btn ghost" disabled={busy} onClick={() => void control(async () => { await handle.setMuted(!muted); setMuted(!muted); })}>{muted ? "Unmute" : "Mute"}</button>
+              <button className="btn stop" disabled={busy} onClick={() => void control(async () => { await handle.leave(); setHandle(null); setMuted(false); setSpeakers([]); setPeople([]); })}>Leave</button>
             </div>
           </>
         )}

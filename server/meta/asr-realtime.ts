@@ -35,7 +35,7 @@ export class MetaAsr {
         } catch { this.cb.failed("Invalid Meta ASR event"); }
       });
       ws.on("error", () => { clearTimeout(timeout); reject(new Error("Meta ASR transport failed")); });
-      ws.on("close", () => { clearInterval(this.pump); clearTimeout(timeout); this.ready = false; reject(new Error("Meta ASR closed before ready")); if (!this.stopped) this.cb.failed("Meta ASR disconnected; restart session to reconnect. Recording continues."); });
+      ws.on("close", () => { clearInterval(this.pump); clearTimeout(timeout); this.ready = false; reject(new Error("Meta ASR closed before ready")); if (!this.stopped) this.cb.failed("Meta ASR disconnected; recording continues"); });
     });
   }
   accept(msg: Record<string, unknown>): void {
@@ -52,7 +52,7 @@ export class MetaAsr {
   }
   append(pcm: Int16Array): void {
     if (this.stopped) return;
-    if (this.buffer.bufferedSamples("track") + pcm.length > 48000) { this.cb.failed("ASR 2-second input buffer exceeded; restart required, original recording retained"); this.close(); return; }
+    if (this.buffer.bufferedSamples("track") + pcm.length > 48000) { this.cb.failed("ASR 2-second input buffer exceeded; original recording retained"); this.close(); return; }
     this.buffer.push("track", pcm);
   }
   private pumpDue(): void {
@@ -61,7 +61,7 @@ export class MetaAsr {
       const due = this.pacer.takeDue(performance.now());
       for (let i = 0; i < due && !this.stopped; i++) this.sendFrame();
     } catch {
-      this.cb.failed("ASR pacing stalled or transport failed; restart required, original recording retained");
+      this.cb.failed("ASR pacing stalled or transport failed; original recording retained");
       this.close();
     }
   }

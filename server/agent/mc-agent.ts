@@ -46,6 +46,8 @@ export class McAgent {
   private participants = new Map<string, Participant>();
   private session: LiveEngine | null = null;
   private starting: Promise<void> | null = null;
+  private stopping: Promise<void> | null = null;
+  private leaving: Promise<void> | null = null;
   private abortStart = false;
   private names = new Map<string, string>();
   private settings: Settings | null = null;
@@ -129,7 +131,7 @@ export class McAgent {
   }
 
   async startSession(settings: Settings): Promise<void> {
-    if (this.session || this.starting) throw new Error("A session is already active or starting");
+    if (this.session || this.starting || this.stopping || this.leaving) throw new Error("A session is active or changing state; wait for it to finish");
     const lk = this.deps.livekit();
     if (!lk) throw new Error("Configure LIVEKIT_URL, LIVEKIT_API_KEY and LIVEKIT_API_SECRET in .env");
     // 키가 없으면 방에 들어가기 전에 바로 알린다.
@@ -167,11 +169,19 @@ export class McAgent {
       this.session = null;
       this.stopPump();
       await session.close().catch(() => undefined);
+      await this.room.leave().catch(() => undefined);
+      this.participants.clear();
       throw err;
     }
   }
 
   async stopSession(): Promise<void> {
+    if (this.stopping) return this.stopping;
+    this.stopping = this.doStopSession();
+    try { await this.stopping; } finally { this.stopping = null; }
+  }
+
+  private async doStopSession(): Promise<void> {
     if (this.starting) {
       this.abortStart = true;
       await this.starting.catch(() => undefined);
@@ -200,9 +210,13 @@ export class McAgent {
   }
 
   async leaveRoom(): Promise<void> {
-    await this.stopSession();
-    await this.room.leave();
-    this.participants = new Map();
+    if (this.leaving) return this.leaving;
+    this.leaving = (async () => {
+      await this.stopSession();
+      await this.room.leave();
+      this.participants = new Map();
+    })();
+    try { await this.leaving; } finally { this.leaving = null; }
   }
 
   updateLiveSettings(settings: Settings): void {

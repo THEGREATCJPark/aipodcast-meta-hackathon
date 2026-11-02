@@ -1,4 +1,5 @@
 import { join } from "node:path";
+import { createHash } from "node:crypto";
 import { WavTrack, mixWavFiles } from "./wav-track.js";
 
 export interface RecordedTrack {
@@ -26,7 +27,8 @@ export class SessionRecorder {
 
   /** 사람 음성 (참가자 identity별 트랙) */
   human(identity: string, name: string, pcm: Int16Array): void {
-    this.write(`human:${identity}`, `${name}`, `guest-${safeFile(name)}-${identity.slice(-4)}.wav`, pcm);
+    const id = createHash("sha256").update(identity).digest("hex").slice(0, 16);
+    this.write(`human:${identity}`, `${name}`, `guest-${safeFile(name)}-${id}.wav`, pcm);
   }
 
   /** 실제로 방에 송출한 MC 음성 */

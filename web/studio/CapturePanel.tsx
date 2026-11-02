@@ -12,19 +12,25 @@ export function CapturePanel({ mic }: { mic: VoiceRoomHandle | null }) {
   const release = useRef<() => void>(() => undefined);
   const resultUrl = useRef<string | null>(null);
   const mounted = useRef(true);
+  const starting = useRef(false);
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; if (recorder.current && recorder.current.state !== "inactive") recorder.current.stop(); release.current(); if (resultUrl.current) URL.revokeObjectURL(resultUrl.current); }; }, []);
   const start = async () => {
+    if (starting.current || recorder.current) return;
+    starting.current = true;
     setPending(true); setError("");
     let screen: MediaStream | undefined;
     let context: AudioContext | undefined;
+    let cleanup = () => { screen?.getTracks().forEach(t => t.stop()); void context?.close().catch(() => undefined); };
     try {
       if (!mic) throw new Error("Connect your microphone first. Use headphones to avoid echo.");
       if (!navigator.mediaDevices?.getDisplayMedia || typeof MediaRecorder === "undefined") throw new Error("Screen recording is unavailable in this browser. Use Chrome or Edge.");
       screen = await navigator.mediaDevices.getDisplayMedia({video:{frameRate:30},audio:true});
+      if (!mounted.current) { cleanup(); return; }
       if (!screen.getAudioTracks().length) throw new Error("No tab/system audio was shared. Select this browser tab and enable Share tab audio, then try again.");
       const localTracks = [...mic.room.localParticipant.audioTrackPublications.values()].flatMap(p => p.track?.mediaStreamTrack ? [p.track.mediaStreamTrack] : []);
       if (!localTracks.length || localTracks.every(t => t.readyState !== "live")) throw new Error("No live microphone track. Reconnect your microphone and try again.");
       context = new AudioContext(); await context.resume();
+      if (!mounted.current) { cleanup(); return; }
       const destination = context.createMediaStreamDestination();
       context.createMediaStreamSource(new MediaStream(screen.getAudioTracks())).connect(destination);
       context.createMediaStreamSource(new MediaStream(localTracks)).connect(destination);
@@ -37,11 +43,12 @@ export function CapturePanel({ mic }: { mic: VoiceRoomHandle | null }) {
       const timer = window.setInterval(()=>setSeconds(Math.floor((Date.now()-started)/1000)),500);
       const limit = window.setTimeout(()=>{if(instance.state!=="inactive")instance.stop();},180000);
       const capturedScreen = screen, capturedContext = context;
-      release.current = () => {clearInterval(timer);clearTimeout(limit);capturedScreen.getTracks().forEach(t=>t.stop());destination.stream.getTracks().forEach(t=>t.stop());void capturedContext.close().catch(()=>undefined);};
+      cleanup = () => {clearInterval(timer);clearTimeout(limit);capturedScreen.getTracks().forEach(t=>t.stop());destination.stream.getTracks().forEach(t=>t.stop());void capturedContext.close().catch(()=>undefined);};
+      release.current = cleanup;
       instance.ondataavailable = e => { if(e.data.size)chunks.push(e.data); };
-      instance.onerror = () => {setError("Capture failed. Any available recording will be offered below; inspect it before use.");if(instance.state!=="inactive")instance.stop();};
+      instance.onerror = () => {if(mounted.current)setError("Capture failed. Any available recording will be offered below; inspect it before use.");if(instance.state!=="inactive")instance.stop();};
       instance.onstop = () => {
-        release.current(); recorder.current=null;
+        cleanup(); if(recorder.current === instance) recorder.current=null;
         if(!mounted.current)return;
         setRecording(false);
         if(resultUrl.current)URL.revokeObjectURL(resultUrl.current);
@@ -52,12 +59,12 @@ export function CapturePanel({ mic }: { mic: VoiceRoomHandle | null }) {
       };
       screen.getVideoTracks()[0].onended=()=>{if(instance.state!=="inactive")instance.stop();};
       setSeconds(0); instance.start(1000);setRecording(true);
-    } catch(e){screen?.getTracks().forEach(t=>t.stop());void context?.close().catch(()=>undefined);setError(e instanceof Error?e.message:"Capture failed");}
-    finally{setPending(false);}
+    } catch(e){cleanup(); recorder.current=null; if(mounted.current)setError(e instanceof Error?e.message:"Capture failed");}
+    finally{starting.current=false;if(mounted.current)setPending(false);}
   };
   return <details className="capture-panel"><summary>Film your 3-minute demo · local recording</summary>
     <p>Use headphones. Connect your mic, then select this tab with <b>Share tab audio</b>. The capture mixes your mic with guest/AI tab audio. Obtain separate permission to publish every participant’s voice. Nothing uploads automatically.</p>
-    <div className="row">{recording?<button className="btn stop" onClick={()=>recorder.current?.stop()}>Stop capture · {seconds}s / 180s</button>:<button className="btn ghost" disabled={pending||!mic} onClick={()=>void start()}>{pending?"Choose screen…":"Record this tab + mic"}</button>}
+    <div className="row">{recording?<button className="btn stop" onClick={()=>{if(recorder.current && recorder.current.state!=="inactive")recorder.current.stop();}}>Stop capture · {seconds}s / 180s</button>:<button className="btn ghost" disabled={pending||!mic} onClick={()=>void start()}>{pending?"Choose screen…":"Record this tab + mic"}</button>}
     {result&&<a className="btn" href={result.url} download={result.name}>Save local WebM</a>}</div>
     {error&&<p role="alert" className="error">{error}</p>}
     {result&&!recording&&<video src={result.url} controls preload="metadata" aria-label="Local recording preview" style={{maxWidth:"100%",maxHeight:280}}/>}

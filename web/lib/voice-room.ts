@@ -26,19 +26,22 @@ export async function joinVoiceRoom(url: string, token: string, onDisconnected: 
   });
   room.on(RoomEvent.TrackUnsubscribed, (track: RemoteTrack) => {
     track.detach().forEach((el) => el.remove());
+    if (track.sid) elements.delete(track.sid);
   });
   let leaving = false;
   room.on(RoomEvent.Disconnected, () => {
     elements.forEach((el) => el.remove());
+    elements.clear();
     if (!leaving) onDisconnected();
   });
-  await room.connect(url, token);
   try {
+    await room.connect(url, token);
     await room.localParticipant.setMicrophoneEnabled(true);
     await room.startAudio();
   } catch (err: unknown) {
     leaving = true;
-    await room.disconnect();
+    await room.disconnect().catch(() => undefined);
+    elements.forEach(el => el.remove()); elements.clear();
     throw err;
   }
   return {
@@ -47,9 +50,10 @@ export async function joinVoiceRoom(url: string, token: string, onDisconnected: 
       await room.localParticipant.setMicrophoneEnabled(!muted);
     },
     leave: async () => {
+      if (leaving) return;
       leaving = true;
-      elements.forEach((el) => el.remove());
-      await room.disconnect();
+      elements.forEach((el) => el.remove()); elements.clear();
+      try { await room.disconnect(); } catch (error) { leaving = false; throw error; }
     },
   };
 }

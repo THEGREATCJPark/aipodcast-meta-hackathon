@@ -38,4 +38,13 @@ These commands create synthetic speech, use actual providers and restore prior s
 - tests/research.test.ts and tests/asr-pacing.test.ts: search/cancellation and timing regressions.
 - Studio research evidence: generated words, source kind and timing are distinct from listener playback.
 
-The inherited studio and recorder are disclosed infrastructure, not claimed as newly invented event features. Current limitations include no automatic ASR reconnect, no completed human/external-guest acceptance and no finished video. A public judge-access arrangement will be added only if required and approved; do not expose the localhost administrative server through a tunnel.
+The inherited studio and recorder are disclosed infrastructure, not claimed as newly invented event features. Current limitations include no automatic ASR retry loop, no completed human/external-guest acceptance and no finished video. After ASR failure, Resume authorizes one reconnect attempt per identity; a repeated failure requires restart, and missing transcription is not backfilled. A public judge-access arrangement will be added only if required and approved; do not expose the localhost administrative server through a tunnel.
+
+
+## Reliability audit checkpoint — 2026-11-02
+
+The current local suite passed 80/80 tests, typecheck and both web/guest builds; large-chunk warnings remain. This supersedes the earlier 68-test checkpoint for local automated coverage, not its live-provider evidence. No current live probe result is claimed for these newest audit fixes yet.
+
+Review the ASR gap/reconnect evidence, queued-handoff generation checks, session transition guards and full-identity recording filename suffixes. If transcription fails, inspect the error, use Resume once to authorize recovery, and expect a possible transcript gap. Handoff cannot bypass failed transcription. A second failed attempt requires a session restart. Speech or HOLD must invalidate any queued handoff before it can speak.
+
+Human testing and filming are deferred by the owner. Do not infer microphone permissions, external guest usability or capture audio quality from passing Node tests or builds. The local capture preview/download remains available for a later explicitly initiated channel check.

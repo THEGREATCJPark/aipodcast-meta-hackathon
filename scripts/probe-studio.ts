@@ -33,8 +33,12 @@ try{
  evidence.receivedNonSilentAiFrames=received;
  if(!received)throw new Error('No AI speech received after handoff');
  await api('/api/control',{action:'hold'});evidence.holdState=(await api('/api/state')).status.mcState;
+ // Separate manual-HOLD receiver check; no synthetic interruption is sent here.
+ await wait(2000);const afterGrace=received;await wait(3000);
+ evidence.lateAiFramesAfterHoldGrace=received-afterGrace;
+ evidence.holdObservation={graceMs:2000,observationMs:3000,preciseStopLatencyMeasured:false};
  await api('/api/session/stop',{});started=false;await participant.leave();
  const dir=join(env.OUTPUT_DIR,evidence.sessionId);evidence.artifacts=['events.jsonl','summary.json','mc.wav','mix.wav'].map(file=>({file,exists:existsSync(join(dir,file))}));
  evidence.decisions=readFileSync(join(dir,'events.jsonl'),'utf8').trim().split('\n').map(line=>JSON.parse(line)).filter(e=>e.meta?.stage==='generated-decision').map(e=>e.meta);
- evidence.ok=evidence.holdState==='held'&&evidence.artifacts.every((f:any)=>f.exists);
+ evidence.ok=evidence.holdState==='held'&&evidence.lateAiFramesAfterHoldGrace===0&&evidence.artifacts.every((f:any)=>f.exists);
 }catch(e){evidence.ok=false;evidence.error=e instanceof Error?e.message:'Failed';}finally{if(started)await api('/api/session/stop',{}).catch(()=>undefined);await participant.leave();clearTimeout(deadline);writeFileSync(`${root}/evidence.json`,JSON.stringify(evidence,null,2));console.log(JSON.stringify(evidence,null,2));process.exit(evidence.ok?0:1)}
