@@ -28,4 +28,3 @@ test("invite credentials are fragment-only and guest identities are distinct", a
   assert.equal(url.pathname,"/join");
   assert.equal(new URLSearchParams(url.hash.slice(1)).get("t"),a.token);
 });
-

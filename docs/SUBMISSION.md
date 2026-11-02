@@ -34,3 +34,5 @@ The project builds on an existing React, Vite, Node, Express and LiveKit studio 
 - [ ] Save receipt evidence after successful transmission; only then mark submitted.
 
 Internal package target: November 4 evening KST. Publicly announced deadline rechecked November 2: November 5, 2026 at 11:00 KST; recheck for changes before transmitting.
+
+Source implementation checkpoint: 52266b1ac752f32c463e99b01ff6b9be466db544. Repository remains PRIVATE. Final submission SHA must be frozen after live acceptance and rules review.

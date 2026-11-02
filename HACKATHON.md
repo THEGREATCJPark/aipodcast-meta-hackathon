@@ -13,3 +13,5 @@ This private independent repository imports pre-existing AI MC Studio code. The 
 New work is the Meta-specific pipeline, turn controls, tests and submission documentation recorded in commits after the import. Do not equate repository creation with the start of all code development. Codex assisted implementation and documentation. No generated media asset is claimed. Dependency versions are in package-lock.json; dependency notices and original-source rights still require review before publication. No project-wide open-source license is inferred from repository access.
 
 Reuse permission, external TTS permission, idea changes and final submission requirements remain unresolved in [RULES](docs/hackathon/RULES.md). No entry has been submitted and no public deployment is claimed.
+
+Validated implementation snapshot: 52266b1ac752f32c463e99b01ff6b9be466db544 (2026-11-02). This is a development checkpoint, not a submitted final entry. Later documentation-only commits do not establish live verification.

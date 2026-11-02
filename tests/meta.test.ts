@@ -75,4 +75,3 @@ test("synthetic Meta ASR WebSocket handshake, prebuffer, PCM and completion", as
     assert.equal(handshake?.audioEncoding,"PCM_24KHZ");assert.equal(handshake?.mode,"ENDPOINTING");assert.equal(samples,960);
   } finally {asr.close();server.clients.forEach(ws=>ws.terminate());await new Promise<void>(resolve=>server.close(()=>resolve()));}
 });
-
