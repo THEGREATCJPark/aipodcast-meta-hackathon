@@ -38,3 +38,6 @@ A capture panel records a user-selected browser tab plus connected microphone, w
 Latest integrated evidence: 2026-11-02 10:26 KST synthetic English input through real Studio HTTP/McAgent/VAD/providers/recorder succeeded. WAIT then handoff ASK, separate participant audio receipt, HOLD state and stop artifacts verified. This is not human acceptance or measured audible stopping. See EVALUATION.md and HUMAN_ACCEPTANCE.md.
 
 English MVP preparation is complete for owner acceptance: 49 tests, typecheck, main web build and guest-only build passed. Fixed SPNS-inspired original English style, local 180-second capture/preview/download, English test script and three-minute production script prepared. Source remains private; human acceptance, final footage/export, public access and submission receipt are outstanding.
+
+## Scope clarification — research PD (2026-11-02)
+Owner wants the co-host to resolve forgotten facts during a natural singularity discussion and actually look up supporting information. Runtime web lookup, web-source evidence and opt-in spoken lookup requests are NOT implemented in the current manual-handoff pipeline. They are now required before the owner's human rehearsal/filming. See SUBMISSION_READINESS.md and revised English DEMO_SCRIPT.md. This is not a claim that everything except filming is ready.

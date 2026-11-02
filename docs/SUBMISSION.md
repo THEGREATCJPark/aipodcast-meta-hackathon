@@ -49,3 +49,6 @@ The required three-minute English video is in preparation; the script and filmin
 - [ ] Save receipt after transmission; only then mark submitted.
 
 Internal package target: November 4 evening KST. Announced deadline: November 5, 2026 at 11:00 KST; recheck official updates before transmission.
+
+## Newly required research-PD capability — not yet implemented
+The intended demo now includes resolving a forgotten singularity-related fact from real retrieved sources during conversation. Current code has no web-retrieval tool in its Meta director and still requires manual handoff. Do not describe live fact lookup or natural voice-only PD invocation as delivered until implemented and verified. See SUBMISSION_READINESS.md for remaining non-filming blockers.
