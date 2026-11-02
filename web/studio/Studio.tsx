@@ -7,6 +7,7 @@ import { openFolder } from "../lib/folders";
 import { CapturePanel } from "./CapturePanel";
 import { ComparePanel } from "./ComparePanel";
 import { ControlBar } from "./ControlBar";
+import { JudgeSummary } from "./JudgeSummary";
 import { LogPanel } from "./LogPanel";
 import { SettingsPanel } from "./SettingsPanel";
 import { useStudio } from "./useStudio";
@@ -18,7 +19,7 @@ const MC_LABEL: Record<McState, string> = {
 export function Studio() {
   const { settings, status, logs, socketOpen, connectionError, setSettings, refresh } = useStudio();
   const [error, setError] = useState<string | null>(null);
-  const [demo, setDemo] = useState(false);
+  const [demo, setDemo] = useState(() => new URLSearchParams(window.location.search).get("view") === "judge");
   const [consent, setConsent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [mic, setMic] = useState<VoiceRoomHandle | null>(null);
@@ -115,17 +116,17 @@ export function Studio() {
       {connectionError && <div className="connection-warning" role="alert">{connectionError} <button className="btn tiny" onClick={() => void refresh().catch(() => undefined)}>Refresh state</button></div>}
       {error && <div className="toast" role="alert">{error}</div>}
 
-      <div className="cohost-notice">
+      <details className="setup-details" open={demo ? undefined : true}><summary>Setup, consent and provider details</summary><div className="cohost-notice">
         <strong>{status.sessionActive ? "LIVE SESSION" : "LOCAL LIVE SETUP"}</strong> · Connected input uses real providers. Participant labels identify synthetic test sources; recordings are not live human trials.
         {status.providerModels && <p>ASR: {status.providerModels.asr} · Director: {status.providerModels.director} · TTS: OpenAI {status.providerModels.tts} / {status.providerModels.voice}</p>}
         <p>Human-controlled co-host · Meta speech recognition and decisions · OpenAI speech synthesis. Key badges indicate configuration, not successful model access.</p>
         {settings.engine === "meta" && <p className="research-mode"><strong>Research PD: {settings.researchEnabled ? "ON" : "OFF"}</strong> · {settings.researchEnabled ? "Explicit spoken lookup requests can trigger a researched, spoken answer. HOLD cancels it." : "Web research is disabled. Use Handoff for ordinary co-host questions."}</p>}
         {(!status.sessionActive || !mic) && <label><input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} /> I consent to local recording and transmission to LiveKit, Meta and the selected speech provider. Publication needs separate permission.</label>}
-      </div>
-      <div className="lounge-heading"><span>THE CONVERSATION LOUNGE</span><h2>Good company. Better questions.</h2><p>Relaxed, candid conversation. One grounded question at a time.</p></div>
+      </div></details>
+      <div className="lounge-heading"><span>THE CONVERSATION LOUNGE</span><h2>An AI research producer that lets speakers keep talking while it checks a requested reference.</h2><p>For small creator teams without a dedicated researcher.</p></div>
       <main className={`stage ${demo ? "judge-view" : ""}`}>
         <section className="room">
-          <div className="people">
+          {demo ? <JudgeSummary logs={logs} status={status} /> : <><div className="people">
             <PersonTile
               name="Co-host"
               state={status.engine ? `${status.engine === "meta" ? status.metaState ?? MC_LABEL[status.mcState] : MC_LABEL[status.mcState]} · ${ENGINE_LABEL[status.engine]}${status.persona ? ` · ${status.persona}` : ""}` : MC_LABEL[status.mcState]}
@@ -157,7 +158,8 @@ export function Studio() {
           <Metrics status={status} selectedEngine={settings.engine} />
           <div hidden={demo}><CapturePanel mic={mic} /></div>
           {!demo && <ComparePanel refreshKey={`${status.sessionActive}-${status.sessionId ?? ""}`} />}
-          <LogPanel logs={logs} />
+          <LogPanel logs={logs} /></>}
+          {demo && <details className="judge-logs"><summary>Execution details · full transcript and timing</summary><Metrics status={status} selectedEngine={settings.engine} /><LogPanel logs={logs} /></details>}
           <ControlBar status={status} selectedEngine={settings.engine} researchEnabled={settings.researchEnabled} available={socketOpen} onError={fail} />
         </section>
         {!demo && <SettingsPanel settings={settings} locked={status.sessionActive} activeEngine={status.engine} onSaved={setSettings} onError={fail} />}

@@ -10,7 +10,7 @@ import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 
 const scenario = process.argv.find(arg => arg.startsWith('--scenario='))?.slice('--scenario='.length) ?? 'vinge';
-if (!['vinge', 'good'].includes(scenario)) throw new Error('Use --scenario=vinge or --scenario=good');
+if (!['vinge', 'good', 'natural'].includes(scenario)) throw new Error('Use --scenario=vinge, --scenario=good or --scenario=natural');
 let gitHead: string | null = null;
 let workingTreeDirty: boolean | null = null;
 try {
@@ -74,7 +74,13 @@ async function send(index: number, pcm: Int16Array, label: string, text: string)
   return item;
 }
 try {
-  const texts = scenario === 'good' ? [
+  const texts = scenario === 'natural' ? [
+    'We were talking about that early-nineties essay on the technological singularity.',
+    'The one about smarter-than-human intelligence making the future difficult to predict?',
+    'Right. Who wrote it? Could you check?',
+    'The interesting part to me is not the date. It is whether better systems could accelerate the next round of research.',
+    'And whether that feedback loop runs into limits.'
+  ] : scenario === 'good' ? [
     'We were discussing a machine that could design machines even smarter than itself. That feedback loop might change how quickly intelligence develops.',
     'I remember a paper from nineteen sixty five about an ultraintelligent machine and an intelligence explosion, but I cannot remember who wrote it.',
     'AI, who wrote that paper? Please look it up and check a source for us.',
@@ -86,7 +92,7 @@ try {
     'While you look that up, let us continue our thought. Predicting a smarter machine could be difficult. I still want the author and source once I finish this point.'
   ];
   // Cached fixtures contain synthetic speech only; no keys, tokens or personal audio.
-  // Four cache misses at most; no retries and no provider fallback.
+  // At most one synthesis per input; no retries and no provider fallback.
   const cacheDir = join(env.OUTPUT_DIR, 'probes', 'synthetic-tts-cache');
   mkdirSync(cacheDir, { recursive: true });
   const audio: Int16Array[] = [];
@@ -142,6 +148,12 @@ try {
   evidence.researchRequestsBeforeContinuation = stage('research-request').length;
   evidence.continuationActive = true;
   evidence.continuation = await send(1, audio[3], 'continue-during-research', texts[3]);
+  if (scenario === 'natural') {
+    await sleep(250);
+    const last = await send(0, audio[4], 'continued-thought', texts[4]);
+    evidence.continuation.syntheticSendEndedAt = last.syntheticSendEndedAt;
+    evidence.continuation.actualSendDurationMs = last.syntheticSendEndedAt - evidence.continuation.syntheticSendStartedAt;
+  }
   evidence.continuationActive = false;
   evidence.continuationDurationMs = evidence.continuation.actualSendDurationMs;
   evidence.continuationPcmDurationMs = evidence.continuation.pcmDurationMs;
