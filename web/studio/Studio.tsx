@@ -86,7 +86,7 @@ export function Studio() {
       <header className="topbar">
         <div className="brand">
           <span className={`onair ${status.sessionActive ? "live" : ""}`}>{status.sessionActive ? "ON AIR" : "IDLE"}</span>
-          <h1>Meta Conversation Co-host</h1>
+          <h1>Conversation Co-host</h1>
           {status.recording && <span className="rec" title="Saved locally when the session ends">● REC <Elapsed key={status.sessionId} sessionId={status.sessionId} /></span>}
         </div>
         <div className="badges">

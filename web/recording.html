@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Meta Co-host · recording console</title>
+  <title>Conversation Co-host · recording console</title>
   <style>
     *{box-sizing:border-box}body{margin:0;background:#0b1019;color:#edf4ff;font:14px/1.4 system-ui,sans-serif}header{padding:10px 18px;border-bottom:1px solid #344153;background:#111c2a}.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.disclosure{font-size:17px;font-weight:650;color:#a8e7dc;margin-right:auto}button,a.download{border:1px solid #51677d;border-radius:7px;padding:7px 12px;color:#edf4ff;background:#20374c;font:inherit;text-decoration:none;cursor:pointer}button:disabled{opacity:.45;cursor:default}#stop{background:#763c42}#status{font-size:12px;margin-top:7px;color:#c0cfdf;font-variant-numeric:tabular-nums}#error{color:#ffb0ad;margin-top:5px}iframe{display:block;border:0;width:100vw;height:calc(100vh - 115px);background:#10151e}.hint{font-size:11px;color:#8fa4bb;margin-top:4px}a[hidden]{display:none}
   </style>
@@ -22,7 +22,7 @@
     <div id="error" role="alert"></div>
     <div class="hint">Select this tab and enable Share tab audio. Local capture only, maximum 150 seconds. Do not use Connect mic inside the embedded studio.</div>
   </header>
-  <iframe src="/" title="Actual local Meta Conversation Co-host studio" allow="autoplay"></iframe>
+  <iframe src="/" title="Actual local Conversation Co-host studio" allow="autoplay"></iframe>
   <script type="module">
     import { Room, RoomEvent, Track } from 'livekit-client';
 

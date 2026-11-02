@@ -3,7 +3,7 @@
 The authenticated [submission form](https://cerebralvalley.ai/e/meta-ai-developer-hackathon/hackathon/submit) and [participant guide](https://cerebralvalley.ai/e/meta-ai-developer-hackathon/details) were inspected in Chrome on November 2, 2026. No form data was entered or submitted. The following English copy maps to the observed fields. No visible maxlength attributes were found; server-side limits remain unknown. See SUBMISSION_FORM.md for the full field inventory and unanswered owner choices.
 
 ## Team Name — required
-AI Conversation Director
+Conversation Co-host
 
 Proposed team name for owner review; not entered into the form.
 

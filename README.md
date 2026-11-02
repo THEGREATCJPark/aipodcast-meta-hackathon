@@ -1,4 +1,6 @@
-# AI Conversation Director
+# Conversation Co-host
+
+Built with Meta Model API. Independent hackathon prototype; not an official Meta product.
 
 An AI research producer that lets speakers keep talking while it checks a requested reference.
 

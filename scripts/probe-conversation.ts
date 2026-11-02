@@ -10,7 +10,7 @@ import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 
 const scenario = process.argv.find(arg => arg.startsWith('--scenario='))?.slice('--scenario='.length) ?? 'vinge';
-if (!['vinge', 'good', 'natural'].includes(scenario)) throw new Error('Use --scenario=vinge, --scenario=good or --scenario=natural');
+if (!['vinge', 'good', 'natural', 'podcast'].includes(scenario)) throw new Error('Use --scenario=vinge, --scenario=good, --scenario=natural or --scenario=podcast');
 let gitHead: string | null = null;
 let workingTreeDirty: boolean | null = null;
 try {
@@ -74,7 +74,15 @@ async function send(index: number, pcm: Int16Array, label: string, text: string)
   return item;
 }
 try {
-  const texts = scenario === 'natural' ? [
+  const texts = scenario === 'podcast' ? [
+    'We were talking about that early-nineties essay on the technological singularity.',
+    'The one about smarter-than-human intelligence making the future difficult to predict?',
+    'Right. Who wrote it? Could you check?',
+    'The interesting part to me is whether better systems could accelerate the next round of research. A better tool might help us build an even better tool.',
+    'Maybe, but faster ideas still need experiments. Energy, hardware, and testing could slow that feedback loop. I would separate faster software from faster discoveries in the physical world.',
+    'That gives us a reference to come back to. I still think the key distinction is between generating an idea and proving it works.',
+    'Exactly. For me, the interesting question is which parts of discovery can accelerate, and which still have to wait for the real world.'
+  ] : scenario === 'natural' ? [
     'We were talking about that early-nineties essay on the technological singularity.',
     'The one about smarter-than-human intelligence making the future difficult to predict?',
     'Right. Who wrote it? Could you check?',
@@ -130,7 +138,7 @@ try {
     if (evidence.explicitRequestStartedAt == null) evidence.aiBeforeExplicitRequest = true;
     if (evidence.continuationActive) evidence.aiFramesDuringContinuation = (evidence.aiFramesDuringContinuation ?? 0) + 1;
   });
-  evidence.sessionStartedAt = Date.now(); deadline = evidence.sessionStartedAt + 95000;
+  evidence.sessionStartedAt = Date.now(); deadline = evidence.sessionStartedAt + (scenario === 'podcast' ? 125000 : 95000);
   const start = await api('/api/session/start', {}); started = true; evidence.sessionId = start.sessionId;
   await Promise.all(rooms.map((room, i) => room.join(cfg.url, tokens[i].token)));
   pollRunning = true;
@@ -148,7 +156,7 @@ try {
   evidence.researchRequestsBeforeContinuation = stage('research-request').length;
   evidence.continuationActive = true;
   evidence.continuation = { ...await send(1, audio[3], 'continue-during-research', texts[3]) };
-  if (scenario === 'natural') {
+  if (scenario === 'natural' || scenario === 'podcast') {
     await sleep(250);
     const last = await send(0, audio[4], 'continued-thought', texts[4]);
     evidence.continuation.syntheticSendEndedAt = last.syntheticSendEndedAt;
@@ -159,6 +167,18 @@ try {
   evidence.continuationPcmDurationMs = evidence.continuation.pcmDurationMs;
   await observe(); evidence.researchRequestsAfterContinuation = stage('research-request').length;
   await until(() => evidence.receivedNonSilentAiFrames > 0 && Date.now() - lastAudioAt > 1600, 'remote answer ended');
+  if (scenario === 'podcast') {
+    await observe();
+    if (!stage('research-review').some(e => e.meta.action === 'DELIVER') || !stage('research-complete').some(e => e.meta.sources?.length)) throw new Error('No sourced delivered response for the scripted follow-up');
+    evidence.followupDisclosure = 'Prewritten synthetic reactions, triggered after actual receiver audio ended; not spontaneous human feedback.';
+    evidence.answerEndedObservedAt = Date.now();
+    for (const i of [5, 6]) {
+      const utterance = await send(i % 2, audio[i], 'after-actual-answer', texts[i]);
+      await until(() => [...logs.values()].some(e => e.kind === 'human' && e.meta?.identity === utterance.identity && e.at >= utterance.syntheticSendStartedAt), `follow-up ASR ${i}`);
+      await sleep(400);
+    }
+    evidence.followupCompleted = true;
+  }
   await api('/api/control', { action: 'hold' });
   evidence.holdState = (await api('/api/state')).status.mcState;
 } catch (e) { evidence.error = e instanceof Error ? e.message : 'Probe failed'; }
