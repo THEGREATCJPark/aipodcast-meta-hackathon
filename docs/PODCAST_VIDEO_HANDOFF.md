@@ -1,3 +1,11 @@
+## Current release preparation — 2026-11-02 KST
+
+The local v3 edit is complete: `../video-workspace/output/submission-v3.mp4`, 155.300 seconds, 1920x1080/30fps, SHA256 `993d57cdf826adf438ef093cab073c9c06d4172cab63dd915fe94ba9d8ddc367`. Codex verified its existence/hash against Claude's report. Claude's automated media/ASR checks passed; full watch/listen acceptance remains pending. No public URL, publication or submission exists.
+
+115 tests, typecheck and web/guest builds passed on the corrected implementation. Full real-provider synthetic sessions `2026-11-02_1908_meta_adc9` and `2026-11-02_1910_meta_6222` passed at execution SHA `564027cfb9eefaf6cdba49c43b53563a6fc6582a`. The former is the video core; the separate earlier HOLD run is labeled. These are not human trials or a measured reliability rate. Final source SHA and audit scope are recorded in the generated private package manifest; video execution SHA remains distinct.
+
+Earlier checkpoints below are historical, not current blockers or claims. See SUBMISSION_READINESS.md for the current release checklist.
+
 ## Recovered podcast handoff — 2026-11-02, 19:12 KST
 
 **Supersedes the earlier STOP/fallback-only status below.** The owner authorized diagnosing and correcting the blocker. An instrumented actual failure (`2026-11-02_1906_meta_a2a7`) confirmed completion-limit exhaustion: 1000 total tokens, 998 reasoning tokens, no visible content. The review budget is now 4096; incomplete envelopes are explicitly rejected/classified. The 220-character speech cap, TTL, timeout, revision guards, HOLD and cancellation remain unchanged. No fallback model or automatic retry was added. See [diagnosis](META_REVIEW_DIAGNOSIS.md).

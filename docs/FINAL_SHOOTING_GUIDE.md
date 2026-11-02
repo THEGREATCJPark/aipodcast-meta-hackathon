@@ -1,3 +1,7 @@
+# Historical human-filming guide — superseded
+
+No new human filming is required for the current owner-approved synthetic v3 candidate. See VIDEO_PRODUCTION.md, SUBMISSION_READINESS.md and FINAL_REVIEW.md. The earlier guide below is retained only if a future human demonstration is explicitly chosen.
+
 # 제출용 최종 촬영 가이드 — 영어 3분
 
 2026-11-02 / 앱 기준 8688280. 이 문서는 촬영 지시문이며 촬영 완료 증거가 아니다. 이전 DEMO_SCRIPT.md의 확장 시나리오와 평가 선행조건보다 이 문서의 좁힌 범위를 우선한다.

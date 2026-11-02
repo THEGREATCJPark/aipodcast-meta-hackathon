@@ -2,7 +2,7 @@
 
 Observed in Chrome at https://cerebralvalley.ai/e/meta-ai-developer-hackathon/hackathon/submit, alongside https://cerebralvalley.ai/e/meta-ai-developer-hackathon/details. This inventory records the actual visible form, not a guessed template. No data was entered, no checkbox was selected and no submission was sent.
 
-English field-mapped copy is in SUBMISSION.md. Reviewed source checkpoint: 786a773. Human tests and filming are deferred; technical preparation continues without them.
+English field-mapped copy is in SUBMISSION.md. Current release identity is in the private package manifest. Human trials are deferred; the synthetic v3 video has been rendered and awaits full listening/publication approval. This inventory records the November 2 inspection, not a claim of a fresh form visit.
 
 ## Required text/link fields
 
@@ -10,10 +10,10 @@ Required status below was confirmed from ariaRequired in the rendered form. No v
 
 | Exact field label | Prepared value / status |
 |---|---|
-| Team Name | Prepared value: “AI Conversation Director”; included in final review |
+| Team Name | Prepared value: “Conversation Co-host”; included in final review |
 | Project Description | English draft in SUBMISSION.md; discloses existing source and synthetic evidence |
 | Public GitHub Repository | Target URL prepared, but repository is still private; publication approval required |
-| 3-Minute Demo Video | Missing actual video URL; filming deferred by owner |
+| 3-Minute Demo Video | Local 155.3-second v3 exists; public video URL pending approval |
 | Describe your use of Meta products to build the submitted project | English draft describing Meta ASR, director and web_search; separate OpenAI TTS and Codex assistance disclosed |
 | Why are Meta's models important to your solution? | English draft focused on actual model roles; no unsupported superiority claim |
 
@@ -63,9 +63,7 @@ The authenticated guide confirms public source and three-minute video; distingui
 
 ## Current evidence and release state
 
-68 automated tests, typecheck, web/guest builds and CI passed at the recorded checkpoint. Real-provider synthetic Studio research and a separate synthetic interruption test passed within their recorded scopes. No real human conversation, final video, public release, promotional permission or submission receipt is claimed.
-
-Public source review and final form preparation continue without organizer clarification. Subjective survey answers belong to final owner review; they are not inferred from successful tests. Human acceptance and required video remain deferred. The build alone is not submission readiness.
+115 tests, typecheck and main/guest builds passed on the corrected implementation. Two actual-provider synthetic full runs at 564027c completed the podcast sequence. Local v3 is rendered; human listening and human conversation acceptance are distinct and remain unverified. No public release, promotional permission or submission receipt is claimed. User-specific ratings and contributor/rights confirmation remain final owner items.
 
 ## Waiver subsequently inspected
 

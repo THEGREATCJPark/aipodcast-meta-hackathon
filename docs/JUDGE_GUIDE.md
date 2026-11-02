@@ -14,7 +14,7 @@ npm run build:web
 npm run build:guest
 ```
 
-The recorded implementation checkpoint 786a773 passed 68 automated tests and CI. Tests exercise stale-result cancellation, permission gates, source validation, audio pacing, recorder preservation and guest-token restrictions. Fixtures are labeled synthetic; they do not establish human conversation quality.
+The corrected implementation passed 115 automated tests, typecheck and both builds; prior CI results belong to their recorded checkpoints. Tests exercise stale-result cancellation, permission gates, source validation, audio pacing, recorder preservation and guest-token restrictions. Fixtures are labeled synthetic; they do not establish human conversation quality.
 
 ## Local real-provider run
 
@@ -25,8 +25,9 @@ Run `npm run dev`, open http://localhost:4400, choose Meta, and start a session 
 For an explicitly paid synthetic integration check on an idle studio:
 
 ```sh
-npx tsx scripts/probe-research-studio.ts
-npx tsx scripts/probe-research-studio.ts --interrupt
+npx tsx scripts/probe-conversation.ts --scenario=podcast
+# Separate control probe, not a physical button or acoustic interruption trial:
+npx tsx scripts/video/record-control.ts
 ```
 
 These commands create synthetic speech, use actual providers and restore prior settings. They are not part of offline CI and do not replace human trials. See EVALUATION.md for observed successes and failures.
@@ -38,13 +39,13 @@ These commands create synthetic speech, use actual providers and restore prior s
 - tests/research.test.ts and tests/asr-pacing.test.ts: search/cancellation and timing regressions.
 - Studio research evidence: generated words, source kind and timing are distinct from listener playback.
 
-The inherited studio and recorder are disclosed infrastructure, not claimed as newly invented event features. Current limitations include no automatic ASR retry loop, no completed human/external-guest acceptance and no finished video. After ASR failure, Resume authorizes one reconnect attempt per identity; a repeated failure requires restart, and missing transcription is not backfilled. A public judge-access arrangement will be added only if required and approved; do not expose the localhost administrative server through a tunnel.
+The inherited studio and recorder are disclosed infrastructure, not claimed as newly invented event features. Current limitations include no automatic ASR retry loop, no completed human/external-guest acceptance and no public video URL (local v3 is rendered, listening approval pending). After ASR failure, Resume authorizes one reconnect attempt per identity; a repeated failure requires restart, and missing transcription is not backfilled. A public judge-access arrangement will be added only if required and approved; do not expose the localhost administrative server through a tunnel.
 
 
 ## Reliability audit checkpoint — 2026-11-02
 
-The latest suite passed 98/98 tests, typecheck and both web/guest builds; large-chunk warnings remain. Research now survives ordinary speech, then requires fresh Meta relevance/permission review before delivery. `npx tsx scripts/probe-conversation.ts` is an explicit paid two-synthetic-speaker real-provider probe (add --scenario=good for the other reference; default is vinge). It caches only synthetic input TTS under ignored output/; ASR, search, review and answer TTS still use real services; `npx tsx scripts/evaluate-director.ts` runs six paid text scenarios. Both were exercised with results scoped in EVALUATION.md. Neither proves human acceptance or source accuracy. The independent repository default branch now opens the Meta version.
+The current suite passed 115/115 tests, typecheck and both web/guest builds; large-chunk warnings remain. Research now survives ordinary speech, then requires fresh Meta relevance/permission review before delivery. `npx tsx scripts/probe-conversation.ts` is an explicit paid two-synthetic-speaker real-provider probe (add --scenario=good for the other reference; default is vinge). It caches only synthetic input TTS under ignored output/; ASR, search, review and answer TTS still use real services; `npx tsx scripts/evaluate-director.ts` runs six paid text scenarios. Both were exercised with results scoped in EVALUATION.md. Neither proves human acceptance or source accuracy. The independent repository default branch now opens the Meta version.
 
 Review the ASR gap/reconnect evidence, queued-handoff generation checks, session transition guards and full-identity recording filename suffixes. If transcription fails, inspect the error, use Resume once to authorize recovery, and expect a possible transcript gap. Handoff cannot bypass failed transcription. A second failed attempt requires a session restart. Speech or HOLD must invalidate any queued handoff before it can speak.
 
-Human testing and filming are deferred by the owner. Do not infer microphone permissions, external guest usability or capture audio quality from passing Node tests or builds. The local capture preview/download remains available for a later explicitly initiated channel check.
+Human testing remains deferred. Synthetic filming and local v3 editing are complete; full video listening acceptance remains pending. Do not infer microphone permissions, external guest usability or capture audio quality from passing Node tests or builds. The local capture preview/download remains available for a later explicitly initiated channel check.

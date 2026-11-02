@@ -75,7 +75,7 @@ function main() {
   const archive = join(out, "ai-mc-studio-source.zip");
   git("archive", "--format=zip", "--prefix=ai-mc-studio/", `--output=${archive}`, head);
   const bytes = readFileSync(archive);
-  const manifest = { ...audit, generatedAt: new Date().toISOString(), archive: "ai-mc-studio-source.zip", archiveBytes: bytes.length, archiveSha256: createHash("sha256").update(bytes).digest("hex"), sourceFiles: paths, publicationApproved: false, submitted: false, humanAcceptance: "Not established by packaging", video: "Not included; final English capture and review required", note: "Private review package only. Git history, ignored files and recordings are not included. Public GitHub history requires separate review and approval. This ZIP does not replace the required public repository or video." };
+  const manifest = { ...audit, generatedAt: new Date().toISOString(), archive: "ai-mc-studio-source.zip", archiveBytes: bytes.length, archiveSha256: createHash("sha256").update(bytes).digest("hex"), sourceFiles: paths, publicationApproved: false, submitted: false, humanAcceptance: "Not established by packaging", video: "Not included; local v3 rendered, full listening and publication approval pending", note: "Private review package only. Git history, ignored files and recordings are not included. Public GitHub history requires separate review and approval. This ZIP does not replace the required public repository or video." };
   writeFileSync(join(out, "manifest.json"), JSON.stringify(manifest, null, 2) + "\n");
   console.log(`Private package prepared: ${out}`);
 }
