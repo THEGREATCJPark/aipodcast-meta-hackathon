@@ -1,36 +1,24 @@
 # Rules evidence — 2026-11-02 KST
 
-This review distinguishes publicly retrieved announcements from participant instructions supplied by the owner. It is not a final eligibility decision or acceptance of terms.
+## Authenticated verification update — 10:48 KST (supersedes earlier retrieval limits below)
 
-## Sources
+The signed-in browser successfully rendered and was used to read the full [Participant Guide](https://cerebralvalley.ai/e/meta-ai-developer-hackathon/details), [Official Rules and Event Waiver](https://cerebralvalley.ai/e/meta-ai-developer-hackathon/waiver), and [actual submission form](https://cerebralvalley.ai/e/meta-ai-developer-hackathon/hackathon/submit). No fields were entered, track selected, consent checked, or submission sent. Public-repository, three-minute-video, contributor, single-entry, new-contribution and judging-weight requirements are now independently corroborated, not merely owner-supplied.
 
-1. [Meta event page](https://dev.meta.ai/events/global-hackathon) and [organizer announcement](https://cerebralvalley.ai/e/meta-ai-developer-hackathon), independently retrieved November 2, 09:55 KST.
-2. Participant instructions recovered and supplied by the owner from [the prior conversation](https://chatgpt.com/c/6ae013f0-c068-83ec-9e01-51e7ae48e5f5). The requirements below are attributed to that participant text; the current authenticated rules have not been independently retrieved. This supersedes earlier blanket “unverified” labels for the specific supplied requirements.
-3. Public retrieval of [details](https://cerebralvalley.ai/e/meta-ai-developer-hackathon/details) returned a loading shell; [waiver](https://cerebralvalley.ai/e/meta-ai-developer-hackathon/waiver) was inaccessible through the retrieval tool.
+The deadline remains November 4 at 21:00 EST / November 5 at 11:00 KST. Guide section 4 requires the demo to clearly distinguish and highlight work built during the event. Guide sections 7–8 assess code, video and the live product; an idea pitch alone is insufficient. The observed form has no standalone live-product URL field or hosting-period requirement. This does not establish that judges never need executable access. See [field mapping](../SUBMISSION_FORM.md).
 
-| Requirement | Evidence status | Project action |
-|---|---|---|
-| Deadline: November 4, 21:00 ET / November 5, 11:00 KST | Independently verified public announcement; subject to changes | Recheck before transmission; internal package target November 4 evening KST. |
-| Public repository | Owner-supplied participant instructions | Prepare reviewed public source; repository remains private until explicit owner approval. |
-| Three-minute video | Owner-supplied participant instructions | Produce an English three-minute video from actual recordings; none completed yet. |
-| Actual product, code and video assessed | Owner-supplied participant instructions | Provide reproducible source and honest footage; screenshots alone do not prove live operation. |
-| List contributors | Owner-supplied participant instructions | Confirm all human contributors and disclose AI assistance before submission. |
-| One project per team | Owner-supplied participant instructions | Owner must confirm this is the team's single entry. |
-| Distinguish event contribution from existing work | Owner-supplied participant instructions | Preserve provenance and identify commits after imported baseline. |
-| Startup track reuse | Explicitly permitted in owner-supplied participant text | Does not establish indie-track permission or this project's eligibility. |
-| Indie track reuse | Unresolved | Obtain applicable track interpretation before claiming eligibility. |
-| Change from application idea | Unresolved | Confirm with final rules or organizer. |
-| External TTS / mixed providers | Unresolved | Disclose OpenAI TTS; do not infer permission from unrelated reuse rules. |
-| Runnable URL, hosting duration, exact form fields | Unresolved | Retrieve actual form; local execution is not a public deployment. |
-| Participant acceptance and final terms | Owner review required | Do not accept terms or transmit entry without authorization. |
+The waiver expressly allows compliant open-source components when built upon/enhanced. It does not explicitly settle Indie reuse of this private personal foundation. The baseline commit is dated October 28; earlier development is not audited. Do not assert every baseline line was written before or during the event without evidence. Startup reuse is explicit, but switching tracks is not a workaround: a startup representative must meet the startup and employment/authority requirements.
 
-## Judging rubric supplied by the participant
+No explicit rule settling the application-idea pivot or external TTS was found. No Meta-only exclusivity was found either; general third-party-service language is not specific TTS approval. These interpretations remain organizer questions.
+
+The waiver retains entrant IP ownership while granting broad perpetual, irrevocable, worldwide, royalty-free organizer usage rights, including adaptation and promotion. It also describes non-confidential materials, media/likeness rights, liability release/indemnity and California venue. The form has a separate unchecked promotional permission checkbox; its required status was not exposed. Reading the waiver is not new acceptance, and its displayed October 25 date does not prove the owner's acceptance status. See [approval register](APPROVALS.md).
+
+## Confirmed project judging weights
 
 | Criterion | Weight |
 |---|---:|
 | Impact | 30% |
-| Meta usage | 25% |
-| Technical execution | 20% |
+| Meta AI tooling | 25% |
+| Technical depth and execution | 20% |
 | Demo | 25% |
 
-These weights come from the owner-supplied participant instructions, not the public application selection criteria. Current authenticated text has not been independently verified. A new private repository does not erase earlier development or establish compliance. If the applicable rules prohibit this reuse, do not hide it; revise the entry approach.
+These were read in both the participant guide and official waiver. They are not application-selection weights. A new repository does not establish eligibility. Unsent clarification questions and later approval gates are recorded alongside this file.

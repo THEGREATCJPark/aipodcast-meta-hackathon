@@ -12,9 +12,9 @@ This private independent repository imports pre-existing AI MC Studio code. The 
 
 New work is the Meta-specific pipeline, turn controls, tests and submission documentation recorded in commits after the import. Do not equate repository creation with the start of all code development. Codex assisted implementation and documentation. No generated media asset is claimed. Dependency versions are in package-lock.json; dependency notices and original-source rights still require review before publication. No project-wide open-source license is inferred from repository access.
 
-Owner-supplied participant instructions require a public repository, a three-minute video, contributor listing, one project per team and disclosure of event contributions. Startup reuse is explicit in that text; indie reuse, external TTS, idea changes and exact form/deployment requirements remain unresolved in [RULES](docs/hackathon/RULES.md). No entry has been submitted and no public deployment is claimed.
+The authenticated official guide and actual submission form require a public repository, a three-minute video, contributor listing, one project per team and disclosure of event contributions. Startup reuse is explicit; Indie reuse, external TTS and idea changes require clarification in [RULES](docs/hackathon/RULES.md). Actual form fields are mapped in [SUBMISSION_FORM](docs/SUBMISSION_FORM.md); no standalone live URL field was observed. No entry has been submitted and no public deployment is claimed.
 
-Reviewed implementation checkpoint: 1e5ec68 (2026-11-02), not a submitted final entry. Actual-provider synthetic-input evidence is recorded separately from automated tests and pending human acceptance in EVALUATION.md.
+Reviewed implementation checkpoint: 786a773 (2026-11-02), not a submitted final entry. Actual-provider synthetic-input evidence is recorded separately from automated tests and pending human acceptance in EVALUATION.md.
 
 
 Contributor record: repository owner THEGREATCJPark; preferred credited name and any additional human contributors must be confirmed before submission. Codex is disclosed as AI assistance, not asserted to be a human team member. The owner must confirm this is the team's single submitted project.

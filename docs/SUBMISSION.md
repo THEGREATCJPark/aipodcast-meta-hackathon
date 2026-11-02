@@ -1,56 +1,57 @@
-# Submission draft — English — NOT SUBMITTED
+# Submission draft — mapped to the authenticated form — NOT SUBMITTED
 
-These are reusable responses, not a verified mapping to the authenticated form's fields or character limits. Reconcile with the actual form before transmission. Participant-copied requirements and their provenance are recorded in RULES.md.
+The authenticated [submission form](https://cerebralvalley.ai/e/meta-ai-developer-hackathon/hackathon/submit) and [participant guide](https://cerebralvalley.ai/e/meta-ai-developer-hackathon/details) were inspected in Chrome on November 2, 2026. No form data was entered or submitted. The following English copy maps to the observed fields. No visible maxlength attributes were found; server-side limits remain unknown. See SUBMISSION_FORM.md for the full field inventory and unanswered owner choices.
 
-## Project name
+## Team Name — required
 AI Conversation Director
 
-## One-line description
-A Meta-powered co-host that listens to human discussions, waits when it should, and asks grounded follow-up questions when useful.
+Proposed team name for owner review; not entered into the form.
 
-## Impact
-Small creator teams often moderate a conversation while participating in it. The co-host is designed to reduce that divided attention by proposing a useful follow-up, clarifying a mismatch, summarizing a discussion, or waiting. People retain control of the floor. We have not measured time savings, audience growth or market demand; these are hypotheses for evaluation, not reported results.
+## Project Description — required
+AI Conversation Director is a Meta-powered co-host for small creator teams. It listens to a human discussion, waits when the conversation is flowing, asks grounded follow-up questions when invited, and can look up a forgotten fact after an explicit spoken request when the operator enables research mode.
 
-## Meta usage
-Meta muse-voice-transcribe-1.0 transcribes separate participant streams. Meta muse-spark-1.3 chooses WAIT, ASK, CLARIFY, SUMMARIZE or an explicit LOOKUP from bounded recent context and returns references to source utterances. The application validates those references and the context revision before speech. OpenAI tts-1/alloy renders the approved Meta text. No other language model silently replaces a failed Meta decision.
+The project builds on our existing React/Vite, Node/Express and LiveKit studio and recording foundation. The work added for this entry is the Meta transcription/director integration, evidence-validated web research, speech permission and cancellation controls, and tests. The original baseline and subsequent contributions are disclosed in HACKATHON.md and docs/PROVENANCE.md. We do not claim that all code was created during the event.
 
-## Technical execution
-The application retains React, Vite, Node, Express and LiveKit. Manual handoff gates ordinary speech; optional locally enabled research permits an explicit spoken lookup to release a cited answer through Meta Responses web_search; human speech and HOLD invalidate pending generation and playback. Separate evidence distinguishes generated text, synthesized audio and server-sent sound. Real-provider synthetic audio has passed through Meta ASR, the Meta director, OpenAI TTS and a separate LiveKit receiver. This is not evidence of a real human conversation. Human interruption, reconnect and external guest acceptance remain pending. Automatic ASR reconnect is not implemented; call/time limits are not a verified dollar spending ceiling.
+Actual-provider synthetic English input has traversed the full Studio, Meta ASR, contextual LOOKUP without a handoff button, Meta web search, cited response, OpenAI TTS and a separate LiveKit receiver. A separate synthetic interruption trial suppressed late audio during its defined observation window. These are synthetic-input trials, not human conversations or measured user benefits. Human acceptance and filming remain deferred. Automated validation includes 68 tests, typecheck, web/guest builds and CI passing at the documented checkpoint.
 
-Research is bounded to eight attempts per session, with timeouts and stale-context cancellation. A searched-answer claim requires completed search-call evidence and valid provider citations or final-answer links exactly matched to actual search results, with the source kind recorded. Provider and human validation of this extension are tracked separately in EVALUATION.md; source links are not a guarantee of factual correctness.
+## Public GitHub Repository — required
+https://github.com/THEGREATCJPark/aipodcast-meta-hackathon
 
-## Existing work and event contribution
-This is an independent snapshot of our existing AI MC Studio. The React/Vite interface, Express server, LiveKit transport, legacy GPT/Gemini engines and recorder are pre-existing work. The disclosed app baseline is b79131169fcd74abfb20a45e1daad78d29217cf8. Subsequent work adds the Meta co-host pipeline, validated contextual decisions, turn controls, evidence and tests. We do not claim all source was created during the event. Reuse eligibility for the applicable track still requires confirmation.
+Current visibility: PRIVATE. This URL does not yet satisfy the public-repository requirement. Publication requires explicit owner approval after review. Branch: hackathon/meta-2026. Reviewed checkpoint: 786a773; final submission SHA is not frozen.
 
-## Contributors and tools
-Repository owner: THEGREATCJPark. Confirm the owner's preferred credited name and every other human contributor before sending. Codex assisted implementation, tests and documentation. No other human contributor is asserted without confirmation. The independent co-host uses general relaxed, candid conversational traits; no show affiliation, presenter voice imitation or endorsement is claimed.
+## 3-Minute Demo Video — required
+No video URL exists. Filming is deferred by the owner. Do not enter a fabricated link or substitute a screenshot. The English production script and capture checklist are prepared in DEMO_SCRIPT.md and HUMAN_ACCEPTANCE.md. The guide requires the demo to focus on new work and distinguish event contributions.
 
-## Demo and evidence
-Filming is deferred by the owner. The required three-minute English video has prepared materials; the script and filming checklist are in DEMO_SCRIPT.md and HUMAN_ACCEPTANCE.md. The application can locally capture a browser tab and microphone into a WebM preview/download; actual human recording acceptance is still pending. Existing synthetic-provider artifacts are private and must be labeled accurately if used.
+## Describe your use of Meta products to build the submitted project — required
+We use muse-voice-transcribe-1.0 through Meta's realtime ASR endpoint to transcribe separate LiveKit participant streams. Muse Spark 1.3 chooses WAIT, ASK, CLARIFY, SUMMARIZE or LOOKUP from recent conversation and supplies references to the relevant utterances. The application validates the decision and context revision before allowing speech.
 
-## Links / freeze record
-- Source: https://github.com/THEGREATCJPark/aipodcast-meta-hackathon (PRIVATE; public repository required by supplied participant instructions, publication awaiting approval)
-- Branch: hackathon/meta-2026
-- Reviewed implementation checkpoint: 1e5ec68 (not final submission SHA)
-- Final frozen SHA: pending final checks
-- Public runnable URL: none
-- Public three-minute video URL: none
-- Submission receipt/ID: none
+For operator-enabled, explicit research requests, Muse Spark uses Meta Responses web_search. We require completed search evidence and either provider citation annotations or final-answer links that exactly match actual search results, with these source types labeled separately. Human speech, HOLD, session changes and permission changes invalidate pending results. OpenAI tts-1/alloy supplies separate speech synthesis of Meta's text; no other language model silently replaces Meta's decision or search. Codex assisted development, tests and documentation; we do not claim use of Muse Code to build this project.
 
-## Final release checklist
-- [ ] Resolve indie-track reuse, idea change and external TTS permissions; verify applicable current rules.
-- [ ] Retrieve actual form, limits and any runnable URL or hosting-period requirements.
-- [ ] Confirm all contributors and that this is the team's single project entry.
-- [ ] Complete human acceptance and annotate evidence; keep synthetic input separate.
-- [ ] Review final English video and public voice/face permissions.
-- [ ] Review source rights, dependency notices, full new history, secrets and personal data.
-- [ ] Obtain explicit approval to publish repository; then verify public access.
-- [ ] Obtain approval for any public guest deployment; verify HTTPS and access boundaries.
-- [ ] Freeze final SHA and ensure public source/video describe that version.
-- [ ] Owner reviews final copy, accepts final terms and authorizes submission.
-- [ ] Save receipt after transmission; only then mark submitted.
+## Why are Meta's models important to your solution? — required
+Meta models handle the central conversation decisions, not a decorative feature. Speech recognition provides the discussion context; Muse Spark decides whether to wait, ask, clarify, summarize or perform a requested lookup. The research path connects an explicit request to external source evidence before the answer can speak. This makes the model's choice and grounding inspectable while application controls preserve the participants' floor. Our recorded provider trials demonstrate this path with synthetic input; they do not establish comparative model superiority or human conversation quality.
 
-Internal package target: November 4 evening KST. Announced deadline: November 5, 2026 at 11:00 KST; recheck official updates before transmission.
+## Team Members — prefilled
+Park ChanJun. Confirm the participant list is complete and the team is submitting only one project. Additional private profile metadata is not reproduced here.
 
-## Newly required research-PD capability — not yet implemented
-The intended demo now includes resolving a forgotten singularity-related fact from real retrieved sources during conversation. The working branch now implements opt-in spoken lookup with Meta Responses web_search. Direct and integrated Studio actual-provider calls passed with synthetic English input after fixing ASR pacing. The earlier buffer-overflow failure is retained in the evaluation ledger. Describe the delivered code and observed evidence separately. See SUBMISSION_READINESS.md for remaining non-filming blockers.
+## Required radio choices — owner answers pending
+- Track: Indie / Startups. Do not select based only on a desired reuse exception. Startup reuse is explicit in the guide; applicable Indie reuse remains unresolved.
+- Problem theme: **Build for Your World** is the prepared choice, matching the creator-domain problem; included in final submission review. Push the Frontier is the other choice.
+- Likelihood of building with Meta API: owner answer required; do not infer from technical success.
+- Overall opinion of Meta API: owner answer required; do not invent an endorsement.
+
+## Optional fields and additional surveys
+The optional X viral-post link and partner feedback can remain empty unless the owner supplies content. Unmarked surveys ask Meta API and Muse Code recommendation ratings, biggest obstacle, model comparison, selection priority and explanation, switching difficulty, and production blocker. These require the owner's subjective answers; no ratings or Muse Code experience are invented. No separate live-app URL field was observed.
+
+## Promotional permission and final release gates
+The form includes a checkbox authorizing Meta and Cerebral Valley to publish, share and promote submitted materials across channels. It remains unchecked. Its required status was not established; explicit owner approval is needed for this permission and final submission.
+
+- [ ] Resolve applicable Indie reuse, application-idea pivot and external TTS questions; the latter two were not specified in the inspected guide.
+- [ ] Confirm team name, complete contributors, single entry, track/theme and subjective survey responses.
+- [ ] Review source rights, dependency notices, history, secrets and personal data; approve public repository publication.
+- [ ] Resume human acceptance/filming when the owner chooses; produce an actual three-minute English video and approve public voice/face use.
+- [ ] Review promotional permission, final terms and the exact materials to be transmitted.
+- [ ] Freeze final SHA, verify public links, authorize submission and retain the receipt.
+
+No terms were accepted and no submission receipt exists. Announced deadline: November 5, 2026 at 11:00 KST, subject to official changes. Internal package target: November 4 evening KST.
+
+Waiver review: the subsequently inspected waiver retains IP ownership but grants broad perpetual, irrevocable, royalty-free rights. Open-source-component permission is conditional and does not resolve reuse of this private baseline for the Indie track. The promotional checkbox remains unchecked (`ariaRequired=null`); owner review of the actual waiver and permissions is required before any acceptance or submission.

@@ -2,7 +2,9 @@
 
 A Meta-powered co-host that listens to human discussions, waits when it should, and asks grounded follow-up questions when useful.
 
-**Private development build. Meta ASR/director, OpenAI TTS and LiveKit passed a real-provider probe with synthetic Korean audio. Human voice sessions remain unverified.** This project reuses an existing studio; see [provenance](docs/PROVENANCE.md) and [hackathon disclosure](HACKATHON.md). Applicable-track reuse eligibility remains unresolved. Owner-supplied participant instructions require a public repository and a three-minute video; see the source distinctions in RULES.md.
+**Private development build. Meta ASR/director, web research, OpenAI TTS and LiveKit have actual-provider synthetic-input evidence; human voice sessions remain unverified.** This project reuses an existing studio; see [provenance](docs/PROVENANCE.md) and [hackathon disclosure](HACKATHON.md). Applicable-track reuse eligibility remains unresolved. The authenticated official guide and actual submission form require public source and a three-minute video; see [rules](docs/hackathon/RULES.md).
+
+Preparation links: [judge setup](docs/JUDGE_GUIDE.md), [actual form and field mapping](docs/SUBMISSION_FORM.md), [English submission copy](docs/SUBMISSION.md), [publication review](docs/PUBLICATION_REVIEW.md), and [owner approval gates](docs/hackathon/APPROVALS.md). Nothing has been submitted or made public.
 
 ## Run locally
 
