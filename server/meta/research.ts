@@ -14,13 +14,32 @@ export const ResearchResultSchema = z.object({
 }).strict();
 export type ResearchResult = z.infer<typeof ResearchResultSchema>;
 const ObjectSchema = z.object({}).catchall(z.unknown());
+/** Parse the limited inline-link form requested from Meta, including balanced URL parentheses. */
+function sourceLinks(text: string): { label: string; url: string; start: number; end: number }[] {
+  const links: { label: string; url: string; start: number; end: number }[] = [];
+  const opening = /\[([^\]\n]+)\]\(/g;
+  for (let match; (match = opening.exec(text)) !== null;) {
+    const begin = opening.lastIndex; let depth = 1; let end = begin;
+    for (; end < text.length && depth > 0; end++) {
+      if (/\s/.test(text[end])) break;
+      if (text[end] === "(") depth++;
+      else if (text[end] === ")") depth--;
+    }
+    if (depth !== 0) throw new Error("Malformed research source link");
+    links.push({label: match[1], url: text.slice(begin, end - 1), start: match.index, end});
+    opening.lastIndex = end;
+  }
+  return links;
+}
 /** Completed search plus provider citations or exact model-selected result links; never infer citations from hits alone. */
 export function parseResearchResponse(raw: unknown, requestedAt: number, completedAt: number): ResearchResult {
   const body = z.object({ id: z.string(), status: z.literal("completed"), output: z.array(ObjectSchema).max(100) }).parse(raw);
   const calls = body.output.filter(item => item.type === "web_search_call" && item.status === "completed");
-  const searchCallIds = calls.map(item => z.string().parse(item.id)).slice(0,10);
-  if (!searchCallIds.length) throw new Error("Meta did not complete a web search");
+  const allSearchCallIds = calls.map(item => z.string().min(1).max(200).parse(item.id));
+  if (!allSearchCallIds.length) throw new Error("Meta did not complete a web search");
   const sources: ResearchResult["sources"] = []; const results: ResearchResult["results"] = []; const texts: string[] = [];
+  const resultCallIds = new Map<string, string>();
+  let inspectedResults = 0;
   let offset = 0;
   for (const item of body.output) {
     if (item.type !== "message" || item.phase === "commentary" || item.role !== "assistant" || item.status !== "completed" || !Array.isArray(item.content)) continue;
@@ -43,26 +62,33 @@ export function parseResearchResponse(raw: unknown, requestedAt: number, complet
   }
   for (const call of calls) {
     if (!Array.isArray(call.results)) continue;
-    for (const rawResult of call.results.slice(0,10)) {
+    for (const rawResult of call.results) {
+      if (++inspectedResults > 1000) throw new Error("Research source count limit exceeded");
       const r = ObjectSchema.parse(rawResult); if (r.type !== "text_result") continue;
       const parsed = SafeUrl.safeParse(r.url); if (!parsed.success) continue;
+      if (!resultCallIds.has(parsed.data)) resultCallIds.set(parsed.data, String(call.id));
       results.push({url: parsed.data,title: String(r.title ?? "").slice(0,200),snippet: String(r.snippet ?? "").slice(0,300)});
     }
   }
   const text = texts.join("\n");
   // Only URLs explicitly selected by Meta in its final answer qualify. Exact matching
   // avoids silently laundering invented links or treating every search hit as a citation.
-  const boundedResults = results.slice(0,10);
-  for (const match of text.matchAll(/\[([^\]]+)\]\(([^\s)]+)\)/g)) {
-    const url = SafeUrl.parse(match[2]);
-    // A validated provider citation is independently sufficient. Search hits may
-    // be truncated; only unannotated model links require an exact returned hit.
+  for (const link of sourceLinks(text)) {
+    const url = SafeUrl.parse(link.url);
+    // A valid provider citation remains independently sufficient, even if a hit is omitted.
     if (sources.some(source => source.url === url)) continue;
-    const hit = boundedResults.find(result => result.url === url);
+    const hit = results.find(result => result.url === url);
     if (!hit) throw new Error("Model source link was not returned by completed search");
-    if (!sources.some(source => source.url === url)) sources.push({ kind: "model-linked-search-result", url, title: hit.title, startIndex: match.index!, endIndex: match.index! + match[0].length });
+    sources.push({kind:"model-linked-search-result",url,title:hit.title,startIndex:link.start,endIndex:link.end});
   }
-  return ResearchResultSchema.parse({responseId:body.id,text,sources:sources.slice(0,10),results:boundedResults,searchCallIds,requestedAt,completedAt});
+  // Bound presentation only after validation; retain the actual hits/calls behind selected links.
+  const selectedSources = sources.slice(0,10);
+  const selectedUrls = new Set(selectedSources.map(source => source.url));
+  const uniqueResults = [...new Map(results.map(hit => [hit.url, hit])).values()];
+  const boundedResults = [...uniqueResults.filter(hit => selectedUrls.has(hit.url)), ...uniqueResults.filter(hit => !selectedUrls.has(hit.url))].slice(0,10);
+  const selectedCallIds = selectedSources.map(source => resultCallIds.get(source.url)).filter((id): id is string => Boolean(id));
+  const searchCallIds = [...new Set([...selectedCallIds, ...allSearchCallIds])].slice(0,10);
+  return ResearchResultSchema.parse({responseId:body.id,text,sources:selectedSources,results:boundedResults,searchCallIds,requestedAt,completedAt});
 }
 export async function research(key: string, model: string, query: string, context: { text: string }[], signal: AbortSignal): Promise<ResearchResult> {
   const requestedAt = Date.now();
@@ -84,7 +110,9 @@ export async function research(key: string, model: string, query: string, contex
 }
 /** Render the searched answer, not markup or bare URLs, as speech. No new language model. */
 export function researchSpeech(result: ResearchResult): string {
-  const text=result.text.replace(/\[([^\]]+)\]\(https?:\/\/[^)]+\)/g,"$1").replace(/https?:\/\/\S+/g,"").replace(/[*_#`]/g,"").trim();
+  let spoken=result.text;
+  for (const link of sourceLinks(result.text).reverse()) spoken=spoken.slice(0,link.start)+link.label+spoken.slice(link.end);
+  const text=spoken.replace(/https?:\/\/\S+/g,"").replace(/[*_#`]/g,"").trim();
   if (!text || text.length>1200) throw new Error("Invalid research speech");
   return text;
 }

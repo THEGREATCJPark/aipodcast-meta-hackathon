@@ -241,6 +241,7 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
     this.reviewCalls++;this.reviewingResearch=true;this.reviewPending=false;
     const revision=this.turns.revision;
     const reviewedResult=job.result;
+    this.evidence("research-review-request",{jobId:job.id,call:this.reviewCalls,resultReady:reviewedResult!==null,humansSpeaking:this.turns.speakers.size>0});
     try{
       const verdict=ResearchReviewSchema.parse(await(this.services.reviewResearch??reviewResearch)(this.options.key,this.options.director,{query:job.query,requestUtteranceIds:job.sourceIds,requestUtterances:job.requestUtterances,resultSources:reviewedResult?.sources.map(({title,url})=>({title,url}))??[],resultText:reviewedResult?.text??null,utterances:this.utterances.slice(),contextRevision:revision,humansSpeaking:this.turns.speakers.size>0},job.controller.signal));
       if(this.researchJob!==job||job.controller.signal.aborted)return;
@@ -256,8 +257,8 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
       this.evidence("research-release",{jobId:job.id,reviewedRevision:revision});
       try{await this.speak(text,ticket);}catch{if(!ticket.signal.aborted){this.evidence("provider-failure",{phase:"tts",provider:"OpenAI",generation:ticket.generation,contextRevision:ticket.revision,disposition:"WAIT",recordingPreserved:true});this.state="error";this.emit("error","OpenAI TTS failed; recording continues","tts_failure");}}
       finally{this.busy=false;const handoff=this.pendingHandoff;this.pendingHandoff=null;if(handoff&&this.turns.permits(handoff)){this.pending=false;void this.evaluate(true);}else if(this.pending){this.pending=false;void this.evaluate(false);}}
-    }catch{
-      if(this.researchJob===job&&!job.controller.signal.aborted){this.evidence("research-review-failed",{jobId:job.id,disposition:"WAIT"});this.state="waiting";}
+    }catch(error: unknown){
+      if(this.researchJob===job&&!job.controller.signal.aborted){this.evidence("research-review-failed",{jobId:job.id,disposition:"WAIT",failure:safeResearchFailure(error)});this.state="waiting";}
     }finally{
       this.reviewingResearch=false;
       if(this.reviewPending&&this.researchJob){this.reviewPending=false;void this.reviewJob();}

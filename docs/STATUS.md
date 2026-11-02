@@ -1,18 +1,17 @@
 # Status — 2026-11-02 KST
 
-## Current priority — research alongside conversation
+## Current stabilization — 2026-11-02
 
-Latest actual-provider repeat failed at the research stage (`2026-11-02_1130_meta_0b66`); recording was preserved and no unsupported speech was sent. An earlier two-speaker synthetic trial passed. Repeatable provider success, citation quality and human usefulness are not yet established. The revised cancellation policy is implemented and regression-tested; this is not a filming-only remainder.
+98 automated tests, typecheck, main/guest builds and standalone script compilation passed. Baseline **11b9e76** passed an actual-provider synthetic retest. The latest parser/full-natural-continuation path then passed three consecutive real-provider synthetic sessions: `2026-11-02_1145_meta_a321`, `2026-11-02_1146_meta_e51e`, and `2026-11-02_1147_meta_d484`. Both Vinge and Good scenarios preserved research across speech, waited for fresh Meta release, received audio and saved valid WAVs. Manual HOLD (`1149_meta_cf7f`) and automatic interruption (`1149_meta_05ba`) also passed separately with zero late frames in defined observation windows. Exact evidence, source checks and timing limits are in EVALUATION.md.
 
-Established checkpoint: **266d368**, with 80 tests and actual-provider synthetic successes. Review identified that ordinary human speech cancelled the active search as well as audio output. That policy does not establish the intended experience of talking while the AI PD researches.
+The earlier failed research repeat and subsequent parser diagnostics remain recorded in EVALUATION.md. They are historical failures, not the latest baseline-retest result. Ordinary speech preserves the independent research job while interrupting audio; a fresh Meta review assesses current relevance before delivery. Broad provider reliability and human usefulness remain unestablished.
 
-A separate research lifetime is implemented: speech preserves the job while blocking audio; fresh Meta relevance assessment precedes playback. HOLD, Meta-detected withdrawal/topic changes, session end and permission revocation cancel the job. 92 tests, typecheck and both builds passed. Actual-provider synthetic two-speaker session `2026-11-02_1125_meta_69bb` preserved the same search through ten seconds of continued speech, waited, then delivered one short answer. Six additional actual-Meta text scenarios returned expected actions. See EVALUATION.md for exact scope, timestamps and the unverified title/URL mismatch in the latest source citation. Human relevance and factual source quality are not established.
-
+The previously questioned Wikipedia title/URL pairing is resolved: independent page and official API checks on November 2 confirmed that Zones of Thought redirects to Vernor Vinge, section Zones of Thought series. This explains that link pairing only, not all answer accuracy or primary-source quality. Sources and the historical uncertainty are retained in EVALUATION.md.
 The independent repository default branch is now `hackathon/meta-2026` and remains PRIVATE. The original repository was not modified. This resolves the judge landing-page issue without rewriting either main branch.
 
 Human trials and filming remain deferred by the owner. No new rules inquiry or human input is needed to continue this engineering work.
 
-## Implemented at the established checkpoint
+## Earlier implementation and test checkpoints — historical scope
 
 Independent PRIVATE source-snapshot repository; baseline ac71d68, branch hackathon/meta-2026. Original repository preserved. Final submission SHA is not frozen.
 

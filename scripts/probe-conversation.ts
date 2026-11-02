@@ -6,6 +6,17 @@ import { createToken } from '../server/livekit/tokens.js';
 import { AudioFrame } from '@livekit/rtc-node';
 import { mkdirSync, writeFileSync, existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+
+const scenario = process.argv.find(arg => arg.startsWith('--scenario='))?.slice('--scenario='.length) ?? 'vinge';
+if (!['vinge', 'good'].includes(scenario)) throw new Error('Use --scenario=vinge or --scenario=good');
+let gitHead: string | null = null;
+let workingTreeDirty: boolean | null = null;
+try {
+  gitHead = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
+  workingTreeDirty = Boolean(execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim());
+} catch { /* Unknown stays null. */ }
 
 const base = `http://localhost:${env.PORT}`;
 const sleep = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
@@ -24,7 +35,7 @@ const output = join(env.OUTPUT_DIR, 'probes', `conversation-${Date.now()}`);
 mkdirSync(output, { recursive: true });
 const evidence: any = { kind: 'synthetic-two-participant-conversation-real-Studio', humanTrial: false,
   scope: 'Synthetic OpenAI voices published via two real LiveKit identities. Date.now timestamps on this computer; no human acoustic end or listener perception measured.',
-  startedAt: Date.now(), handoffButtonUsed: false, humanAcousticEndAt: null, humanPerceivedAudioAt: null,
+  scenario, gitHead, workingTreeDirty, synthesisCache: [], startedAt: Date.now(), handoffButtonUsed: false, humanAcousticEndAt: null, humanPerceivedAudioAt: null,
   utterances: [], receivedNonSilentAiFrames: 0, firstReceiverObservedAt: null, continuation: null };
 const rooms = [new AgentRoom(), new AgentRoom()];
 let settingsChanged = false, started = false, pollRunning = false;
@@ -35,6 +46,7 @@ const stage = (name: string) => [...logs.values()].filter(e => e.meta?.stage ===
 const guard = () => {
   if (evidence.pollError) throw new Error('Studio observation failed; inspect the saved pollError and session events');
   if ([...logs.values()].some(e => e.kind === 'error')) throw new Error('Studio reported a provider failure; inspect saved session events');
+  if (stage('research-review-failed').length) throw new Error('Meta relevance review failed; inspect saved session events');
   if (Date.now() >= deadline) throw new Error('95-second conversation window elapsed');
 };
 const observe = async () => { const state = await api('/api/state'); for (const e of state.history) if (e.at >= evidence.sessionStartedAt) logs.set(e.id, e); };
@@ -42,33 +54,65 @@ async function until(test: () => boolean, label: string) {
   while (!test()) { guard(); await sleep(100); }
   evidence.lastReached = label;
 }
-async function send(index: number, pcm: Int16Array, label: string, text: string, exactMs?: number) {
+async function send(index: number, pcm: Int16Array, label: string, text: string) {
   const item: any = { label, identity: evidence.participants[index].identity, text, syntheticSendStartedAt: Date.now(), syntheticSendEndedAt: null };
   evidence.utterances.push(item);
   if (!pcm.length) throw new Error('Synthetic speech returned empty PCM');
-  const samples = exactMs ? exactMs * 24 : pcm.length;
+  const samples = pcm.length;
+  item.pcmDurationMs = samples / 24;
   for (let offset = 0; offset < samples; offset += 480) {
     guard();
     const frame = new Int16Array(480);
-    for (let j = 0; j < Math.min(480, samples - offset); j++) frame[j] = pcm[(offset + j) % pcm.length];
+    for (let j = 0; j < Math.min(480, samples - offset); j++) frame[j] = pcm[offset + j];
     await rooms[index].source.captureFrame(new AudioFrame(frame, 24000, 1, 480));
     const due = item.syntheticSendStartedAt + (offset + 480) / 24;
     if (due > Date.now()) await sleep(due - Date.now());
   }
-  item.syntheticSendEndedAt = Date.now(); // Sender API delivery, not physical speech end.
+  item.syntheticSendEndedAt = Date.now();
+  item.actualSendDurationMs = item.syntheticSendEndedAt - item.syntheticSendStartedAt; // Sender API delivery, not physical speech end.
   for (let i = 0; i < 40; i++) await rooms[index].source.captureFrame(new AudioFrame(new Int16Array(480), 24000, 1, 480));
   return item;
 }
 try {
-  const texts = [
+  const texts = scenario === 'good' ? [
+    'We were discussing a machine that could design machines even smarter than itself. That feedback loop might change how quickly intelligence develops.',
+    'I remember a paper from nineteen sixty five about an ultraintelligent machine and an intelligence explosion, but I cannot remember who wrote it.',
+    'AI, who wrote that paper? Please look it up and check a source for us.',
+    'While you look that up, let us continue our thought. Improving the machine might also improve its next design. I still want the author and source once I finish this point.'
+  ] : [
     'We were discussing machines becoming smarter than people, and how predictions about the future might break down after that point.',
     'I remember an essay from the early nineteen nineties, perhaps nineteen ninety three. It described a technological singularity, but I cannot remember its author.',
     'AI, who wrote that essay? Please look it up and check a source for us.',
-    'While you look that up, let us continue our thought. The interesting question is whether we can predict what smarter machines would do. I still want the author and source when you find them, but please let me finish this thought first.'
+    'While you look that up, let us continue our thought. Predicting a smarter machine could be difficult. I still want the author and source once I finish this point.'
   ];
-  // Bounded sequential synthesis: four requests, each has the TTS helper 20-second timeout.
+  // Cached fixtures contain synthetic speech only; no keys, tokens or personal audio.
+  // Four cache misses at most; no retries and no provider fallback.
+  const cacheDir = join(env.OUTPUT_DIR, 'probes', 'synthetic-tts-cache');
+  mkdirSync(cacheDir, { recursive: true });
   const audio: Int16Array[] = [];
-  for (let i = 0; i < texts.length; i++) audio.push(await synthesize(env.OPENAI_API_KEY!, env.TTS_MODEL, i % 2 ? 'alloy' : 'nova', texts[i], AbortSignal.timeout(22000)));
+  for (let i = 0; i < texts.length; i++) {
+    const voice = i % 2 ? 'alloy' : 'nova';
+    const key = createHash('sha256').update(JSON.stringify({ provider: 'OpenAI', model: env.TTS_MODEL, voice, text: texts[i], format: 'pcm16-mono-24000-v1' })).digest('hex');
+    const cachePath = join(cacheDir, `${key}.json`);
+    let pcm: Int16Array | null = null;
+    if (existsSync(cachePath)) {
+      try {
+        const cached = JSON.parse(readFileSync(cachePath, 'utf8'));
+        const bytes = Buffer.from(cached.pcmBase64, 'base64');
+        if (cached.key === key && bytes.length > 0 && bytes.length % 2 === 0 && bytes.length <= 24000 * 2 * 30 && createHash('sha256').update(bytes).digest('hex') === cached.sha256) {
+          const copy = Uint8Array.from(bytes); pcm = new Int16Array(copy.buffer);
+        }
+      } catch { /* Corrupt cache is a miss; only one normal synthesis request follows. */ }
+    }
+    evidence.synthesisCache.push({ utterance: i, key, hit: pcm !== null });
+    if (!pcm) {
+      pcm = await synthesize(env.OPENAI_API_KEY!, env.TTS_MODEL, voice, texts[i], AbortSignal.timeout(22000));
+      if (!pcm.length || pcm.length > 24000 * 30) throw new Error('Invalid synthetic PCM duration');
+      const bytes = Buffer.from(pcm.buffer, pcm.byteOffset, pcm.byteLength);
+      writeFileSync(cachePath, JSON.stringify({ key, sha256: createHash('sha256').update(bytes).digest('hex'), pcmBase64: bytes.toString('base64') }));
+    }
+    audio.push(pcm);
+  }
   await api('/api/settings', { ...before.settings, engine: 'meta', researchEnabled: true }, 'PUT'); settingsChanged = true;
   const cfg = livekitConfig()!;
   const tokens = await Promise.all(['Synthetic speaker A', 'Synthetic speaker B'].map(name => createToken(cfg, { room: before.settings.show.roomName, role: 'guest', name, ttlSeconds: 240 })));
@@ -97,8 +141,10 @@ try {
   evidence.researchJobId = request.meta.jobId ?? null;
   evidence.researchRequestsBeforeContinuation = stage('research-request').length;
   evidence.continuationActive = true;
-  evidence.continuation = await send(1, audio[3], 'continue-during-research', texts[3], 10000);
+  evidence.continuation = await send(1, audio[3], 'continue-during-research', texts[3]);
   evidence.continuationActive = false;
+  evidence.continuationDurationMs = evidence.continuation.actualSendDurationMs;
+  evidence.continuationPcmDurationMs = evidence.continuation.pcmDurationMs;
   await observe(); evidence.researchRequestsAfterContinuation = stage('research-request').length;
   await until(() => evidence.receivedNonSilentAiFrames > 0 && Date.now() - lastAudioAt > 1600, 'remote answer ended');
   await api('/api/control', { action: 'hold' });
@@ -132,9 +178,27 @@ finally {
   evidence.reviewDelivered = evidence.reviews.some((e: any) => e.meta.action === 'DELIVER' && e.meta.jobId === evidence.researchJobId);
   evidence.sources = evidence.searchCompletions.flatMap((e: any) => e.meta.sources ?? []);
   evidence.ok = !evidence.error && !evidence.pollError && !evidence.stopFailed && !evidence.leaveFailed && !evidence.sourceCloseFailed && !evidence.settingsRestoreFailed && evidence.twoSpeakerIdentitiesTranscribed && evidence.noAiBeforeExplicitRequest && evidence.sameResearchJobSurvivedContinuation && evidence.noAiWhileContinuation && evidence.reviewDelivered && evidence.receivedNonSilentAiFrames > 0 && evidence.sources.length > 0 && evidence.errors.length === 0 && evidence.holdState === 'held' && evidence.artifacts?.every((a: any) => a.exists);
+  evidence.failureCategories = [
+    ...(evidence.error?.includes('95-second') ? ['conversation-deadline'] : []),
+    ...(evidence.pollError ? ['studio-observation'] : []),
+    ...stage('provider-failure').map(e => `provider-${e.meta.phase ?? 'unknown'}`),
+    ...(stage('research-failed').length ? ['research-provider'] : []),
+    ...(stage('research-review-failed').length ? ['research-review-provider'] : []),
+    ...(stage('research-cancelled').length ? ['research-cancelled'] : []),
+    ...(!evidence.twoSpeakerIdentitiesTranscribed ? ['missing-speaker-transcript'] : []),
+    ...(!evidence.noAiBeforeExplicitRequest ? ['pre-request-check-failed-or-incomplete'] : []),
+    ...(!evidence.sameResearchJobSurvivedContinuation ? ['same-job-release-not-observed'] : []),
+    ...(!evidence.noAiWhileContinuation ? ['continuation-check-failed-or-incomplete'] : []),
+    ...(!evidence.receivedNonSilentAiFrames ? ['no-receiver-audio'] : []),
+    ...(!evidence.sources.length ? ['no-research-sources'] : []),
+    ...(evidence.stopFailed || evidence.leaveFailed || evidence.sourceCloseFailed || evidence.settingsRestoreFailed ? ['cleanup'] : []),
+    ...(!evidence.artifacts?.every((a: any) => a.exists) ? ['missing-exports'] : []),
+    ...(evidence.error && !stage('provider-failure').length ? ['probe-incomplete'] : [])
+  ];
+  evidence.failureCategories = [...new Set(evidence.failureCategories)];
   evidence.finishedAt = Date.now();
   writeFileSync(join(output, 'evidence.json'), JSON.stringify(evidence, null, 2));
-  console.log(JSON.stringify({ ok: evidence.ok, output, error: evidence.error ?? null }));
+  console.log(JSON.stringify({ ok: evidence.ok, scenario, gitHead, output, failureCategories: evidence.failureCategories, lastReached: evidence.lastReached ?? null }));
   process.exitCode = evidence.ok ? 0 : 1;
 }
 // rtc-node's native worker can retain the process after both rooms/sources close.

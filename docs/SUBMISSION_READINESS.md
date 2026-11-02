@@ -1,16 +1,17 @@
 # Submission readiness — 2026-11-02 KST
 
-Verdict: revised research-PD control path passed one two-synthetic-speaker real-provider trial, but the final repeat failed in research and safely stayed silent. Repeatable provider reliability, human usefulness, source quality and submission remain unverified. 92 tests and both builds passed. The successful search survived continued speech and Meta freshly authorized delivery afterward; its citation had a suspicious title/URL pairing. Human testing and filming remain owner-deferred. This is not a “filming only” remainder.
+Verdict: the stabilized whole-voice path passed three consecutive real-provider synthetic trials across two references, plus separate manual HOLD and automatic-interruption checks. Current checks passed 98 tests, typecheck, main/guest builds and script compilation. Final submission and human acceptance remain incomplete. Earlier failed calls are retained, and three passes do not establish broad statistical reliability or natural human usefulness.
 
+The questioned Zones of Thought / Vernor Vinge title-URL pairing was independently resolved as a Wikipedia redirect on November 2; EVALUATION.md links the page and API evidence. That resolution does not validate all answer claims or establish a primary-source citation. Human testing and filming remain owner-deferred.
 ## Engineering gates
 
 | Area | Observed state | Next evidence required |
 |---|---|---|
-| Existing checkpoint 266d368 co-host | Current audit: 80 tests, typecheck and web/guest builds passed; fresh real-provider synthetic lookup and manual-handoff sessions passed | Human acceptance; see EVALUATION.md for exact probe scopes |
+| Current stabilization | 98 tests, typecheck, main/guest builds and script compilation passed; latest full voice path passed three consecutive synthetic trials | Human acceptance and varied real conversation remain separate |
 | Research lifetime during continued conversation | Regression tests and actual-provider two-synthetic-speaker trial passed; fresh Meta review precedes output | Human conversation and varied real requests; source quality check |
 | Meta runtime web research at prior checkpoint | Implemented; direct and integrated Studio synthetic-input lookup passed with provider-annotated source after clock-based pacing fix. Earlier failed buffer-overflow trial retained in ledger | Human conversational acceptance, broader paraphrase/contradictory-source trials and listener quality remain |
 | Spoken request permission | Local opt-in research mode implemented, off by default; intended only for explicit spoken lookup requests | Verify disabled mode, contextual paraphrases and no unsolicited research/speech |
-| Search citations / stages | Runtime source evidence and cancellation implemented; verification tracked separately | Verify retrieved URL/title and request/completion timestamps, actual call evidence, failure handling and stale-result rejection |
+| Search citations / stages | Parser regressions fixed; selected NASA/Graphcore claims manually checked; Wikipedia redirect confirmed; all three latest trials returned sources | Broader and contradictory-source claims; no general factual accuracy guarantee |
 | Current input scenario | Distributed-clue English singularity scene prepared, plus Vinge/1993, correction, ambiguity, unsupported claim and ordinary-peer-question cases | Actual Meta answer identified Good with a Virginia Tech paper-scan citation in synthetic-input trial; human rehearsal deferred |
 
 ## Human acceptance — deferred by owner
