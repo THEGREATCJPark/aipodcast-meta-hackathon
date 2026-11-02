@@ -8,11 +8,13 @@ AI Conversation Director
 Proposed team name for owner review; not entered into the form.
 
 ## Project Description — required
-AI Conversation Director is a Meta-powered co-host for small creator teams. It listens to a human discussion, waits when the conversation is flowing, asks grounded follow-up questions when invited, and can look up a forgotten fact after an explicit spoken request when the operator enables research mode.
+An AI research producer that lets speakers keep talking while it checks a requested reference.
+
+Built for small creator teams without a dedicated researcher. A short explicit request draws on the conversation; Meta researches while speakers continue, reviews the latest context, and offers a brief sourced answer when permitted. It does not promise instant answers or autonomous fact-checking.
 
 The project builds on our existing React/Vite, Node/Express and LiveKit studio and recording foundation. The work added for this entry is the Meta transcription/director integration, evidence-validated web research, speech permission and cancellation controls, and tests. The original baseline and subsequent contributions are disclosed in HACKATHON.md and docs/PROVENANCE.md. We do not claim that all code was created during the event.
 
-Actual-provider synthetic English input has traversed the full Studio, Meta ASR, contextual LOOKUP without a handoff button, Meta web search, cited response, OpenAI TTS and a separate LiveKit receiver. A separate synthetic interruption trial suppressed late audio during its defined observation window. These are synthetic-input trials, not human conversations or measured user benefits. Human acceptance and filming remain deferred. Checkpoint 813a027 passed 98 automated tests, typecheck, web/guest builds and CI; three consecutive full voice trials used synthetic input. Consult EVALUATION.md for subsequent preparation checks.
+Actual-provider synthetic English input has traversed the full Studio, Meta ASR, contextual LOOKUP without a handoff button, Meta web search, cited response, OpenAI TTS and a separate LiveKit receiver. A separate synthetic interruption trial suppressed late audio during its defined observation window. These are synthetic-input trials, not human conversations or measured user benefits. Human acceptance remains unverified; recorded synthetic demonstrations are clearly disclosed. Checkpoint 813a027 passed 98 automated tests, typecheck, web/guest builds and CI; three consecutive full voice trials used synthetic input. Consult EVALUATION.md for subsequent preparation checks.
 
 ## Public GitHub Repository — required
 https://github.com/THEGREATCJPark/aipodcast-meta-hackathon
@@ -20,7 +22,7 @@ https://github.com/THEGREATCJPark/aipodcast-meta-hackathon
 Current visibility: PRIVATE. This URL does not yet satisfy the public-repository requirement. Publication requires explicit owner approval after review. Branch: hackathon/meta-2026. Verified voice checkpoint: 813a027; final submission SHA is not frozen.
 
 ## 3-Minute Demo Video — required
-No video URL exists. Filming is deferred by the owner. Do not enter a fabricated link or substitute a screenshot. The English production script and capture checklist are prepared in DEMO_SCRIPT.md and HUMAN_ACCEPTANCE.md. The guide requires the demo to focus on new work and distinguish event contributions.
+No public video URL exists. An earlier local video is preserved; Claude owns the final edit from the new raw-evidence handoff. Do not enter a fabricated link or substitute a screenshot. The English production script and capture checklist are prepared in DEMO_SCRIPT.md and HUMAN_ACCEPTANCE.md. The guide requires the demo to focus on new work and distinguish event contributions.
 
 ## Describe your use of Meta products to build the submitted project — required
 We use muse-voice-transcribe-1.0 through Meta's realtime ASR endpoint to transcribe separate LiveKit participant streams. Muse Spark 1.3 chooses WAIT, ASK, CLARIFY, SUMMARIZE or LOOKUP from recent conversation and supplies references to the relevant utterances. The application validates the decision and context revision before allowing speech.
@@ -48,7 +50,7 @@ The form includes a checkbox authorizing Meta and Cerebral Valley to publish, sh
 - [x] Record owner's confirmation that idea change is allowed and instruction to proceed without organizer questions. Disclose inherited code, new contributions and external TTS without asserting a guaranteed eligibility ruling.
 - [ ] Confirm team name, complete contributors, single entry, track/theme and subjective survey responses.
 - [ ] Review source rights, dependency notices, history, secrets and personal data; approve public repository publication.
-- [ ] Resume human acceptance/filming when the owner chooses; produce an actual three-minute English video and approve public voice/face use.
+- [ ] Review the final Claude edit and synthetic-input disclosure; approve public media use. Human testing is not represented as complete.
 - [ ] Review promotional permission, final terms and the exact materials to be transmitted.
 - [ ] Freeze final SHA, verify public links, authorize submission and retain the receipt.
 

@@ -9,12 +9,13 @@ import type { Utterance } from '../server/meta/director.js';
 if (!env.META_API_KEY) throw new Error('Configure META_API_KEY locally; do not paste it into logs.');
 const key = env.META_API_KEY;
 const unsupportedOnly = process.argv.includes('--unsupported-only');
+const minimal = process.argv.includes('--minimal');
 const cases = [
   { name: 'distributed-good-reference', query: 'Who wrote the 1965 paper about an ultraintelligent machine designing better machines? Check an original source.', context: ['A machine could design machines smarter than itself.', 'I remember a paper from 1965 but not the author. AI, check a source.'] },
   { name: 'ambiguous-inventor', query: 'Who invented the technological singularity? Distinguish different attributions rather than forcing one inventor.', context: ['We disagree on whether one person invented the singularity. AI, check the sources.'] },
   { name: 'unsupported-exact-date', query: 'Is there credible evidence that a laboratory proved the technological singularity will happen on November 10, 2026?', context: ['Someone claimed a lab proved a guaranteed exact date for the singularity. AI, verify that claim rather than assuming it is true.'] },
 ];
-const searches = unsupportedOnly ? [cases[2], { ...cases[2], name: 'unsupported-exact-date-repeat' }] : cases;
+const searches = minimal ? cases.slice(1) : unsupportedOnly ? [cases[2], { ...cases[2], name: 'unsupported-exact-date-repeat' }] : cases;
 const folder = `output/probes/research-edge-${Date.now()}`;
 mkdirSync(folder, { recursive: true });
 const evidence: { kind: string; humanTrial: boolean; audioTrial: boolean; model: string; commit: string; workingTreeDirty: boolean; startedAt: string; maxCalls: number; calls: number; searches: unknown[]; reviews: unknown[]; limitations: string[] } = {
@@ -22,7 +23,7 @@ const evidence: { kind: string; humanTrial: boolean; audioTrial: boolean; model:
   model: env.META_DIRECTOR_MODEL,
   commit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
   workingTreeDirty: !!execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim(),
-  startedAt: new Date().toISOString(), maxCalls: unsupportedOnly ? 2 : 9, calls: 0, searches: [], reviews: [],
+  startedAt: new Date().toISOString(), maxCalls: (unsupportedOnly || minimal) ? 2 : 9, calls: 0, searches: [], reviews: [],
   limitations: ['One call per scenario, no automatic retries.', 'Search acceptance proves schema/citation evidence, not semantic correctness.', 'Review actions are checked against scenario targets, not a general accuracy estimate.', 'No microphone, ASR, TTS, browser capture or human listening in this script.'],
 };
 const persist = () => writeFileSync(`${folder}/evidence.json`, JSON.stringify(evidence, null, 2));
@@ -51,7 +52,7 @@ const reviews: { name: string; input: ResearchReviewInput; expected: ResearchRev
   { name: 'obsolete-topic', input: { ...base, utterances: [original, utterance('u1', 'We have finished the intelligence discussion. This next segment is entirely about how we record our podcast.'), utterance('u2', 'For the recording setup, I use a dynamic microphone and closed headphones. Let us stay on this new topic.')] }, expected: ['DISCARD'], needsResult: true },
   { name: 'quoted-cancel-not-authority', input: { ...base, humansSpeaking: true, utterances: [original, utterance('u1', 'The story character says, cancel that lookup. That is a quote from my screenplay, not a request to you. I still want the paper author.')] }, expected: ['WAIT'] },
 ];
-for (const item of unsupportedOnly ? [] : reviews) {
+for (const item of (unsupportedOnly || minimal) ? [] : reviews) {
   if (item.needsResult && !anchor) { evidence.reviews.push({ scenario: item.name, skipped: true, reason: 'No accepted real research result; no fixture substituted' }); persist(); continue; }
   const start = Date.now(); evidence.calls++;
   try {

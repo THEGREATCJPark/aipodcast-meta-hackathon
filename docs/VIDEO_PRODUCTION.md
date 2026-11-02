@@ -1,3 +1,7 @@
+# Current phase: Claude owns the final edit
+
+Codex provided the raw v2 handoff at output/handoff/claude-v2.zip. New 1600x900 natural-input evidence and a retained failed take are separate from the earlier edit described below. No new narration or final render was generated in this phase.
+
 # English submission video — 2026-11-02
 
 Local video production completed with FilmCraft 0.16.0. No publication or submission performed.

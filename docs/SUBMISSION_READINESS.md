@@ -1,3 +1,15 @@
+## Minimal submission improvement / Claude handoff — 2026-11-02
+
+Product promise: **An AI research producer that lets speakers keep talking while it checks a requested reference.** New Judge summary displays recent identified speech, the actual research job, event-based state, answer/source and HOLD; details remain expandable. Model WAIT, application speech gating, generated TTS and server transport are distinguished. No listener-receipt claim appears in the UI.
+
+Natural synthetic scenario: first full run `2026-11-02_1558_meta_1ffd` at `28cfabb` preserved conversation/search but rejected an invalid review response and sent no AI audio. One direct saved-context diagnostic returned DELIVER; root cause of the earlier malformed/absent payload is unresolved. The second and final full run `2026-11-02_1601_meta_6bac` at `89fd5f9` passed: five natural input lines, same research job during continued discussion, fresh review, a short sourced answer, 282 non-silent receiver frames and recordings. No engine change or answer injection. Failed evidence is preserved, not removed from the ledger.
+
+Current checks: 112 tests, typecheck, build:web and build:guest passed; bundle-size warnings remain. Two small real synthetic-text edge checks returned differentiated attribution and an unsupported-claim qualification; the latter's broad negative wording remains a limitation, not a universal fact-checking success. Human trials are unverified. Late-result cancellation/withdrawal and research survival regressions pass. Earlier manual-HOLD raw footage/evidence is reused with an explicit separate-run label.
+
+Deliverable: `output/handoff/claude-v2.zip`, relative-path assets under `output/handoff/claude-v2/`. Includes actual new 1600x900 raw footage, session audio/transcripts, minimal events, source/timing data, failure evidence and preserved earlier video/reference raw. HANDOFF.md defines permissible claims, edit estimates and approval gates. Final editing/narration/rendering belongs to Claude; none was newly generated in this phase. Public source/video release and final submission remain unperformed. Features frozen at this scope.
+
+Earlier checkpoints below are historical.
+
 ## Submission scope freeze — 2026-11-02
 
 Owner prioritizes submission completion. Freeze application features at 8688280; fix only demonstrated shooting/submission blockers. Follow FINAL_SHOOTING_GUIDE.md: one presenter, an actual contextual lookup, and manual HOLD/hold-state footage. A short microphone/AI capture check is required; two-human acceptance, external guest hosting and broad evaluation are deferred, not passed. Earlier sections below retain engineering targets but do not impose them as prerequisites for this solo video. Remaining delivery steps are actual English footage, export/link review, approved source/media publication and final form/terms/submission.

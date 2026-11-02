@@ -18,9 +18,8 @@ export function JudgeSummary({ logs, status }: { logs: LogEntry[]; status: Studi
         <h2>Research producer</h2><p className="research-status" role="status">{r.state}</p>
         <h3>{typeof r.request?.meta?.query === 'string' ? r.request.meta.query : 'What would you like checked?'}</h3>
         {!r.request && r.decision && <p>{r.decision}</p>}
-        {typeof r.reason === 'string' && <p className="muted">{r.reason}</p>}
         {r.answer ? <blockquote className="judge-answer">{r.answer}</blockquote> : r.result && <p className="muted">Source result available. A short spoken answer awaits Meta's current-context review.</p>}
-        {r.result && <details><summary>Full research result</summary><p>{String(r.result.meta?.text ?? '')}</p></details>}
+        {(r.result || typeof r.reason === 'string') && <details><summary>Research result and decision details</summary>{typeof r.reason === 'string' && <p>{r.reason}</p>}<p>{String(r.result?.meta?.text ?? '')}</p></details>}
         <ul className="source-cards">{r.sources.map(s=><li key={s.url}><a href={s.url} target="_blank" rel="noopener noreferrer"><strong>{s.title}</strong><span>{new URL(s.url).hostname} ↗</span></a></li>)}</ul>
         <p className="judge-limit">Source links support inspection, not guaranteed accuracy. Server audio is not listener receipt; receiver confirmation is unavailable here.</p>
       </section>

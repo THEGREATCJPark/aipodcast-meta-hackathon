@@ -1,3 +1,15 @@
+## Minimal submission improvement / Claude handoff — 2026-11-02
+
+Product promise: **An AI research producer that lets speakers keep talking while it checks a requested reference.** New Judge summary displays recent identified speech, the actual research job, event-based state, answer/source and HOLD; details remain expandable. Model WAIT, application speech gating, generated TTS and server transport are distinguished. No listener-receipt claim appears in the UI.
+
+Natural synthetic scenario: first full run `2026-11-02_1558_meta_1ffd` at `28cfabb` preserved conversation/search but rejected an invalid review response and sent no AI audio. One direct saved-context diagnostic returned DELIVER; root cause of the earlier malformed/absent payload is unresolved. The second and final full run `2026-11-02_1601_meta_6bac` at `89fd5f9` passed: five natural input lines, same research job during continued discussion, fresh review, a short sourced answer, 282 non-silent receiver frames and recordings. No engine change or answer injection. Failed evidence is preserved, not removed from the ledger.
+
+Current checks: 112 tests, typecheck, build:web and build:guest passed; bundle-size warnings remain. Two small real synthetic-text edge checks returned differentiated attribution and an unsupported-claim qualification; the latter's broad negative wording remains a limitation, not a universal fact-checking success. Human trials are unverified. Late-result cancellation/withdrawal and research survival regressions pass. Earlier manual-HOLD raw footage/evidence is reused with an explicit separate-run label.
+
+Deliverable: `output/handoff/claude-v2.zip`, relative-path assets under `output/handoff/claude-v2/`. Includes actual new 1600x900 raw footage, session audio/transcripts, minimal events, source/timing data, failure evidence and preserved earlier video/reference raw. HANDOFF.md defines permissible claims, edit estimates and approval gates. Final editing/narration/rendering belongs to Claude; none was newly generated in this phase. Public source/video release and final submission remain unperformed. Features frozen at this scope.
+
+Earlier checkpoints below are historical.
+
 # Local submission video completed — 2026-11-02
 
 The owner-approved synthetic-input / actual-Meta English video is now rendered locally with FilmCraft: `output/video/render-final-v1/submission.mp4` (180-second picture, 1080p, 30 fps). Actual research and separate manual-HOLD runs both passed. Full export decoding, source-audio preservation and selected visual previews passed; full human listening review remains unperformed. See [VIDEO_PRODUCTION.md](VIDEO_PRODUCTION.md) for evidence, editing disclosure and exact artifacts. No personal voice recording is required for this version. Human trials remain outside this video's claims. Public upload and final submission still require approval.

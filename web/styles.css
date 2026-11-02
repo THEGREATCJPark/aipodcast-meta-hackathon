@@ -357,9 +357,12 @@ input[type="range"] { width: 100%; accent-color: var(--amber); }
 .judge-logs .log { max-height: 220px; min-height: 120px; }
 @media (min-width: 1000px) and (max-height: 820px) {
   .judge-columns h2 { font-size: 16px; }
-  .judge-conversation p { font-size: 15px; }
-  .judge-conversation li { padding: 5px 0; }
+  .judge-conversation p { font-size: 14px; line-height: 1.35; }
+  .judge-conversation li { padding: 3px 0; }
   .judge-conversation, .judge-research { padding: 12px 16px; }
-  .judge-answer { font-size: 20px; }
+  .judge-columns h3 { font-size: 14px; margin: 6px 0; }
+  .judge-answer { font-size: 18px; margin: 6px 0; padding: 4px 0; }
+  .judge-research .source-cards { margin: 6px 0; }
+  .judge-research .source-cards a { padding: 6px 9px; gap: 2px; }
 }
 @media (max-width: 850px) { .judge-columns { grid-template-columns: 1fr; } .judge-summary { min-height: 500px; } .judge-conversation, .judge-research { overflow: visible; } }

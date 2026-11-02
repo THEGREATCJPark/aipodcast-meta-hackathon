@@ -147,7 +147,7 @@ try {
   evidence.researchJobId = request.meta.jobId ?? null;
   evidence.researchRequestsBeforeContinuation = stage('research-request').length;
   evidence.continuationActive = true;
-  evidence.continuation = await send(1, audio[3], 'continue-during-research', texts[3]);
+  evidence.continuation = { ...await send(1, audio[3], 'continue-during-research', texts[3]) };
   if (scenario === 'natural') {
     await sleep(250);
     const last = await send(0, audio[4], 'continued-thought', texts[4]);

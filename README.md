@@ -1,6 +1,8 @@
 # AI Conversation Director
 
-A Meta-powered co-host that listens to human discussions, waits when it should, and asks grounded follow-up questions when useful.
+An AI research producer that lets speakers keep talking while it checks a requested reference.
+
+For small creator teams without a dedicated researcher. Enable research, ask a short contextual question, continue talking, then let Meta review whether a sourced answer still belongs in the conversation.
 
 **Private development build. Meta ASR/director, web research, OpenAI TTS and LiveKit have actual-provider synthetic-input evidence; human voice sessions remain unverified.** This project reuses an existing studio; see [provenance](docs/PROVENANCE.md) and [hackathon disclosure](HACKATHON.md). Applicable-track reuse eligibility remains unresolved. The authenticated official guide and actual submission form require public source and a three-minute video; see [rules](docs/hackathon/RULES.md).
 
@@ -47,17 +49,18 @@ The default mode requires operator handoff to release speech; the opt-in explici
 
 
 
-## English demo preparation
+## English demo and editor handoff
 
-Follow [human acceptance and filming](docs/HUMAN_ACCEPTANCE.md) before recording the [three-minute English demo](docs/DEMO_SCRIPT.md). The local capture panel requires a connected microphone and explicit browser tab selection with “Share tab audio.” It offers a local WebM preview/download capped at 180 seconds; verify a ten-second sample first. No automatic upload is performed.
+Open `http://localhost:4400/?view=judge` for the event-based conversation/research summary. Detailed logs and setup remain expandable; HOLD stays visible. TTS generation, server transmission and external receiver evidence are separate.
 
-`npm run build:guest` prepares a guest-only static bundle at `dist/guest` for future approved HTTPS hosting. It is not a public deployment. Publishing the repository, guest site or personal recordings requires separate owner approval. The original SPNS TV reference informs only general relaxed, candid pacing and short witty questions; the submission presents an independent co-host without logos, copied signature lines or presenter voice imitation.
+Final editing is assigned to Claude. The local `output/handoff/claude-v2/` package contains raw evidence and an asset manifest; no new final edit or narration is generated in this phase. The earlier `output/video/render-final-v1/submission.mp4` is preserved as a reference from an older UI/run. Synthetic inputs must never be presented as human acceptance. Personal voice recording is not a prerequisite for this submission version.
 
+`npm run build:guest` prepares the guest-only bundle for future approved hosting. SPNS TV informs relaxed conversational pacing only; this project uses no copied branding or presenter voice imitation.
 ## Optional research producer
 
 Research PD is off by default. Enable it in local Meta settings and save before a session to allow explicit spoken lookup requests such as “Can you check that for us?” Meta can resolve the request from recent discussion and use its Responses `web_search` tool. A valid search result shows source links and recorded request/completion timing. This opted-in answer can speak without another Handoff when the floor is clear; ordinary discussion responses still need Handoff. New speech cancels output while research continues. Meta reviews a ready result against the latest dialogue before releasing a short answer. HOLD, withdrawal, session end and permission revocation cancel the research job. Source links support inspection, not a guarantee that the answer is correct.
 
-The research path uses the existing Meta key/director model, with eight search attempts per session and a 25-second timeout. It may consume provider quota. Failure does not switch to another LLM. See [submission readiness](docs/SUBMISSION_READINESS.md) for current validation and unresolved release gates. Filming is deferred by the owner; prepared English scripts are not completed footage.
+The research path uses the existing Meta key/director model, with eight search attempts per session and a 25-second timeout. It may consume provider quota. Failure does not switch to another LLM. See [submission readiness](docs/SUBMISSION_READINESS.md) for current validation and unresolved release gates. See the current status and editor handoff for recorded evidence and remaining capture limits.
 
 
-Research validation checkpoint: a synthetic English request passed through the full Studio into real Meta web search, a provider-annotated answer, OpenAI TTS and a separate LiveKit receiver without pressing Handoff. The earlier failed ASR-buffer trial and subsequent pacing fix are recorded in EVALUATION.md. Human discussion and listener-observed cancellation remain unverified; filming is deferred by the owner.
+Research validation checkpoint: a synthetic English request passed through the full Studio into real Meta web search, a provider-annotated answer, OpenAI TTS and a separate LiveKit receiver without pressing Handoff. The earlier failed ASR-buffer trial and subsequent pacing fix are recorded in EVALUATION.md. Human discussion remains unverified; synthetic receiver observations have bounded scopes described in EVALUATION.md.
