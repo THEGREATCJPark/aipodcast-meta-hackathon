@@ -1,3 +1,4 @@
+import { AudioPacer } from "./audio-pacer.js";
 import { PcmMixer } from "../audio/mixer.js";
 import WebSocket from "ws";
 import { randomUUID } from "node:crypto";
@@ -11,6 +12,7 @@ export class MetaAsr {
   private socket: WebSocket | null = null;
   private ready = false;
   private pump: NodeJS.Timeout | undefined;
+  private pacer: AudioPacer | null = null;
   private buffer = new PcmMixer({ sampleRate: 24000, chunkMs: 20, maxBufferMs: 2000 });
   private stopped = false;
   private starts = new Map<number, number>();
@@ -27,7 +29,7 @@ export class MetaAsr {
         try {
           const msg = JSON.parse(raw.toString()) as Record<string, unknown>;
           if (this.stopped) return;
-          if (!msg.type && typeof msg.sessionId === "string" && !this.ready) { clearTimeout(timeout); this.ready = true; this.pump = setInterval(() => this.sendFrame(), 20); resolve(); return; }
+          if (!msg.type && typeof msg.sessionId === "string" && !this.ready) { clearTimeout(timeout); this.ready = true; this.pacer = new AudioPacer(performance.now()); this.pump = setInterval(() => this.pumpDue(), 10); resolve(); return; }
           if (msg.type === "error") { clearTimeout(timeout); reject(new Error("Meta ASR rejected stream")); this.cb.failed("Meta ASR rejected stream; recording continues"); this.close(); return; }
           this.accept(msg);
         } catch { this.cb.failed("Invalid Meta ASR event"); }
@@ -52,6 +54,16 @@ export class MetaAsr {
     if (this.stopped) return;
     if (this.buffer.bufferedSamples("track") + pcm.length > 48000) { this.cb.failed("ASR 2-second input buffer exceeded; restart required, original recording retained"); this.close(); return; }
     this.buffer.push("track", pcm);
+  }
+  private pumpDue(): void {
+    if (!this.ready || this.stopped || !this.pacer) return;
+    try {
+      const due = this.pacer.takeDue(performance.now());
+      for (let i = 0; i < due && !this.stopped; i++) this.sendFrame();
+    } catch {
+      this.cb.failed("ASR pacing stalled or transport failed; restart required, original recording retained");
+      this.close();
+    }
   }
   private sendFrame(): void {
     if (!this.ready || this.stopped || !this.socket) return;

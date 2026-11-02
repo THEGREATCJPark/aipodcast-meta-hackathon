@@ -20,3 +20,5 @@ Reviewed implementation checkpoint: 1e5ec68 (2026-11-02), not a submitted final 
 Contributor record: repository owner THEGREATCJPark; preferred credited name and any additional human contributors must be confirmed before submission. Codex is disclosed as AI assistance, not asserted to be a human team member. The owner must confirm this is the team's single submitted project.
 
 Creative direction: the original project persona reference was read without modifying its source. The independent hackathon co-host adopts general relaxed, candid pacing and concise witty questions; no show branding, copied signature dialogue, presenter voice imitation or endorsement is claimed.
+
+The research-PD extension adds explicit opt-in spoken lookup routing through Meta Responses web_search, validated search/citation evidence and stale-result cancellation. This is focused contextual research, not unrestricted automatic fact checking. Runtime validation and human acceptance are separate in EVALUATION.md. Filming is currently deferred by the owner; no generated answer is substituted for an actual captured response.

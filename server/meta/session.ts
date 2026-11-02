@@ -1,3 +1,4 @@
+import { research, researchSpeech, ResearchResultSchema } from "./research.js";
 import { randomUUID } from "node:crypto";
 import { EventEmitter } from "node:events";
 import type { Settings } from "../../shared/settings.js";
@@ -7,8 +8,9 @@ import { decide, validateDecision, type Decision, type Utterance } from "./direc
 import { TurnManager } from "./turn-manager.js";
 import { synthesize } from "../speech/tts.js";
 
-export interface MetaOptions { key: string; ttsKey: string; asr: string; director: string; tts: string; voice: string }
+export interface MetaOptions { key: string; ttsKey: string; asr: string; director: string; tts: string; voice: string; researchEnabled?: boolean }
 export interface MetaServices {
+  research?: typeof research;
   decide: typeof decide;
   synthesize: typeof synthesize;
 }
@@ -25,10 +27,12 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
   private utterances: Utterance[] = [];
   private startedAt = 0;
   private calls = 0;
+  private researchCalls = 0;
+  private researchedRequests = new Set<string>();
   private busy = false;
   private pending = false;
   private deadline: NodeJS.Timeout | undefined;
-  constructor(private options: MetaOptions, private services: MetaServices = { decide, synthesize }) {
+  constructor(private options: MetaOptions, private services: MetaServices = { decide, synthesize, research }) {
     super(); this.models = { asr: options.asr, director: options.director, tts: options.tts, voice: options.voice };
   }
   async connect(): Promise<void> {
@@ -87,7 +91,13 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
   instruct(_content: string): void { /* MC uses explicit hold/resume methods; text is never control authority */ }
   think(_content: string): void { /* Speaker identity comes from tracks, not prompts. */ }
   speakNow(_instruction: string): void { this.resume(); void this.evaluate(true); }
-  applyLiveSettings(_settings: Settings): string | null { return null; }
+  applyLiveSettings(settings: Settings): string | null {
+    if (Boolean(this.options.researchEnabled) === settings.researchEnabled) return null;
+    this.options = { ...this.options, researchEnabled: settings.researchEnabled };
+    this.pending = false; this.cancel("Research permission changed");
+    this.evidence("research-permission", { enabled: settings.researchEnabled });
+    return "Research permission updated; pending output cancelled";
+  }
   async evaluate(handoff: boolean): Promise<void> {
     if (this.busy) { if (!handoff) this.pending = true; else this.emit("info", "Previous request cancelling; handoff again when waiting"); return; }
     if (!this.isReady || this.limited || this.turns.held || !this.utterances.length) return;
@@ -96,6 +106,7 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
     this.calls++; this.pending = false;
     this.busy = true; const ticket = this.turns.begin(); const context = this.utterances.slice();
     this.state = "thinking"; this.evidence("director-request", { handoff, call: this.calls, model: this.options.director });
+    let researchStartedAt: number | null = null;
     try {
       const d: Decision = await this.services.decide(this.options.key, this.options.director, context, ticket.revision, handoff, ticket.signal);
       if (!this.turns.permits(ticket)) return;
@@ -103,9 +114,22 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
       this.emit("decision", d);
       this.evidence("director-complete", { action: d.action, sourceUtteranceIds: d.sourceUtteranceIds, handoff });
       this.state = "waiting";
-      if (d.action === "WAIT" || !handoff) return;
-      this.evidence("tts-request", { provider: "OpenAI", model: this.options.tts, characters: d.speakText.length });
-      const pcm = await this.services.synthesize(this.options.ttsKey, this.options.tts, this.options.voice, d.speakText, ticket.signal);
+      let speakText = d.speakText;
+      if (d.action === "LOOKUP") {
+        const requestId = context.at(-1)!.id;
+        if (!this.options.researchEnabled) { this.evidence("research-blocked", { reason: "Research is disabled in local settings" }); return; }
+        if (this.researchedRequests.has(requestId) || this.researchCalls >= 8) { this.evidence("research-blocked", { reason: "Request already attempted or 8-call session cap reached" }); return; }
+        this.researchedRequests.add(requestId); this.researchCalls++;
+        this.state = "thinking"; researchStartedAt = Date.now();
+        this.evidence("research-request", { query: d.query, sourceUtteranceIds: d.sourceUtteranceIds, model: this.options.director, call: this.researchCalls });
+        const result = ResearchResultSchema.parse(await (this.services.research ?? research)(this.options.key, this.options.director, d.query!, context.slice(-3), ticket.signal));
+        if (!this.turns.permits(ticket) || !this.options.researchEnabled) return;
+        this.evidence("research-complete", { query: d.query, ...result, elapsedMs: result.completedAt - result.requestedAt, provider: "Meta", model: this.options.director });
+        speakText = researchSpeech(result);
+      } else if (d.action === "WAIT" || !handoff) return;
+      if (!this.turns.permits(ticket)) return;
+      this.evidence("tts-request", { provider: "OpenAI", model: this.options.tts, characters: speakText.length, text: speakText });
+      const pcm = await this.services.synthesize(this.options.ttsKey, this.options.tts, this.options.voice, speakText, ticket.signal);
       if (!this.turns.permits(ticket)) return;
       if (!pcm.length || pcm.length > 24000 * 30) throw new Error("Invalid TTS duration");
       this.emit("generatedAudio", pcm, ticket.generation);
@@ -120,6 +144,7 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
       this.emit("info", "TTS queued; actual sent PCM saved separately in mc.wav. Listener receipt unmeasured.");
       this.emit("turnEnd");
     } catch {
+      if (researchStartedAt !== null) this.evidence(ticket.signal.aborted ? "research-cancelled" : "research-failed", { elapsedMs: Date.now() - researchStartedAt, disposition: "WAIT", provider: "Meta" });
       if (!ticket.signal.aborted) { this.evidence("provider-failure", { disposition: "WAIT", recordingPreserved: true }); this.state = "error"; this.emit("error", "Meta/TTS request failed or timed out; WAIT, recording continues, no fallback", "provider_failure"); }
     } finally { this.busy = false; if (this.state === "thinking") this.state = this.turns.held ? "held" : "listening"; if (this.pending) { this.pending = false; void this.evaluate(false); } }
   }

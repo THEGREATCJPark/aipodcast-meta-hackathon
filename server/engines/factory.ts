@@ -16,7 +16,7 @@ export interface EngineKeys {
 export function createEngine(settings: Settings, keys: EngineKeys): LiveEngine {
   if (settings.engine === "meta") {
     if (!keys.meta || !keys.openai) throw new Error("Set META_API_KEY and OPENAI_API_KEY in the new repository .env");
-    return new MetaSession({ key: keys.meta, ttsKey: keys.openai, asr: env.META_ASR_MODEL, director: env.META_DIRECTOR_MODEL, tts: env.TTS_MODEL, voice: env.TTS_VOICE });
+    return new MetaSession({ key: keys.meta, ttsKey: keys.openai, asr: env.META_ASR_MODEL, director: env.META_DIRECTOR_MODEL, tts: env.TTS_MODEL, voice: env.TTS_VOICE, researchEnabled: settings.researchEnabled });
   }
   if (settings.engine === "gemini-live") {
     if (!keys.gemini) throw new Error("GEMINI_API_KEY가 설정되지 않았습니다 (.env)");

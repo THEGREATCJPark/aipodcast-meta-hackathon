@@ -1,5 +1,7 @@
 # Human acceptance and recording session
 
+Filming and human rehearsal are deferred by the owner. This checklist is prepared for a later session; it does not request immediate recording or imply those tests passed. Automated implementation and provider probes continue independently.
+
 All spoken demo material and submission narration are in English. These are test prompts, not pre-written model outputs. Let Meta produce its actual answer and keep failures in the private record. Korean input can be tested separately without representing synthetic Korean audio as a human test.
 
 ## Before the session
@@ -44,3 +46,12 @@ Connect the microphone first. Use the studio capture button, select the studio b
 A static guest-only bundle can be built with `npm run build:guest` into `dist/guest` for future HTTPS hosting. It is not deployed and does not expose the operator server. Public hosting still needs approval and actual external guest acceptance checks.
 
 Guest deployment preparation: the guest bundle includes `/join` fallbacks (`_redirects` and `vercel.json`) and no management API imports. Host only `dist/guest` over HTTPS after approval, set `GUEST_PAGE_URL` to that origin, restart configuration as needed and issue a fresh invitation. Do not upload the repository root, .env, data or output directories. Verify real guest microphone permission and connection from another network before claiming external access.
+
+
+## Research-PD acceptance (after implementation validation)
+
+Enable the local opt-in research setting only when ready to permit explicit spoken lookup requests. Start with the English singularity / I. J. Good scene in DEMO_SCRIPT.md. Do not inject an expected answer into the model. The reference from earlier conversation must resolve the short request “Can you check that for us?”
+
+Inspect runtime search evidence: the actual URL, title, request/completion times, query and answer citations. An utterance ID proves conversational grounding, not web retrieval. If source retrieval fails or references are ambiguous, the answer must acknowledge the limitation. Discussing intelligence explosion without requesting a lookup must not cause an unsolicited search or answer.
+
+In separate trials, interrupt a pending lookup by speaking, press HOLD during another lookup, and change the subject before a third returns. Preserve events and listener audio. No stale result may speak; a request aborted remotely is not proven merely by local cancellation. Test the opt-in disabled state, paraphrased requests and contradictory/unavailable sources. These are acceptance targets until measured with actual human input.

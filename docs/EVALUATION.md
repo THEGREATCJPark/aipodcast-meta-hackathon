@@ -78,3 +78,41 @@ Observed session `2026-11-02_1026_meta_42a6`: real transcript arrived; Meta sele
 Private session artifacts remain under output/2026-11-02_1026_meta_42a6/. Input was synthesized, not a real human trial. Automatic interruption listening quality, human dialogue relevance, reconnect UX, external-device guests and browser recording audio remain owner acceptance tasks.
 
 Final local checks for the English MVP checkpoint: 49 automated tests passed, TypeScript checks passed, main web and isolated guest builds passed. Playwright inspected the English operator and judge views with zero console errors (one development WebSocket cleanup warning). New-session history resets without deleting previous on-disk evidence. Staged files were checked against configured secret values with zero matches. Browser screen/tab/mic capture is implemented but still requires the owner's ten-second real audio check. No final human video has been produced.
+
+## Research extension — working-branch validation
+
+Implementation-agent verification reports 61 automated tests and typecheck passed. Research tests cover source/citation parsing, bounded Responses protocol, opt-in/no-repeat behavior, provider failure without fallback, and late-result cancellation after speech, HOLD, close or permission changes. These are synthetic tests, not actual human requests.
+
+The first real-provider research probe was rejected as incomplete at the initial 1,200-token output budget. The request was adjusted to low reasoning and a 2,400-token output budget. No successful research-provider result is asserted by this checkpoint; final root probe evidence must be recorded separately. Prior successful non-search co-host probes do not prove the new web lookup path.
+
+Human rehearsal and filming are deferred by the owner. They are not required to continue automated implementation/probes, but remain mandatory evidence before claiming real conversational acceptance.
+
+Research protocol follow-up: with low reasoning and a 2,400-token output budget, two actual calls completed web_search_call and returned search results, but supplied no URL annotations. They were rejected rather than presented as cited success. The parser is being extended to accept a final-answer-selected URL only if it exactly matches an actual completed search result, labeled `model-linked-search-result`; provider-annotated spans remain separately labeled `provider-annotation`. Unselected raw hits do not count as citations. A new actual-provider success has not yet been recorded at this checkpoint.
+
+Updated synthetic regression after this source-representation change: implementation agent reports 64 tests and typecheck passed. Tests reject unselected raw hits, unsafe/unmatched links and malformed spans; matched final Markdown links are distinctly labeled. This does not establish actual-provider or human research success.
+
+## Actual research extension probes — 2026-11-02
+
+A direct real Meta research call succeeded. Private evidence: `output/probes/research-direct.json`; application request time 1793583695626, completion time 1793583702837, elapsed 7,211 ms. The response supplied a `provider-annotation` source pointing to a Virginia Tech-hosted paper scan attributed to Irving John Good. This demonstrates one actual search/answer/citation path, not human dialogue quality or end-to-end speech latency.
+
+The first full Studio research run failed: the ASR two-second buffer exceeded its limit after approximately 26 seconds. The run recorded `research-cancelled` and preserved recording evidence; it is not a successful spoken lookup. Investigation identified pacing based on a 20 ms timer assumption under Windows timer drift; a clock-based pacing change and regression tests are in progress. No successful integrated research run is claimed at this checkpoint.
+
+The root agent scanned 155 historical blobs for the configured secret values and found zero matches. This is a targeted exact-value check, not a comprehensive secret, privacy or rights audit.
+
+## Integrated research success after pacing fix — 2026-11-02 10:43 KST
+
+Private evidence was inspected at `output/probes/research-studio-1793583777689/evidence.json` (directory suffix is 7689). Session: `2026-11-02_1043_meta_df01`. An approximately 18.6-second synthetic English input produced four ASR transcripts. Meta selected LOOKUP without a Handoff button, completed real web search, and returned a `provider-annotation` pointing to a Virginia Tech-hosted scan of I. J. Good's paper. The application did not inject the answer.
+
+OpenAI TTS generated 236,400 samples; a separate LiveKit receiver observed 418 non-silent AI frames. HOLD state was `held`; events.jsonl, summary.json, mc.wav and mix.wav existed. The probe recorded no errors and `ok: true`. Research request/completion interval was 6,861 ms, excluding ASR, director, TTS and listener transport. This single interval is not end-to-end response time or a general speed claim. The synthetic input is not a human rehearsal, and HOLD state alone does not establish listener-observed stopping latency.
+
+The preceding failed session `2026-11-02_1040_meta_8737` retained events, summary and mix. It had no mc.wav because no AI audio was sent. This absence is expected for that failed trial, not evidence of a complete successful audio path. The clock-based ASR pacing fix addressed the Windows timer-drift accumulation and added regression tests.
+
+Final root verification reports 68 automated tests and typecheck passed. The implementation agent reports the latest main web build passed; the root previously verified the isolated guest build. These are recorded with their actual scopes; no new public deployment, human trial or video is implied.
+
+## Separate synthetic automatic-interruption trial — 2026-11-02 10:44 KST
+
+Ran `npx tsx scripts/probe-research-studio.ts --interrupt` against real providers, session `2026-11-02_1044_meta_baed`. Before interruption, the receiver had 29 non-silent AI frames; total was 81, including 52 during transport/detection. An automatic-interruption event followed synthetic speech start. After the interruption utterance, silence and a two-second grace interval, a three-second observation found zero late AI frames. The director then selected WAIT. HOLD occurred later and was not the cause of this stop.
+
+This is a synthetic-input automatic-interruption test, distinct from the earlier manual HOLD check. It does not measure precise stopping latency or establish human acoustic acceptance. This trial's research request/completion interval was 6,626 ms, not total conversational latency.
+
+Browser inspection verified the actual research result card, Meta source citation and displayed retrieval-time field, with zero console errors and one warning. The displayed time corresponds to application research completion, not a measured independent fetch time for each page. Final root checks passed: 68 tests, typecheck, main web build and guest-only build.

@@ -5,11 +5,12 @@ import { api } from "../lib/api";
 interface ControlBarProps {
   status: StudioStatus;
   selectedEngine: string;
+  researchEnabled?: boolean;
   onError: (msg: string) => void;
 }
 
 /** 방송 중 CJ가 쓰는 버튼: 넘기기 · 정지/재개 · Host direction */
-export function ControlBar({ status, selectedEngine, onError }: ControlBarProps) {
+export function ControlBar({ status, selectedEngine, researchEnabled, onError }: ControlBarProps) {
   const [note, setNote] = useState("");
   const [speak, setSpeak] = useState(false);
   const live = status.sessionActive;
@@ -38,7 +39,7 @@ export function ControlBar({ status, selectedEngine, onError }: ControlBarProps)
           <button className="btn stop" disabled={!live} onClick={() => void send({ action: "hold" })} title="Escape">HOLD · Stop AI</button>
         )}
       </div>
-      {meta && <p className="control-hint">Space: handoff · Esc: hold. Humans keep the floor until you hand it over.</p>}
+      {meta && <p className="control-hint">Space: handoff · Esc: hold. {researchEnabled ? "Explicit lookup requests may release a researched answer." : "Humans keep the floor until you hand it over."}</p>}
       {!meta && <form
         className="note"
         onSubmit={(e) => {

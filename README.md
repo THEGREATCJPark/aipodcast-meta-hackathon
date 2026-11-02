@@ -41,7 +41,7 @@ Session artifacts stay in ignored output/ and include sensitive audio/transcript
 
 Set `META_API_KEY`, `OPENAI_API_KEY`, `LIVEKIT_URL`, `LIVEKIT_API_KEY` and `LIVEKIT_API_SECRET` locally for live operation. The configured models passed actual account/provider probes with synthetic input. Human microphone and full Studio acceptance remain pending.
 
-The initial mode requires operator handoff to release speech. Ordinary turns can produce WAIT or a recommendation but do not automatically speak. Input context is capped at 30 recent utterances. Provider work is limited to 15 minutes, four ASR streams, 60 director calls and 30 seconds of TTS per response, without retries. These are usage limits, **not a verified dollar spending cap**. ASR handshake gaps are logged while source WAV recording is retained. Automatic ASR reconnection is not implemented; restart the session.
+The default mode requires operator handoff to release speech; the opt-in explicit research exception is described below. Ordinary turns can produce WAIT or a recommendation but do not automatically speak. Input context is capped at 30 recent utterances. Provider work is limited to 15 minutes, four ASR streams, 60 director calls and 30 seconds of TTS per response, without retries. These are usage limits, **not a verified dollar spending cap**. ASR handshake gaps are logged while source WAV recording is retained. Automatic ASR reconnection is not implemented; restart the session.
 
 
 
@@ -50,3 +50,12 @@ The initial mode requires operator handoff to release speech. Ordinary turns can
 Follow [human acceptance and filming](docs/HUMAN_ACCEPTANCE.md) before recording the [three-minute English demo](docs/DEMO_SCRIPT.md). The local capture panel requires a connected microphone and explicit browser tab selection with “Share tab audio.” It offers a local WebM preview/download capped at 180 seconds; verify a ten-second sample first. No automatic upload is performed.
 
 `npm run build:guest` prepares a guest-only static bundle at `dist/guest` for future approved HTTPS hosting. It is not a public deployment. Publishing the repository, guest site or personal recordings requires separate owner approval. The original SPNS TV reference informs only general relaxed, candid pacing and short witty questions; the submission presents an independent co-host without logos, copied signature lines or presenter voice imitation.
+
+## Optional research producer
+
+Research PD is off by default. Enable it in local Meta settings and save before a session to allow explicit spoken lookup requests such as “Can you check that for us?” Meta can resolve the request from recent discussion and use its Responses `web_search` tool. A valid search result shows source links and recorded request/completion timing. This opted-in answer can speak without another Handoff when the floor is clear; ordinary discussion responses still need Handoff. HOLD or new speech cancels pending work. Source links support inspection, not a guarantee that the answer is correct.
+
+The research path uses the existing Meta key/director model, with eight search attempts per session and a 25-second timeout. It may consume provider quota. Failure does not switch to another LLM. See [submission readiness](docs/SUBMISSION_READINESS.md) for current validation and unresolved release gates. Filming is deferred by the owner; prepared English scripts are not completed footage.
+
+
+Research validation checkpoint: a synthetic English request passed through the full Studio into real Meta web search, a provider-annotated answer, OpenAI TTS and a separate LiveKit receiver without pressing Handoff. The earlier failed ASR-buffer trial and subsequent pacing fix are recorded in EVALUATION.md. Human discussion and listener-observed cancellation remain unverified; filming is deferred by the owner.

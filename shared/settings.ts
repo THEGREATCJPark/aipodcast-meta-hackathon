@@ -105,6 +105,7 @@ export function openingInstruction(settings: ComposeInput & { prompt: { opening:
 export const PERSONA_CHOICES = [...TRACK_IDS, "custom"] as const;
 
 export const SettingsSchema = z.object({
+  researchEnabled: z.boolean().default(false),
   engine: z.enum(ENGINES).default("meta"),
   /** MC 캐릭터 트랙. custom이면 prompt.instructions / prompt.opening을 쓴다. */
   persona: z.object({

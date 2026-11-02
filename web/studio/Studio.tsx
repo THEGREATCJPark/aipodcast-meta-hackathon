@@ -110,6 +110,7 @@ export function Studio() {
         <strong>{status.sessionActive ? "LIVE SESSION" : "LOCAL LIVE SETUP"}</strong> · Connected input uses real providers. Participant labels identify synthetic test sources; recordings are not live human trials.
         {status.providerModels && <p>ASR: {status.providerModels.asr} · Director: {status.providerModels.director} · TTS: OpenAI {status.providerModels.tts} / {status.providerModels.voice}</p>}
         <p>Human-controlled co-host · Meta speech recognition and decisions · OpenAI speech synthesis. Key badges indicate configuration, not successful model access.</p>
+        {settings.engine === "meta" && <p className="research-mode"><strong>Research PD: {settings.researchEnabled ? "ON" : "OFF"}</strong> · {settings.researchEnabled ? "Explicit spoken lookup requests can trigger a researched, spoken answer. HOLD cancels it." : "Web research is disabled. Use Handoff for ordinary co-host questions."}</p>}
         {(!status.sessionActive || !mic) && <label><input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} /> I consent to local recording and transmission to LiveKit, Meta and the selected speech provider. Publication needs separate permission.</label>}
       </div>
       <div className="lounge-heading"><span>THE CONVERSATION LOUNGE</span><h2>Good company. Better questions.</h2><p>Relaxed, candid conversation. One grounded question at a time.</p></div>
@@ -148,7 +149,7 @@ export function Studio() {
           <div hidden={demo}><CapturePanel mic={mic} /></div>
           {!demo && <ComparePanel refreshKey={`${status.sessionActive}-${status.sessionId ?? ""}`} />}
           <LogPanel logs={logs} />
-          <ControlBar status={status} selectedEngine={settings.engine} onError={fail} />
+          <ControlBar status={status} selectedEngine={settings.engine} researchEnabled={settings.researchEnabled} onError={fail} />
         </section>
         {!demo && <SettingsPanel settings={settings} locked={status.sessionActive} activeEngine={status.engine} onSaved={setSettings} onError={fail} />}
       </main>

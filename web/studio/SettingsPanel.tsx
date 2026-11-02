@@ -76,9 +76,15 @@ export function SettingsPanel({ settings, locked, activeEngine, onSaved, onError
         {engine !== "meta" && <PersonaSection draft={draft} saved={settings} setDraft={setDraft} locked={locked} onSaved={onSaved} onError={onError} />}
 
         {engine === "meta" ? (
-          <Section title="Meta co-host" hint="Human-controlled handoff. No fallback LLM.">
+          <Section title="Meta co-host" hint="Human-controlled conversation. Optional spoken research requests. No fallback LLM.">
             <p className="style-lock">Fixed reference: SPNS TV / Shoes Off<br />Original English co-host · relaxed, candid and lightly playful.</p>
-            <p>Muse Voice Transcribe listens. Muse Spark chooses WAIT, ASK, CLARIFY or SUMMARIZE. OpenAI TTS voices only the approved text.</p>
+            <p>Muse Voice Transcribe listens. Muse Spark chooses WAIT, ASK, CLARIFY, SUMMARIZE or a requested LOOKUP. OpenAI TTS renders the response.</p>
+            <label className="toggle research-opt-in">
+              <input type="checkbox" checked={draft.researchEnabled ?? false} onChange={(e) => setDraft((d) => ({ ...d, researchEnabled: e.target.checked }))} />
+              <span>Enable research PD</span>
+            </label>
+            <p className="hint">Off by default. When enabled, an explicit spoken request such as “Look that up” can start web research and release a spoken answer when the floor is clear, without another handoff. Normal questions still require Handoff. HOLD cancels pending work and speech.</p>
+            <p className="hint">Save to apply. Changing this setting cancels pending AI work and speech, including during a session. Web research uses provider requests and may incur charges. Check the linked sources; an AI answer is not a verified fact.</p>
             <p className="hint">Models are configured on the server. Account access and live audio must be verified separately. HOLD cancels pending speech; handoff asks for a fresh decision.</p>
           </Section>
         ) : engine === "gpt-live" ? (

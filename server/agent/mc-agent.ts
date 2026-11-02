@@ -158,7 +158,7 @@ export class McAgent {
       const dir = this.deps.bus.beginSession(this.sessionId);
       this.sessionStartedAt = Date.now();
       this.recorder = new SessionRecorder(dir, ROOM_SAMPLE_RATE);
-      if (session instanceof MetaSession) this.deps.bus.log("system", "Meta session evidence started", { meta: { stage: "session-start", runId: session.runId, models: session.models, mode: "human-handoff", costMeasured: false } });
+      if (session instanceof MetaSession) this.deps.bus.log("system", "Meta session evidence started", { meta: { stage: "session-start", runId: session.runId, models: session.models, mode: settings.researchEnabled ? "handoff-plus-explicit-spoken-lookup" : "human-handoff", researchEnabled: settings.researchEnabled, costMeasured: false } });
       this.deps.bus.log("system", `Session started · ${engineDescription(settings)} · ${personaLabel(settings)}${settings.persona.openingMode === "wait" ? " · waiting for humans" : ""}`);
       this.startPump();
       this.state = "listening";
@@ -207,8 +207,8 @@ export class McAgent {
 
   updateLiveSettings(settings: Settings): void {
     if (!this.session || !this.settings) return;
-    this.settings = { ...this.settings, gptLive: { ...this.settings.gptLive, delegation: settings.gptLive.delegation }, floor: settings.floor };
-    const applied = this.session.id === "gpt-live" ? this.session.applyLiveSettings(this.settings) : null;
+    this.settings = { ...this.settings, researchEnabled: settings.researchEnabled, gptLive: { ...this.settings.gptLive, delegation: settings.gptLive.delegation }, floor: settings.floor };
+    const applied = this.session.id === "gpt-live" || this.session.id === "meta" ? this.session.applyLiveSettings(this.settings) : null;
     for (const p of this.participants.values()) p.vad.setThreshold(settings.floor.speechThresholdDb);
     this.deps.bus.log("system", `${applied ? `${applied}, ` : ""}Speech detection settings applied. Other changes apply next session.`);
   }

@@ -1,6 +1,6 @@
 # Three-minute English demo: the co-host who can check a fact
 
-Status: production plan, NOT recorded runtime evidence. The requested research-PD capability is not implemented in checkpoint 1999c92. Do not film scripted AI replies as actual model outputs. Owner will perform human trials only after implementation is complete.
+Status: production plan, NOT recorded runtime evidence. The research-PD extension is now implemented in the working branch; provider and human validation must be reported separately in EVALUATION.md. Do not film scripted AI replies as actual model outputs. Filming and human trials are deferred by the owner. Implementation, automated validation and explicitly labeled provider probes continue first.
 
 ## Editorial direction
 
@@ -37,19 +37,19 @@ These sources support the script's factual target. This research was performed w
 | Time | Picture / real action | English narration or content |
 |---|---|---|
 | 0:00–0:15 | Lounge and two participants | “When a conversation stalls on a forgotten fact, someone usually turns to the producer. We want an AI co-host to handle that moment—and then get out of the way.” |
-| 0:15–0:35 | Brief product and provider roles | “Meta listens to the discussion and decides whether to wait, ask a question, or help check a specific fact. People retain control.” This research claim is conditional on implementation. |
+| 0:15–0:35 | Brief product and provider roles | “Meta listens to the discussion and decides whether to wait, ask a question, or help check a specific fact. People retain control.” Show only the observed request and actual answer. |
 | 0:35–1:20 | Central human scene above, actual search and reply | Preserve actual audible reply and source card. Show real elapsed lookup; label any edited wait. Do not pre-record a model answer and represent it as current inference. |
 | 1:20–1:40 | Humans continue discussing feedback loops | “The answer is short. The source stays on screen. The people keep the conversation.” Show actual WAIT evidence. |
 | 1:40–2:05 | New lookup cancelled by topic change or HOLD | Show real cancellation and no late answer. Distinguish human-voice interruption from a button stop. |
-| 2:05–2:30 | Source/evidence, transcript, generated and sent audio | “The record separates the question, retrieved evidence, generated answer and audio actually sent.” Conditional on implemented search record. |
+| 2:05–2:30 | Source/evidence, transcript, generated and sent audio | “The record separates the question, retrieved evidence, generated answer and audio actually sent.” Show the recorded request/completion times; do not call them individual webpage fetch timestamps. |
 | 2:30–2:50 | Engineering and provenance | “The new Meta pipeline builds on our existing React and LiveKit studio. We validate evidence, limit calls and discard stale results. OpenAI provides speech synthesis.” |
 | 2:50–3:00 | Honest status and access links | “A conversational co-host with a producer's research instinct. Built to help the discussion, not take it over.” |
 
-## Required implementation gates before owner rehearsal
+## Required validation gates before owner rehearsal
 
 - Real search/retrieval integrated into the Meta decision path; no silent fallback LLM.
 - Meta recognizes an explicit spoken lookup request from context. Owner-enabled research mode controls permission; arbitrary transcript instructions cannot change security, recording or permissions.
-- Brief factual answer grounded in retrieved evidence, URL/title/retrieval timestamp visible and saved, with no fake citation.
+- Brief factual answer grounded in retrieved evidence, URL/title and request/completion timestamps visible and saved, with no fake citation.
 - Search cancellation on human speech, HOLD, stop and changed context; late results never play.
 - Bounded search calls and timeouts; failure disclosed without interrupting recording.
 - Measure actual end-of-speech, ASR final, search and first audio timings. No “instant” or numeric speed claim before measurement.

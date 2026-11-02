@@ -2,42 +2,33 @@
 
 ## Implemented
 
-Independent PRIVATE repository, source-only baseline ac71d68 and work branch hackathon/meta-2026. Original project remains preserved. Current reviewed checkpoint: 1e5ec68; not a frozen submission SHA.
+Independent PRIVATE source-snapshot repository; baseline ac71d68, branch hackathon/meta-2026. Original repository preserved. Final submission SHA is not frozen.
 
-The Meta pipeline includes per-participant realtime ASR, validated contextual decisions, manual host handoff, OpenAI TTS, context/generation cancellation, bounded queues/context/calls and separate generated-versus-sent audio evidence. React/Vite/Express/LiveKit and existing recording structure are retained. Studio and Judge views expose controls and provider roles. Full details and limitations are in ARCHITECTURE.md.
+The co-host retains React/Vite/Express/LiveKit and recording. Meta handles per-participant ASR and contextual WAIT/ASK/CLARIFY/SUMMARIZE/LOOKUP decisions. OpenAI TTS voices selected text. Handoff remains the default speech gate. The optional local `researchEnabled` setting is off by default; when enabled, an explicit spoken lookup can run Meta Responses web_search and release a cited answer without another handoff. Ordinary conversation does not receive this speech exception.
 
-## Tested
+Research has completed-search/citation validation, bounded source evidence, eight attempts per session, one attempt per request utterance, a 25-second timeout and stale cancellation on speech, HOLD, stop or permission change. Errors remain WAIT/error and preserve recording; no other LLM substitutes. Source links need inspection and do not guarantee factual correctness. See ARCHITECTURE.md.
 
-- Baseline: npm ci, 29 tests, typecheck and web build passed.
-- Post-implementation checkpoint: 41 automated tests, typecheck and web build passed; bundle-size warning remains. Local studio and Judge view inspected with Playwright.
-- Local Host/Origin rejection and guest token grant/expiry tests passed. These are not full production authorization verification.
-- Real account calls verified Meta muse-voice-transcribe-1.0 and muse-spark-1.3, OpenAI tts-1/alloy and LiveKit authentication.
-- Synthetic Korean audio traversed actual Meta ASR → Meta director → OpenAI TTS → LiveKit sender/separate receiver, with private WAV and JSON evidence. This is a real-provider synthetic-input probe, not a real human discussion or complete Studio acceptance test. See EVALUATION.md.
+English Studio/Judge views, local 180-second tab+microphone WebM capture and an isolated guest static build are implemented. Capture is local only; guest bundle is not deployed.
 
-## Pending acceptance
+## Tested checkpoints
 
-Human microphone end-to-end sessions, automatic interruption audible at a listener, separate manual HOLD verification, real WAIT opportunities, topic-change cancellation, reconnection/identity, external guest operation, and two people plus AI remain pending. No real human-session success, performance benefit or listening-quality score is claimed. English acceptance instructions and filming procedures are in HUMAN_ACCEPTANCE.md and DEMO_SCRIPT.md.
+- Original baseline: 29 tests, typecheck and build passed.
+- Manual-handoff English checkpoint 1999c92: 49 tests, typecheck, main/guest builds and CI passed. Actual-provider synthetic English Studio probe demonstrated transcript, WAIT, handoff ASK, remote audio receipt, HOLD state and exported artifacts.
+- Research working branch: root verification reports 68 automated tests and typecheck passed, including opt-in, cancellation and pacing regressions. Final root main web and isolated guest builds passed. See EVALUATION.md for exact checkpoint scopes.
+- Real-provider research probe initially returned incomplete at a 1,200-token output budget and was rejected. Request now uses low reasoning with a 2,400-token output budget. Two later actual calls completed search but lacked URL annotations and were rejected. The fallback citation representation accepts only final-answer links exactly matched to actual search results, distinctly labeled from provider annotations. A direct actual research call subsequently passed with a provider-annotated Virginia Tech paper scan (7,211 ms application request/completion interval). The first full Studio research trial failed on ASR buffer overflow and correctly cancelled research while preserving recording. After the clock-based pacing fix, integrated synthetic English Studio session 2026-11-02_1043_meta_df01 passed: four ASR transcripts, LOOKUP without Handoff, real provider-annotated search, TTS, 418 non-silent remote AI frames, HOLD state and saved artifacts with no probe errors. Search request/completion was 6,861 ms, not end-to-end latency.
 
-## Rules and release blockers
+## Human acceptance and filming — owner deferred
 
-Owner-supplied participant instructions establish a public-repository and three-minute-video requirement, contributor listing, one project per team and disclosure of event contributions. Their source status and rubric are recorded in RULES.md. Startup reuse is explicit in that supplied text; indie reuse, application-idea change, external TTS and exact form/deployment requirements remain unresolved.
+A separate synthetic-input automatic-interruption trial passed with zero late AI frames during a three-second observation after speech/silence and a two-second grace interval; HOLD occurred only afterward. Actual human discussion, precise interruption latency and browser capture acceptance remain unverified. Human microphone trials, research request relevance, automatic interruption versus manual HOLD, topic changes, reconnection/identity and external guests remain pending. English acceptance and production materials are ready for later use; the owner has deferred filming while engineering validation continues.
 
-Repository publication still requires explicit approval. No public app, completed video, public voice-release permission, final terms acceptance or submission receipt exists. Authentication is no longer a blocker for the models tested; the earlier no-auth checkpoint is historical.
+## Release / rules / form blockers
 
-## Deferred / limitations
+Participant-supplied instructions require public source, a three-minute video, contributor listing, one entry per team and event-contribution disclosure. Source attribution and rubric are in RULES.md. Indie reuse, application-idea change, external TTS permission and exact form/deployment requirements remain unresolved.
 
-No automatic ASR reconnect; restart is required. Usage caps are not a verified dollar spending ceiling. Advanced avatar/lip sync, long editing, multiple AI panels, social publishing and broad fact checking remain out of scope. The presentation direction uses an independent relaxed, candid co-host with short, witty questions; it does not claim endorsement or imitate a real presenter's voice.
+Repository remains private pending explicit publication approval. No public app, finished video, public voice/face-release approval, final terms acceptance or submission receipt exists. SUBMISSION_READINESS.md separates engineering, human and release gates; this is not “only filming remains.”
 
-Target package completion: November 4 evening KST. Announced deadline: November 5, 11:00 KST, subject to official change. Preparation is not submission.
+## Limits and scope
 
-## Local filming and guest packaging
+No automatic ASR reconnect; restart required. Usage limits are not a verified dollar spending ceiling. The research addition is focused lookup on request, not broad autonomous fact checking. Advanced lip sync, long editing, multiple AI panels and social publishing remain excluded. The independent presentation uses relaxed, candid pacing and short witty questions without presenter voice imitation or show branding.
 
-A capture panel records a user-selected browser tab plus connected microphone, with a local preview/download and 180-second WebM limit. It does not upload; a ten-second human audio/capture test is still required. FFmpeg is unavailable on PATH. A guest-only static build target (`npm run build:guest`, `dist/guest`) is prepared for approved HTTPS hosting; no deployment or external guest success is claimed.
-
-
-Latest integrated evidence: 2026-11-02 10:26 KST synthetic English input through real Studio HTTP/McAgent/VAD/providers/recorder succeeded. WAIT then handoff ASK, separate participant audio receipt, HOLD state and stop artifacts verified. This is not human acceptance or measured audible stopping. See EVALUATION.md and HUMAN_ACCEPTANCE.md.
-
-English MVP preparation is complete for owner acceptance: 49 tests, typecheck, main web build and guest-only build passed. Fixed SPNS-inspired original English style, local 180-second capture/preview/download, English test script and three-minute production script prepared. Source remains private; human acceptance, final footage/export, public access and submission receipt are outstanding.
-
-## Scope clarification — research PD (2026-11-02)
-Owner wants the co-host to resolve forgotten facts during a natural singularity discussion and actually look up supporting information. Runtime web lookup, web-source evidence and opt-in spoken lookup requests are NOT implemented in the current manual-handoff pipeline. They are now required before the owner's human rehearsal/filming. See SUBMISSION_READINESS.md and revised English DEMO_SCRIPT.md. This is not a claim that everything except filming is ready.
+Internal package target: November 4 evening KST. Publicly announced deadline: November 5, 11:00 KST, subject to official change. Preparation is not submission.
