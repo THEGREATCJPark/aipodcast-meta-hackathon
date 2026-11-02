@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 export function Section({ title, hint, locked, children }: { title: string; hint?: string; locked?: boolean; children: ReactNode }) {
   return (
     <section className="set-section">
-      <h3>{title}{locked && <span className="lock" title="세션 중에는 바꿀 수 없습니다">세션 중 잠김</span>}</h3>
+      <h3>{title}{locked && <span className="lock" title="Cannot change during an active session">Locked during session</span>}</h3>
       {hint && <p className="hint">{hint}</p>}
       {children}
     </section>

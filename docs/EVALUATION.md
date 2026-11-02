@@ -68,3 +68,13 @@ A separate synthetic-audio trial used actual providers: OpenAI-generated Korean 
 Private artifacts: output/probes/provider-check.json and output/probes/audio-1793581812413/{synthetic-input.wav,tts-generated.wav,livekit-received.wav,evidence.json}. Not committed. This is synthetic input with real network/model calls, NOT a human conversation, listening-quality assessment, live barge-in test or complete Studio integration test.
 
 Reproduce explicitly (uses existing paid provider quotas): npx tsx scripts/probe-providers.ts and npx tsx scripts/probe-audio.ts. These scripts are excluded from npm test and CI. Prior no-auth observations above describe the earlier checkpoint; this section supersedes account-access blockers for the tested models only.
+
+## Submission MVP checkpoint — 2026-11-02 10:26 KST
+
+Ran `npx tsx scripts/probe-studio.ts` against the local Studio with actual Meta/OpenAI/LiveKit services and a clearly named synthetic English participant. This uses the real HTTP controls, McAgent, VAD, ASR, director, playout and recorder (not only independent provider adapters).
+
+Observed session `2026-11-02_1026_meta_42a6`: real transcript arrived; Meta selected WAIT without handoff; after explicit handoff it selected ASK with a valid source utterance ID and an English lounge-style follow-up. A separate LiveKit participant received 12 non-silent AI frames before the probe deliberately issued HOLD. Studio reported held; events.jsonl, summary.json, mc.wav and mix.wav existed after Stop. The generated question was interrupted intentionally; it is not claimed fully heard. This proves server HOLD state and output before HOLD, not remote acoustic stop latency.
+
+Private session artifacts remain under output/2026-11-02_1026_meta_42a6/. Input was synthesized, not a real human trial. Automatic interruption listening quality, human dialogue relevance, reconnect UX, external-device guests and browser recording audio remain owner acceptance tasks.
+
+Final local checks for the English MVP checkpoint: 49 automated tests passed, TypeScript checks passed, main web and isolated guest builds passed. Playwright inspected the English operator and judge views with zero console errors (one development WebSocket cleanup warning). New-session history resets without deleting previous on-disk evidence. Staged files were checked against configured secret values with zero matches. Browser screen/tab/mic capture is implemented but still requires the owner's ten-second real audio check. No final human video has been produced.

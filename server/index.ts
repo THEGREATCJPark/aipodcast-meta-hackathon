@@ -180,6 +180,7 @@ async function main(): Promise<void> {
   };
   const broadcast = (msg: ServerMessage): void => wss.clients.forEach((c) => send(c, msg));
   wss.on("connection", (ws) => send(ws, { type: "history", entries: bus.history() }));
+  bus.on("history", (entries) => broadcast({ type: "history", entries }));
   bus.on("log", (entry) => broadcast({ type: "log", entry }));
   bus.on("logUpdate", (entry) => broadcast({ type: "log-update", entry }));
   bus.on("status", (status) => broadcast({ type: "status", status }));

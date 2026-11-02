@@ -4,6 +4,7 @@ import { api } from "../lib/api";
 import { joinVoiceRoom, type VoiceRoomHandle } from "../lib/voice-room";
 import { ENGINE_LABEL } from "../../shared/settings";
 import { openFolder } from "../lib/folders";
+import { CapturePanel } from "./CapturePanel";
 import { ComparePanel } from "./ComparePanel";
 import { ControlBar } from "./ControlBar";
 import { LogPanel } from "./LogPanel";
@@ -11,7 +12,7 @@ import { SettingsPanel } from "./SettingsPanel";
 import { useStudio } from "./useStudio";
 
 const MC_LABEL: Record<McState, string> = {
-  offline: "대기", connecting: "연결 중", listening: "듣는 중", speaking: "말하는 중", held: "정지됨", error: "오류",
+  offline: "Idle", connecting: "Connecting", listening: "Listening", speaking: "Speaking", held: "Held", error: "Error",
 };
 
 export function Studio() {
@@ -37,7 +38,7 @@ export function Studio() {
     try {
       await fn();
     } catch (e: unknown) {
-      fail(e instanceof Error ? e.message : "실패");
+      fail(e instanceof Error ? e.message : "Failed");
     } finally {
       setBusy(false);
     }
@@ -46,14 +47,14 @@ export function Studio() {
   useStudioShortcuts(status);
   useEffect(() => () => void mic?.leave(), [mic]);
 
-  if (!settings || !status) return <div className="boot">스튜디오 서버에 연결하는 중…</div>;
+  if (!settings || !status) return <div className="boot">Connecting to the studio…</div>;
 
   const connectMic = (): Promise<void> =>
     run(async () => {
       const { url, token } = await api<{ url: string; token: string }>("/api/host-token", { method: "POST", body: {} });
       setMic(await joinVoiceRoom(url, token, () => {
         setMic(null);
-        fail("마이크 연결이 끊어졌습니다. 다시 연결해 주세요.");
+        fail("Microphone disconnected. Please reconnect.");
       }));
     });
 
@@ -77,28 +78,28 @@ export function Studio() {
         <div className="brand">
           <span className={`onair ${status.sessionActive ? "live" : ""}`}>{status.sessionActive ? "ON AIR" : "IDLE"}</span>
           <h1>Meta Conversation Co-host</h1>
-          {status.recording && <span className="rec" title="세션 종료 시 output 폴더에 정리됩니다">● REC <Elapsed sessionId={status.sessionId} /></span>}
+          {status.recording && <span className="rec" title="Saved locally when the session ends">● REC <Elapsed sessionId={status.sessionId} /></span>}
         </div>
         <div className="badges">
-          <Badge ok={socketOpen} label="서버" />
+          <Badge ok={socketOpen} label="Studio" />
           <Badge ok={status.livekitConfigured} label="LiveKit" />
-          <Badge ok={status.metaConfigured} label="Meta key configured" />
-          <Badge ok={status.openaiConfigured} label="OpenAI TTS key" />
-          <Badge ok={status.geminiConfigured} label="Gemini" />
-          <Badge ok={Boolean(mic)} label="내 마이크" />
+          <Badge ok={status.metaConfigured} label="Meta key" />
+          <Badge ok={status.openaiConfigured} label="OpenAI TTS" />
+          {settings.engine !== "meta" && <Badge ok={status.geminiConfigured} label="Gemini" />}
+          <Badge ok={Boolean(mic)} label="Microphone" />
         </div>
         <div className="top-actions">
           <button className="btn ghost" onClick={() => setDemo(!demo)}>{demo ? "Studio controls" : "Judge view"}</button>
           {mic ? (
             <>
-              <button className="btn ghost" onClick={() => void mic.setMuted(!muted).then(() => setMuted(!muted))}>{muted ? "음소거 해제" : "음소거"}</button>
-              <button className="btn ghost" onClick={() => void mic.leave().then(() => setMic(null))}>마이크 연결 끊기</button>
+              <button className="btn ghost" onClick={() => void mic.setMuted(!muted).then(() => setMuted(!muted))}>{muted ? "Unmute" : "Mute"}</button>
+              <button className="btn ghost" onClick={() => void mic.leave().then(() => setMic(null))}>Disconnect mic</button>
             </>
           ) : (
-            <button className="btn ghost" disabled={busy || !status.livekitConfigured || !consent} onClick={() => void connectMic()}>마이크 연결</button>
+            <button className="btn ghost" disabled={busy || !status.livekitConfigured || !consent} onClick={() => void connectMic()}>Connect mic</button>
           )}
           <button className={`btn ${status.sessionActive ? "stop" : "primary"}`} disabled={busy || (!status.sessionActive && (!status.livekitConfigured || !engineReady || !consent))} onClick={() => void toggleSession()}>
-            {status.sessionActive ? "세션 종료" : `세션 시작 · ${ENGINE_LABEL[settings.engine]}`}
+            {status.sessionActive ? "End session" : `Start session · ${ENGINE_LABEL[settings.engine]}`}
           </button>
         </div>
       </header>
@@ -106,46 +107,48 @@ export function Studio() {
       {error && <div className="toast" role="alert">{error}</div>}
 
       <div className="cohost-notice">
-        <strong>{status.sessionActive ? "LIVE SESSION" : "LOCAL LIVE SETUP"}</strong> · New microphone input uses actual providers when connected. This is not replay or a synthetic demo.
+        <strong>{status.sessionActive ? "LIVE SESSION" : "LOCAL LIVE SETUP"}</strong> · Connected input uses real providers. Participant labels identify synthetic test sources; recordings are not live human trials.
         {status.providerModels && <p>ASR: {status.providerModels.asr} · Director: {status.providerModels.director} · TTS: OpenAI {status.providerModels.tts} / {status.providerModels.voice}</p>}
         <p>Human-controlled co-host · Meta speech recognition and decisions · OpenAI speech synthesis. Key badges indicate configuration, not successful model access.</p>
-        {!status.sessionActive && <label><input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} /> I consent to local recording and transmission to LiveKit, Meta and the selected speech provider. Publication needs separate permission.</label>}
+        {(!status.sessionActive || !mic) && <label><input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} /> I consent to local recording and transmission to LiveKit, Meta and the selected speech provider. Publication needs separate permission.</label>}
       </div>
+      <div className="lounge-heading"><span>THE CONVERSATION LOUNGE</span><h2>Good company. Better questions.</h2><p>Relaxed, candid conversation. One grounded question at a time.</p></div>
       <main className={`stage ${demo ? "judge-view" : ""}`}>
         <section className="room">
           <div className="people">
             <PersonTile
-              name="Meta Co-host"
+              name="Co-host"
               state={status.engine ? `${status.engine === "meta" ? status.metaState ?? MC_LABEL[status.mcState] : MC_LABEL[status.mcState]} · ${ENGINE_LABEL[status.engine]}${status.persona ? ` · ${status.persona}` : ""}` : MC_LABEL[status.mcState]}
               active={status.mcState === "speaking"}
               accent
             />
             {status.participants.map((p) => (
-              <PersonTile key={p.identity} name={p.name} state={p.speaking ? "말하는 중" : `${p.levelDb} dB`} active={p.speaking} level={p.levelDb} />
+              <PersonTile key={p.identity} name={p.name} state={p.speaking ? "Speaking" : `${p.levelDb} dB`} active={p.speaking} level={p.levelDb} />
             ))}
-            <div className="invite">
-              <input value={guestName} onChange={(e) => setGuestName(e.target.value)} placeholder="게스트 이름" maxLength={40} />
-              <button className="btn ghost" disabled={busy || !guestName.trim() || !status.livekitConfigured} onClick={() => void createInvite()}>초대 링크</button>
-            </div>
+            {!demo && <div className="invite">
+              <input value={guestName} onChange={(e) => setGuestName(e.target.value)} placeholder="Guest name" maxLength={40} />
+              <button className="btn ghost" disabled={busy || !guestName.trim() || !status.livekitConfigured} onClick={() => void createInvite()}>Invite link</button>
+            </div>}
           </div>
-          {invite && (
+          {invite && !demo && (
             <div className="invite-result">
               <code>{invite.link}</code>
-              <button className="btn ghost" onClick={() => void navigator.clipboard.writeText(invite.link)}>복사</button>
-              {invite.local && <span className="muted">로컬 주소입니다. 외부 게스트용은 GUEST_PAGE_URL 설정 후 발급하세요.</span>}
-              <button className="btn ghost" onClick={() => setInvite(null)}>닫기</button>
+              <button className="btn ghost" onClick={() => void navigator.clipboard.writeText(invite.link)}>Copy</button>
+              {invite.local && <span className="muted">Local-only link. Remote guests need a separately hosted guest page.</span>}
+              <button className="btn ghost" onClick={() => setInvite(null)}>Close</button>
             </div>
           )}
           {!status.sessionActive && status.lastOutputDir && (
             <div className="saved">
-              <span>지난 세션을 저장했습니다: <code>{status.lastOutputDir}</code> (대화록·리포트·오디오·사용량)</span>
-              <button className="btn ghost" onClick={() => void openFolder(status.lastOutputDir!, fail)}>폴더 열기</button>
+              <span>Session saved: <code>{status.lastOutputDir}</code> (transcript, report and audio)</span>
+              <button className="btn ghost" onClick={() => void openFolder(status.lastOutputDir!, fail)}>Open folder</button>
             </div>
           )}
           <Metrics status={status} selectedEngine={settings.engine} />
+          <div hidden={demo}><CapturePanel mic={mic} /></div>
           {!demo && <ComparePanel refreshKey={`${status.sessionActive}-${status.sessionId ?? ""}`} />}
           <LogPanel logs={logs} />
-          <ControlBar status={status} onError={fail} />
+          <ControlBar status={status} selectedEngine={settings.engine} onError={fail} />
         </section>
         {!demo && <SettingsPanel settings={settings} locked={status.sessionActive} activeEngine={status.engine} onSaved={setSettings} onError={fail} />}
       </main>
@@ -189,12 +192,12 @@ function PersonTile({ name, state, active, accent, level }: { name: string; stat
 
 function Metrics({ status, selectedEngine }: { status: StudioStatus; selectedEngine: string }) {
   if ((status.engine ?? selectedEngine) === "meta") return <div className="metrics"><span>Timing: turn end / handoff → server first audio <b>{status.lastLatencyMs ?? "–"}</b> ms</span><span>Listener latency not measured · Cost not measured / provider limits only</span></div>;
-  const extra = status.engine === "gemini-live" ? "검색 별도" : "백엔드 별도";
+  const extra = status.engine === "gemini-live" ? "search excluded" : "backend excluded";
   return (
     <div className="metrics">
-      <span>응답 지연 <b>{status.lastLatencyMs ?? "–"}</b> ms</span>
-      <span>중앙값 <b>{status.latencyMedianMs ?? "–"}</b> ms</span>
-      <span>사용 <b>{Math.round(status.usageSeconds)}</b>초 · 추정 <b>${status.costUsd.toFixed(3)}</b> ({extra})</span>
+      <span>Response timing <b>{status.lastLatencyMs ?? "–"}</b> ms</span>
+      <span>Median <b>{status.latencyMedianMs ?? "–"}</b> ms</span>
+      <span>Usage <b>{Math.round(status.usageSeconds)}</b>s · estimated <b>${status.costUsd.toFixed(3)}</b> ({extra})</span>
     </div>
   );
 }

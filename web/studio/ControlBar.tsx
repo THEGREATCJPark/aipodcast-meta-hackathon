@@ -4,14 +4,16 @@ import { api } from "../lib/api";
 
 interface ControlBarProps {
   status: StudioStatus;
+  selectedEngine: string;
   onError: (msg: string) => void;
 }
 
-/** 방송 중 CJ가 쓰는 버튼: 넘기기 · 정지/재개 · 진행 지시 */
-export function ControlBar({ status, onError }: ControlBarProps) {
+/** 방송 중 CJ가 쓰는 버튼: 넘기기 · 정지/재개 · Host direction */
+export function ControlBar({ status, selectedEngine, onError }: ControlBarProps) {
   const [note, setNote] = useState("");
   const [speak, setSpeak] = useState(false);
   const live = status.sessionActive;
+  const meta = (status.engine ?? selectedEngine) === "meta";
   const held = status.mcState === "held";
 
   const send = async (cmd: ControlCommand): Promise<boolean> => {
@@ -19,7 +21,7 @@ export function ControlBar({ status, onError }: ControlBarProps) {
       await api("/api/control", { method: "POST", body: cmd });
       return true;
     } catch (e: unknown) {
-      onError(e instanceof Error ? e.message : "제어 실패");
+      onError(e instanceof Error ? e.message : "Control failed");
       return false;
     }
   };
@@ -27,16 +29,17 @@ export function ControlBar({ status, onError }: ControlBarProps) {
   return (
     <div className="controls">
       <div className="control-buttons">
-        <button className="btn handoff" disabled={!live} onClick={() => void send({ action: "handoff" })} title="단축키 Space (입력창 밖)">
-          Handoff · MC에게 넘기기
+        <button className="btn handoff" disabled={!live} onClick={() => void send({ action: "handoff" })} title="Space outside text fields">
+          Handoff · Ask the co-host
         </button>
         {held ? (
-          <button className="btn resume" disabled={!live} onClick={() => void send({ action: "resume" })}>Resume listening · 듣기 재개</button>
+          <button className="btn resume" disabled={!live} onClick={() => void send({ action: "resume" })}>Resume listening</button>
         ) : (
-          <button className="btn stop" disabled={!live} onClick={() => void send({ action: "hold" })} title="단축키 Esc">HOLD · AI 즉시 정지</button>
+          <button className="btn stop" disabled={!live} onClick={() => void send({ action: "hold" })} title="Escape">HOLD · Stop AI</button>
         )}
       </div>
-      <form
+      {meta && <p className="control-hint">Space: handoff · Esc: hold. Humans keep the floor until you hand it over.</p>}
+      {!meta && <form
         className="note"
         onSubmit={(e) => {
           e.preventDefault();
@@ -44,13 +47,13 @@ export function ControlBar({ status, onError }: ControlBarProps) {
           void send({ action: "note", text: note, speak }).then((ok) => ok && setNote(""));
         }}
       >
-        <input disabled={!live} value={note} onChange={(e) => setNote(e.target.value)} placeholder="MC에게 귓속말 (예: 다음엔 일자리 이야기로 넘어가 주세요)" />
+        <input disabled={!live} value={note} onChange={(e) => setNote(e.target.value)} placeholder="Private direction for the co-host" />
         <label className="toggle small">
           <input type="checkbox" checked={speak} onChange={(e) => setSpeak(e.target.checked)} />
-          <span>바로 말하게</span>
+          <span>Speak now</span>
         </label>
-        <button className="btn ghost" disabled={!live || !note.trim()}>보내기</button>
-      </form>
+        <button className="btn ghost" disabled={!live || !note.trim()}>Send</button>
+      </form>}
     </div>
   );
 }

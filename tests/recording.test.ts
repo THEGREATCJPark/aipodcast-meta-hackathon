@@ -84,9 +84,9 @@ test("세션 정리: 리포트·대화록·요약·설정 파일을 만든다", 
   };
   writeSessionOutput(dir, stats, defaultSettings(), [{ file: join(dir, "mc.wav"), label: "AI MC", seconds: 605 }], 0);
   const report = readFileSync(join(dir, "report.md"), "utf8");
-  assert.ok(report.includes("10분 5초"));
+  assert.ok(report.includes("10 min 5 s"));
   assert.ok(report.includes("900 ms"));
-  assert.ok(report.includes("| AI 즉시 정지 | 1 |"));
+  assert.ok(report.includes("| Manual HOLD | 1 |"));
   assert.ok(report.includes("`mc.wav`"));
   assert.ok(report.includes("오늘 주제는?"));
   const summary = JSON.parse(readFileSync(join(dir, "summary.json"), "utf8"));

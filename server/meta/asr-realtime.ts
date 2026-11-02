@@ -27,7 +27,7 @@ export class MetaAsr {
         try {
           const msg = JSON.parse(raw.toString()) as Record<string, unknown>;
           if (this.stopped) return;
-          if (!msg.type && typeof msg.sessionId === "string") { clearTimeout(timeout); this.ready = true; this.pump = setInterval(() => this.sendFrame(), 20); resolve(); return; }
+          if (!msg.type && typeof msg.sessionId === "string" && !this.ready) { clearTimeout(timeout); this.ready = true; this.pump = setInterval(() => this.sendFrame(), 20); resolve(); return; }
           if (msg.type === "error") { clearTimeout(timeout); reject(new Error("Meta ASR rejected stream")); this.cb.failed("Meta ASR rejected stream; recording continues"); this.close(); return; }
           this.accept(msg);
         } catch { this.cb.failed("Invalid Meta ASR event"); }

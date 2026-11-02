@@ -12,6 +12,6 @@ export async function api<T>(path: string, init: { method?: string; body?: unkno
     body: init.body === undefined ? undefined : JSON.stringify(init.body),
   });
   const env = (await res.json().catch(() => ({ success: false, error: `HTTP ${res.status}` }))) as Envelope<T>;
-  if (!env.success) throw new Error(env.error ?? "요청 실패");
+  if (!env.success) throw new Error(env.error ?? "Request failed");
   return env.data as T;
 }

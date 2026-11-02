@@ -9,8 +9,8 @@ export class TurnManager {
   invalidate(): void { this.generation++; this.controller.abort(); this.controller = new AbortController(); }
   changed(): void { this.revision++; this.invalidate(); }
   human(identity: string, speaking: boolean): void {
-    if (speaking) { this.speakers.add(identity); this.changed(); }
-    else this.speakers.delete(identity);
+    if (speaking && !this.speakers.has(identity)) { this.speakers.add(identity); this.changed(); }
+    else if (!speaking) this.speakers.delete(identity);
   }
   hold(): void { this.held = true; this.invalidate(); }
   resume(): void { this.held = false; this.changed(); }

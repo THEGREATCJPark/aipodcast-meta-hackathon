@@ -75,3 +75,28 @@ test("synthetic Meta ASR WebSocket handshake, prebuffer, PCM and completion", as
     assert.equal(handshake?.audioEncoding,"PCM_24KHZ");assert.equal(handshake?.mode,"ENDPOINTING");assert.equal(samples,960);
   } finally {asr.close();server.clients.forEach(ws=>ws.terminate());await new Promise<void>(resolve=>server.close(()=>resolve()));}
 });
+
+ test("early ASR final waits for all local VAD speakers, then evaluates once",async()=>{
+  let calls=0; const s=new MetaSession(options,{decide:async(_k,_m,_u,r)=>{calls++;return decision(r,"WAIT");},synthesize:async()=>new Int16Array(1)});
+  await s.connect();s.humanSpeaking("host-1",true);s.humanSpeaking("guest-1",true);s.acceptUtterance(u);await tick();assert.equal(calls,0);
+  s.humanSpeaking("host-1",false);await tick();assert.equal(calls,0);
+  s.humanSpeaking("guest-1",false);await tick();assert.equal(calls,1);assert.equal(s.state,"waiting");await s.close();
+});
+test("HOLD remains held during human speech; resume does not replay a cached question",async()=>{
+  let calls=0,spoken=0;const s=new MetaSession(options,{decide:async(_k,_m,_u,r)=>{calls++;return decision(r);},synthesize:async()=>{spoken++;return new Int16Array(10);}});
+  await s.connect();s.hold();s.humanSpeaking("host-1",true);s.acceptUtterance(u);s.humanSpeaking("host-1",false);await tick();
+  assert.equal(s.state,"held");assert.equal(calls,0);s.resume();await tick();assert.equal(calls,0);assert.equal(spoken,0);
+  await s.evaluate(true);assert.equal(spoken,1);await s.close();
+});
+test("director call cap cannot be bypassed by resume or repeated handoff",async()=>{
+  let calls=0;const s=new MetaSession(options,{decide:async(_k,_m,_u,r)=>{calls++;return decision(r,"WAIT");},synthesize:async()=>new Int16Array(1)});
+  s.on("error",()=>undefined);await s.connect();s.acceptUtterance(u);await tick();
+  for(let i=0;i<70;i++){s.resume();await s.evaluate(true);}
+  assert.equal(calls,60);assert.equal(s.state,"held");assert.equal(s.isReady,true);await s.close();
+});
+test("fixed Lounge style is supplied to Meta as developer instruction and requires English",async(t)=>{
+  const { decide }=await import("../server/meta/director.js");let request:any;
+  t.mock.method(globalThis,"fetch",async(_url:unknown,init:RequestInit)=>{request=JSON.parse(init.body as string);return new Response(JSON.stringify({choices:[{message:{content:JSON.stringify(decision(1))}}]}),{status:200});});
+  await decide("fixture","muse-spark-1.3",[u],1,true,new AbortController().signal);
+  assert.equal(request.messages[0].role,"developer");assert.match(request.messages[0].content,/Speak and explain decisions in English/);assert.match(request.messages[0].content,/Never impersonate/);assert.match(request.messages[0].content,/lived experience/);
+});

@@ -2,35 +2,39 @@
 
 ## Implemented
 
-- Independent PRIVATE repository and source-only baseline ac71d68; main preserved as import baseline.
-- Work branch hackathon/meta-2026; original app repository unchanged by this work.
-- Submission disclosure, rule review, evaluation ledger and provisional English demo/submission copy.
+Independent PRIVATE repository, source-only baseline ac71d68 and work branch hackathon/meta-2026. Original project remains preserved. Current reviewed checkpoint: 1e5ec68; not a frozen submission SHA.
+
+The Meta pipeline includes per-participant realtime ASR, validated contextual decisions, manual host handoff, OpenAI TTS, context/generation cancellation, bounded queues/context/calls and separate generated-versus-sent audio evidence. React/Vite/Express/LiveKit and existing recording structure are retained. Studio and Judge views expose controls and provider roles. Full details and limitations are in ARCHITECTURE.md.
 
 ## Tested
 
-- Baseline npm ci, 29 tests, typecheck and web build passed on November 2; see EVALUATION.md.
-- Local npm run dev starts the studio at localhost:4400.
-- Baseline results are not proof of the new Meta implementation or real model behavior.
+- Baseline: npm ci, 29 tests, typecheck and web build passed.
+- Post-implementation checkpoint: 41 automated tests, typecheck and web build passed; bundle-size warning remains. Local studio and Judge view inspected with Playwright.
+- Local Host/Origin rejection and guest token grant/expiry tests passed. These are not full production authorization verification.
+- Real account calls verified Meta muse-voice-transcribe-1.0 and muse-spark-1.3, OpenAI tts-1/alloy and LiveKit authentication.
+- Synthetic Korean audio traversed actual Meta ASR → Meta director → OpenAI TTS → LiveKit sender/separate receiver, with private WAV and JSON evidence. This is a real-provider synthetic-input probe, not a real human discussion or complete Studio acceptance test. See EVALUATION.md.
 
-## Blocked / unverified
+## Pending acceptance
 
-- User elected to proceed without authentication. Actual Meta access, provider calls and real voice evaluation are deferred; no key values are requested in chat.
-- One-human end-to-end audio, automatic interruption, manual HOLD at the listener, reconnect, two-human sessions and real recording inspection remain unverified.
-- Final participant rules and submission form inaccessible through public retrieval. Reuse, idea changes, external TTS and public artifact requirements unresolved.
-- No verified public deployment, video, public audio consent or submission receipt.
+Human microphone end-to-end sessions, automatic interruption audible at a listener, separate manual HOLD verification, real WAIT opportunities, topic-change cancellation, reconnection/identity, external guest operation, and two people plus AI remain pending. No real human-session success, performance benefit or listening-quality score is claimed. English acceptance instructions and filming procedures are in HUMAN_ACCEPTANCE.md and DEMO_SCRIPT.md.
 
-## Deferred
+## Rules and release blockers
 
-- Advanced avatar/lip sync, long-form editing, multiple AI panels, social publishing and broad fact checking.
-- Visual decoration is secondary to actual audio integration. If no actual Meta path exists by November 3 noon KST, prioritize integration only.
+Owner-supplied participant instructions establish a public-repository and three-minute-video requirement, contributor listing, one project per team and disclosure of event contributions. Their source status and rubric are recorded in RULES.md. Startup reuse is explicit in that supplied text; indie reuse, application-idea change, external TTS and exact form/deployment requirements remain unresolved.
 
-Internal package target: November 4 evening KST. Current public deadline: November 5 at 11:00 KST, subject to official changes. No assertion of completed submission or eligibility.
+Repository publication still requires explicit approval. No public app, completed video, public voice-release permission, final terms acceptance or submission receipt exists. Authentication is no longer a blocker for the models tested; the earlier no-auth checkpoint is historical.
 
-## Meta code delivered (live behavior unverified)
+## Deferred / limitations
 
-Per-identity realtime ASR, validated Meta director decisions, manual handoff speech permission, separate OpenAI TTS, bounded context and provider work, cancellation and separate generated-versus-sent evidence are implemented. Automatic ASR reconnect and a dollar-denominated cost cap are not implemented. Synthetic tests and post-change build results are recorded separately when completed.
+No automatic ASR reconnect; restart is required. Usage caps are not a verified dollar spending ceiling. Advanced avatar/lip sync, long editing, multiple AI panels, social publishing and broad fact checking remain out of scope. The presentation direction uses an independent relaxed, candid co-host with short, witty questions; it does not claim endorsement or imitate a real presenter's voice.
 
-## Latest local verification
-2026-11-02 10:00 KST: 41 tests passed; typecheck and build passed. Local server and Judge view inspected in Playwright. No live Meta call or real human audio session performed; authentication-free work explicitly selected by owner. Source and docs prepared, submission not sent.
+Target package completion: November 4 evening KST. Announced deadline: November 5, 11:00 KST, subject to official change. Preparation is not submission.
 
-2026-11-02 10:11 KST update: supplied credentials now verified for Meta ASR handshake/director, OpenAI TTS and LiveKit. Synthetic audio traversed real ASR → director → TTS → separate LiveKit receiver with local WAV evidence. Human microphone sessions, automatic/manual audible cancellation and external guests remain unverified. Server restarted with chosen models.
+## Local filming and guest packaging
+
+A capture panel records a user-selected browser tab plus connected microphone, with a local preview/download and 180-second WebM limit. It does not upload; a ten-second human audio/capture test is still required. FFmpeg is unavailable on PATH. A guest-only static build target (`npm run build:guest`, `dist/guest`) is prepared for approved HTTPS hosting; no deployment or external guest success is claimed.
+
+
+Latest integrated evidence: 2026-11-02 10:26 KST synthetic English input through real Studio HTTP/McAgent/VAD/providers/recorder succeeded. WAIT then handoff ASK, separate participant audio receipt, HOLD state and stop artifacts verified. This is not human acceptance or measured audible stopping. See EVALUATION.md and HUMAN_ACCEPTANCE.md.
+
+English MVP preparation is complete for owner acceptance: 49 tests, typecheck, main web build and guest-only build passed. Fixed SPNS-inspired original English style, local 180-second capture/preview/download, English test script and three-minute production script prepared. Source remains private; human acceptance, final footage/export, public access and submission receipt are outstanding.

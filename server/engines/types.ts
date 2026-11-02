@@ -11,6 +11,7 @@ export interface TranscriptDelta {
 
 /** 두 엔진이 공통으로 내보내는 이벤트. 엔진에 없는 이벤트는 발생하지 않는다. */
 export interface EngineEvents {
+  evidence: [record: Record<string, unknown>];
   decision: [decision: import("../meta/director.js").Decision];
   generatedAudio: [pcm: Int16Array, generation: number];
   started: [sessionId: string];

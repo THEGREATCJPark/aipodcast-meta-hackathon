@@ -19,7 +19,10 @@ export class Playout {
     private readonly onLoudFrame: () => void = () => undefined,
     /** 실제로 송출 큐에 넣은 프레임 (녹음용). flush로 버린 음성은 오지 않는다. */
     private readonly onSent: (frame: Int16Array) => void = () => undefined,
+    private readonly onError: () => void = () => undefined,
   ) {}
+
+  get active(): boolean { return this.running || this.queue.length > 0 || this.pending.length > 0 || this.speaking; }
 
   /** 최근 400ms 안에 소리가 나간 적이 있으면 말하는 중으로 본다. */
   get speaking(): boolean {
@@ -66,6 +69,9 @@ export class Playout {
         await this.source.captureFrame(new AudioFrame(frame, this.sampleRate, 1, frame.length));
         if (gen === this.generation) this.onSent(frame);
       }
+    } catch {
+      this.flush();
+      this.onError();
     } finally {
       this.running = false;
       if (gen === this.generation && this.queue.length === 0 && this.pending.length > 0) {

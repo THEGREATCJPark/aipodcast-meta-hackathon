@@ -4,6 +4,7 @@ import { join } from "node:path";
 import type { LogEntry, LogKind, SessionSummary, StudioStatus } from "../shared/events.js";
 
 interface BusEvents {
+  history: [LogEntry[]];
   log: [LogEntry];
   logUpdate: [LogEntry];
   status: [StudioStatus];
@@ -24,6 +25,8 @@ export class StudioBus extends EventEmitter<BusEvents> {
   beginSession(sessionId: string): string {
     const dir = join(this.outputDir, sessionId);
     mkdirSync(dir, { recursive: true });
+    this.entries = [];
+    this.emit("history", []);
     this.sessionDir = dir;
     this.logFile = join(dir, "events.jsonl");
     return dir;

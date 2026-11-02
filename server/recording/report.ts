@@ -28,12 +28,12 @@ const clock = (ms: number): string => {
 };
 
 const WHO: Record<LogEntry["kind"], string> = {
-  human: "참가자", mc: "AI MC", backend: "백엔드", search: "검색", note: "진행 지시", system: "시스템", error: "오류",
+  human: "Participant", mc: "AI co-host", backend: "Backend", search: "Search", note: "Host control", system: "System", error: "Error",
 };
 
 /** 사람이 읽는 대화록: 대화(사람·MC)와 진행 이벤트를 시간순으로 */
 export function buildTranscript(entries: LogEntry[], startedAt: number): string {
-  const lines = ["# 대화록", ""];
+  const lines = ["# Transcript and session events", ""];
   for (const e of entries) {
     const t = clock(e.at - startedAt);
     const who = e.speaker ?? WHO[e.kind];
@@ -57,58 +57,48 @@ const fmtMs = (v: number | null): string => (v === null ? "–" : `${v.toLocaleS
 export function buildReport(stats: SessionStats, settings: Settings, tracks: RecordedTrack[], transcript: string): string {
   const s = stats.summary;
   const c = stats.counts;
-  const trackRows = tracks.map((t) => `| ${t.label} | \`${basename(t.file)}\` | ${t.seconds.toFixed(1)}초 |`);
+  const meta = settings.engine === "meta";
+  const trackRows = tracks.map((t) => `| ${t.label} | \`${basename(t.file)}\` | ${t.seconds.toFixed(1)} s |`);
   return [
-    `# 시범 녹음 리포트 · ${s.engineLabel}${s.persona ? ` · ${s.persona}` : ""}`,
+    `# Session report · ${s.engineLabel}${s.persona ? ` · ${s.persona}` : ""}`,
     "",
-    `- 세션: \`${s.sessionId}\``,
-    `- 시작: ${new Date(s.startedAt).toLocaleString("ko-KR")}`,
-    `- 길이: ${Math.floor(s.durationSec / 60)}분 ${s.durationSec % 60}초`,
-    `- 엔진: ${s.description}`,
-    `- MC 트랙: ${s.persona ?? "-"}${settings.persona.openingMode === "wait" ? " (CJ 첫마디 대기)" : " (스몰토크로 시작)"}`,
+    `- Session: \`${s.sessionId}\``,
+    `- Started: ${new Date(s.startedAt).toISOString()}`,
+    `- Duration: ${Math.floor(s.durationSec / 60)} min ${s.durationSec % 60} s`,
+    `- Providers: ${s.description}`,
+    `- Co-host: ${s.persona ?? "-"}${settings.persona.openingMode === "wait" ? " (wait for humans)" : " (opening enabled)"}`,
     "",
-    "## 성능",
+    "## Observations",
     "",
-    "| 항목 | 값 |",
-    "|---|---|",
-    `| MC 응답 횟수 (지연 측정) | ${s.turns} |`,
-    `| 응답 지연 중앙값 | ${fmtMs(s.latencyMedianMs)} |`,
-    `| 응답 지연 p95 | ${fmtMs(s.latencyP95Ms)} |`,
-    `| 추정 비용 | $${s.costUsd.toFixed(4)} ${settings.engine === "gpt-live" ? "(GPT 백엔드 별도)" : "(Google 검색 별도)"} |`,
-    ...(stats.tokens ? [`| 토큰 (입력 / 출력) | ${stats.tokens.input.toLocaleString()} / ${stats.tokens.output.toLocaleString()} |`] : []),
+    "| Metric | Value |", "|---|---|",
+    `| Server first-audio timing samples | ${s.turns} |`,
+    `| Median | ${fmtMs(s.latencyMedianMs)} |`,
+    `| Sample p95 (not a general performance claim) | ${fmtMs(s.latencyP95Ms)} |`,
+    meta ? "| Cost | Not measured; provider call/time caps only |" : `| Estimated cost | $${s.costUsd.toFixed(4)} (backend/search excluded) |`,
+    ...(stats.tokens ? [`| Tokens (input / output) | ${stats.tokens.input} / ${stats.tokens.output} |`] : []),
     "",
-    "응답 지연 = 사람 말이 끝난 뒤(에이전트 음량 감지 기준) MC 첫 소리가 송출되기까지. 비용은 공개 요금 기준 추정치입니다.",
-    ...(settings.engine === "gemini-live" ? ["Gemini는 MC가 한 턴을 끝낼 때 사용량을 보내므로, MC가 말하는 도중 종료했다면 마지막 턴의 사용량은 빠져 있습니다."] : []),
+    "Timing starts at local VAD turn end or host handoff and ends at the first server audio enqueue. Listener receipt and acoustic stop timing are not measured.",
     "",
-    "## 이벤트",
+    "## Events", "", "| Event | Count |", "|---|---|",
+    `| Human transcripts | ${c.humanUtterances ?? 0} |`,
+    `| Co-host transcript entries | ${c.mcUtterances ?? 0} |`,
+    `| Output queue invalidations (all causes) | ${c.interruptions ?? 0} |`,
+    `| Automatic local VAD interruption signals | ${c.automaticInterruptions ?? 0} |`,
+    `| Manual HOLD | ${c.holds ?? 0} |`,
+    `| Handoff requests | ${c.handoffs ?? 0} |`,
+    `| Host notes | ${c.notes ?? 0} |`,
+    `| Provider errors | ${c.errors ?? 0} |`,
     "",
-    "| 항목 | 횟수 |",
-    "|---|---|",
-    `| 사람 발화 | ${c.humanUtterances ?? 0} |`,
-    `| MC 발화 | ${c.mcUtterances ?? 0} |`,
-    `| 사람이 MC 말을 끊음 (서버 감지) | ${c.interruptions ?? 0} |`,
-    `| AI 즉시 정지 | ${c.holds ?? 0} |`,
-    `| MC에게 넘기기 | ${c.handoffs ?? 0} |`,
-    `| 귓속말 | ${c.notes ?? 0} |`,
-    `| 백엔드 위임 | ${c.delegations ?? 0} |`,
-    `| 검색 | ${c.searches ?? 0} |`,
-    `| 오류 | ${c.errors ?? 0} |`,
+    "Automatic interruption signals and manual HOLD are distinct. Neither count proves an acoustic interruption was heard by listeners. Meta generated text is decision evidence, not a transcript of fully heard speech.",
     "",
-    "## 오디오",
+    "## Audio", "", "| Track | File | Duration |", "|---|---|---|",
+    ...(trackRows.length ? trackRows : ["| No recording | | |"]),
     "",
-    "| 트랙 | 파일 | 길이 |",
-    "|---|---|---|",
-    ...(trackRows.length ? trackRows : ["| (녹음 없음) | | |"]),
+    "Human tracks and mc.wav share the local session timeline. mc.wav contains acknowledged server capture frames, excluding invalidated pending frames; actual listener delivery is unmeasured. tts-generated-*.wav contains complete generated audio, which may have been interrupted and is not part of mix.wav. Input gaps, provider failures and generation stages are recorded in events.jsonl.",
     "",
-    "모든 트랙은 같은 시간축(세션 시작 = 0초)으로 정렬되어 있습니다. MC 트랙에는 실제로 송출된 음성만 들어 있습니다 (정지로 버린 음성 제외).",
-    "",
-    "## 응답 지연 전체 (ms)",
-    "",
-    stats.latenciesMs.length ? stats.latenciesMs.join(", ") : "(측정값 없음)",
-    "",
-    "---",
-    "",
-    transcript,
+    "## Individual server timing samples (ms)", "",
+    stats.latenciesMs.length ? stats.latenciesMs.join(", ") : "No measurements",
+    "", "---", "", transcript,
   ].join("\n");
 }
 
@@ -121,7 +111,7 @@ export function writeSessionOutput(dir: string, stats: SessionStats, settings: S
   writeFileSync(join(dir, "settings.json"), JSON.stringify(settings, null, 2), "utf8");
   writeFileSync(
     join(dir, "summary.json"),
-    JSON.stringify({ ...stats.summary, counts: stats.counts, tokens: stats.tokens ?? null, latenciesMs: stats.latenciesMs, audio: tracks.map((t) => ({ label: t.label, file: basename(t.file), seconds: Number(t.seconds.toFixed(2)) })) }, null, 2),
+    JSON.stringify({ ...stats.summary, costMeasured: settings.engine !== "meta", counts: stats.counts, tokens: stats.tokens ?? null, latenciesMs: stats.latenciesMs, audio: tracks.map((t) => ({ label: t.label, file: basename(t.file), seconds: Number(t.seconds.toFixed(2)) })) }, null, 2),
     "utf8",
   );
 }

@@ -27,6 +27,9 @@ interface Participant {
 
 export interface AgentDeps {
   bus: StudioBus;
+  /** Test seams use the real agent controller/recorder with fake transports. */
+  room?: AgentRoom;
+  engineFactory?: typeof createEngine;
   metaKey: () => string | undefined;
   openaiKey: () => string | undefined;
   geminiKey: () => string | undefined;
@@ -37,7 +40,7 @@ const CHUNK_MS = 40;
 
 /** AI MC 한 명: LiveKit 방 ↔ 실시간 음성 엔진(GPT-Live / Gemini Live)을 잇고 CJ의 제어를 처리한다. */
 export class McAgent {
-  private readonly room = new AgentRoom();
+  private readonly room: AgentRoom;
   private readonly playout: Playout;
   private readonly mixer = new PcmMixer({ sampleRate: ROOM_SAMPLE_RATE, chunkMs: CHUNK_MS, maxBufferMs: 300, prebufferMs: 60 });
   private participants = new Map<string, Participant>();
@@ -70,21 +73,25 @@ export class McAgent {
   private statusTimer: NodeJS.Timeout;
 
   constructor(private readonly deps: AgentDeps) {
-    this.playout = new Playout(this.room.source, ROOM_SAMPLE_RATE, FRAME_MS, () => this.onMcSound(), (frame) => this.recorder?.mc(frame));
+    this.room = deps.room ?? new AgentRoom();
+    this.playout = new Playout(this.room.source, ROOM_SAMPLE_RATE, FRAME_MS, () => this.onMcSound(), (frame) => this.recorder?.mc(frame), () => {
+      if (this.session instanceof MetaSession) this.session.hold("playout-failure");
+      this.deps.bus.log("error", "LiveKit output failed; speech held, human recording continues");
+    });
     this.room.on("frame", (f) => this.onFrame(f.identity, f.name, f.pcm));
     this.room.on("participantJoined", (id, name) => {
       this.ensureParticipant(id, name);
-      this.deps.bus.log("system", `${name} 입장`);
+      this.deps.bus.log("system", `${name} joined`);
     });
     this.room.on("participantLeft", (id) => {
       const p = this.participants.get(id);
       if (this.session instanceof MetaSession) this.session.participantLeft(id);
       this.participants.delete(id);
       this.mixer.remove(id);
-      if (p) this.deps.bus.log("system", `${p.name} 퇴장`);
+      if (p) this.deps.bus.log("system", `${p.name} left`);
     });
     this.room.on("disconnected", (reason) => {
-      this.deps.bus.log("error", `AI MC가 방에서 끊어졌습니다 (${reason})`);
+      this.deps.bus.log("error", `Co-host disconnected from room (${reason})`);
       void this.stopSession();
     });
     this.statusTimer = setInterval(() => this.deps.bus.status(this.status()), 150);
@@ -95,7 +102,7 @@ export class McAgent {
     return {
       livekitConfigured: this.deps.livekit() !== null,
       metaConfigured: Boolean(this.deps.metaKey()),
-      ...(this.session instanceof MetaSession ? { providerModels: this.session.models, metaState: this.session.state } : {}),
+      ...(this.session instanceof MetaSession ? { providerModels: this.session.models, metaState: this.session.turns.held ? "held" : this.session.state === "speaking" && !this.playout.active ? "waiting" : this.session.state } : {}),
       openaiConfigured: Boolean(this.deps.openaiKey()),
       geminiConfigured: Boolean(this.deps.geminiKey()),
       engine: this.session ? this.session.id : null,
@@ -108,7 +115,7 @@ export class McAgent {
         identity: p.identity, name: p.name, speaking: p.vad.isSpeaking, levelDb: Math.round(p.levelDb),
       })),
       // Gemini는 턴이 끝날 때만 사용량을 보내므로 화면에는 실제 경과 시간을 보여 준다.
-      usageSeconds: this.session?.id === "gemini-live" ? (Date.now() - this.sessionStartedAt) / 1000 : this.usageSeconds,
+      usageSeconds: this.session && this.session.id !== "gpt-live" ? (Date.now() - this.sessionStartedAt) / 1000 : this.usageSeconds,
       lastLatencyMs: this.latencies.at(-1) ?? null,
       latencyMedianMs: percentile(sorted, 0.5),
       sessionId: this.sessionId,
@@ -122,11 +129,11 @@ export class McAgent {
   }
 
   async startSession(settings: Settings): Promise<void> {
-    if (this.session || this.starting) throw new Error("이미 세션이 진행 중이거나 시작하는 중입니다");
+    if (this.session || this.starting) throw new Error("A session is already active or starting");
     const lk = this.deps.livekit();
-    if (!lk) throw new Error("LiveKit 설정이 없습니다 (.env)");
+    if (!lk) throw new Error("Configure LIVEKIT_URL, LIVEKIT_API_KEY and LIVEKIT_API_SECRET in .env");
     // 키가 없으면 방에 들어가기 전에 바로 알린다.
-    const engine = createEngine(settings, { meta: this.deps.metaKey(), openai: this.deps.openaiKey(), gemini: this.deps.geminiKey() });
+    const engine = (this.deps.engineFactory ?? createEngine)(settings, { meta: this.deps.metaKey(), openai: this.deps.openaiKey(), gemini: this.deps.geminiKey() });
     this.abortStart = false;
     this.starting = this.doStart(engine, lk, settings);
     try {
@@ -142,16 +149,17 @@ export class McAgent {
     this.resetSessionState();
     try {
       if (!this.room.connected) await this.room.join(lk.url, await lk.agentToken(settings.show.roomName));
-      if (this.abortStart) throw new Error("세션 시작이 취소되었습니다");
+      if (this.abortStart) throw new Error("Session start cancelled");
       this.wireSession(session);
       await session.connect();
-      if (this.abortStart || !session.isReady) throw new Error("세션 시작이 취소되었거나 연결이 끊겼습니다");
+      if (this.abortStart || !session.isReady) throw new Error("Session start cancelled or disconnected");
       this.session = session;
       this.sessionId = sessionFolderName(settings.engine);
       const dir = this.deps.bus.beginSession(this.sessionId);
       this.sessionStartedAt = Date.now();
       this.recorder = new SessionRecorder(dir, ROOM_SAMPLE_RATE);
-      this.deps.bus.log("system", `세션 시작 · ${engineDescription(settings)} · MC 트랙: ${personaLabel(settings)}${settings.persona.openingMode === "wait" ? " (CJ 첫마디 대기)" : ""}`);
+      if (session instanceof MetaSession) this.deps.bus.log("system", "Meta session evidence started", { meta: { stage: "session-start", runId: session.runId, models: session.models, mode: "human-handoff", costMeasured: false } });
+      this.deps.bus.log("system", `Session started · ${engineDescription(settings)} · ${personaLabel(settings)}${settings.persona.openingMode === "wait" ? " · waiting for humans" : ""}`);
       this.startPump();
       this.state = "listening";
     } catch (err: unknown) {
@@ -175,7 +183,8 @@ export class McAgent {
     if (s) {
       await s.close().catch(() => undefined);
       const extra = s.id === "gpt-live" ? ", 백엔드 별도" : ", 검색 별도";
-      this.deps.bus.log("system", `세션 종료 · ${Math.round(this.usageSeconds)}초 · 추정 $${this.costUsd.toFixed(3)}${extra}`);
+      if (s.id === "meta") this.deps.bus.log("system", "Session stopped. Provider cost not measured; generated and sent audio are separate artifacts.");
+      else this.deps.bus.log("system", `세션 종료 · ${Math.round(this.usageSeconds)}초 · 추정 $${this.costUsd.toFixed(3)}${extra}`);
     }
     for (const e of this.logIds.values()) this.deps.bus.persist(e);
     for (const e of this.backendLogs.values()) this.deps.bus.persist(e);
@@ -201,32 +210,32 @@ export class McAgent {
     this.settings = { ...this.settings, gptLive: { ...this.settings.gptLive, delegation: settings.gptLive.delegation }, floor: settings.floor };
     const applied = this.session.id === "gpt-live" ? this.session.applyLiveSettings(this.settings) : null;
     for (const p of this.participants.values()) p.vad.setThreshold(settings.floor.speechThresholdDb);
-    this.deps.bus.log("system", `${applied ? `${applied}, ` : ""}발화 감지 설정을 세션에 반영했습니다. 나머지는 다음 세션부터 적용됩니다.`);
+    this.deps.bus.log("system", `${applied ? `${applied}, ` : ""}Speech detection settings applied. Other changes apply next session.`);
   }
 
   control(cmd: ControlCommand): void {
     const s = this.session;
-    if (!s) throw new Error("진행 중인 세션이 없습니다");
+    if (!s) throw new Error("No active session");
     switch (cmd.action) {
       case "hold":
         this.count("holds");
         this.held = true;
         this.playout.flush();
         if (s instanceof MetaSession) s.hold(); else s.instruct(HOLD_TEXT);
-        this.deps.bus.log("note", "AI 즉시 정지", { speaker: this.hostName() });
+        this.deps.bus.log("note", "HOLD: output stopped", { speaker: this.hostName() });
         return;
       case "resume":
         this.playout.flush();
         this.held = false;
         if (s instanceof MetaSession) s.resume(); else s.instruct(RESUME_TEXT);
-        this.deps.bus.log("note", "자동 진행 재개", { speaker: this.hostName() });
+        this.deps.bus.log("note", "Resume listening", { speaker: this.hostName() });
         return;
       case "handoff":
         this.count("handoffs");
         this.held = false;
         this.turnEndedAt = Date.now();
         s.speakNow(HANDOFF_TEXT(this.hostName()));
-        this.deps.bus.log("note", "MC에게 넘기기", { speaker: this.hostName() });
+        this.deps.bus.log("note", "Handoff requested", { speaker: this.hostName() });
         return;
       case "note": {
         const text = cmd.text.trim().slice(0, 1500);
@@ -238,7 +247,7 @@ export class McAgent {
         } else {
           s.think(noteText(this.hostName(), text, false));
         }
-        this.deps.bus.log("note", text, { speaker: `${this.hostName()} → MC${cmd.speak ? " (말하기)" : " (메모)"}` });
+        this.deps.bus.log("note", text, { speaker: `${this.hostName()} → MC${cmd.speak ? " (speak)" : " (note)"}` });
         return;
       }
     }
@@ -255,7 +264,7 @@ export class McAgent {
   private currentState(): McState {
     if (this.state === "connecting" || this.state === "error") return this.state;
     if (!this.session) return "offline";
-    if (this.held) return "held";
+    if (this.held || (this.session instanceof MetaSession && this.session.turns.held)) return "held";
     return this.playout.speaking ? "speaking" : "listening";
   }
 
@@ -389,9 +398,9 @@ export class McAgent {
       };
       writeSessionOutput(dir, stats, this.settings, tracks, this.sessionStartedAt);
       this.lastOutputDir = relative(process.cwd(), dir);
-      this.deps.bus.log("system", `녹음·대화록·사용량을 저장했습니다 → ${this.lastOutputDir}`);
+      this.deps.bus.log("system", `Recording, transcript and session evidence saved → ${this.lastOutputDir}`);
     } catch (err: unknown) {
-      this.deps.bus.log("error", `세션 정리 실패: ${err instanceof Error ? err.message : String(err)}`);
+      this.deps.bus.log("error", `Session export failed: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 
@@ -401,7 +410,8 @@ export class McAgent {
       if (this.session !== session || this.held || (session.id === "meta" && [...this.participants.values()].some(p => p.vad.isSpeaking))) return;
       if (pcm.length > 0) this.playout.enqueue(pcm);
     });
-    session.on("decision", (d) => { if (this.session === session) bus.log("system", `${d.action}: ${d.reason}`, { meta: { ...d, stage: "generated-decision" } }); });
+    session.on("evidence", (record) => { if (this.session === session) { if (record.stage === "automatic-interruption") this.count("automaticInterruptions"); bus.log("system", String(record.stage), { meta: record }); } });
+    session.on("decision", (d) => { if (this.session === session) bus.log("system", `${d.action}: ${d.reason}`, { meta: { ...d, stage: "generated-decision", ...(session instanceof MetaSession ? { runId: session.runId, generation: session.turns.generation } : {}) } }); });
     session.on("generatedAudio", (pcm, generation) => {
       const dir = bus.currentSessionDir();
       if (!dir || this.session !== session) return;
@@ -418,27 +428,31 @@ export class McAgent {
       this.upsert(r.utterance.id, "human", r.utterance.text, speaker, r.isNew);
     });
     session.on("interrupted", () => {
+      if (this.session !== session) return;
       this.count("interruptions");
       // 서버가 생성을 취소했으므로 아직 재생하지 않은 음성을 버린다.
       this.playout.flush();
       this.mcTx.close();
     });
-    session.on("turnEnd", () => this.mcTx.close());
-    session.on("info", (message) => bus.log("system", message));
+    session.on("turnEnd", () => { if (this.session === session) this.mcTx.close(); });
+    session.on("info", (message) => { if (this.session === session) bus.log("system", message); });
     session.on("outputTranscript", (d) => {
-      if (this.held) return;
+      if (this.session !== session || this.held) return;
       const r = this.mcTx.add(d);
       if (r) this.upsert(r.utterance.id, "mc", r.utterance.text, "AI MC", r.isNew);
     });
     session.on("delegationCreated", (id) => {
+      if (this.session !== session) return;
       this.count("delegations");
       this.backendLogs.set(id, bus.log("backend", "백엔드 작업 중…", { speaker: `백엔드 · ${this.settings?.gptLive.delegation.model}` }));
     });
     session.on("webSearch", (_id, query) => {
+      if (this.session !== session) return;
       this.count("searches");
       bus.log("search", query, { speaker: session.id === "gemini-live" ? "Google 검색" : "웹 검색" });
     });
     session.on("backendText", (id, delta) => {
+      if (this.session !== session) return;
       const prev = this.backendLogs.get(id);
       if (!prev) return;
       const text = prev.text === "백엔드 작업 중…" ? delta : prev.text + delta;
@@ -447,15 +461,18 @@ export class McAgent {
       bus.update(next);
     });
     session.on("backendDone", (id) => {
+      if (this.session !== session) return;
       const entry = this.backendLogs.get(id);
       if (entry) bus.persist(entry);
     });
     session.on("usage", (u) => {
+      if (this.session !== session) return;
       this.usageSeconds = Math.max(this.usageSeconds, u.seconds);
       this.costUsd = Math.max(this.costUsd, u.costUsd);
       if (u.tokens) this.tokens = u.tokens;
     });
     session.on("error", (message, code) => {
+      if (this.session !== session) return;
       this.count("errors");
       bus.log("error", `${code ?? "error"}: ${message}`);
     });

@@ -2,10 +2,10 @@ import { useEffect, useRef } from "react";
 import type { LogEntry } from "../../shared/events";
 
 const LABEL: Record<LogEntry["kind"], string> = {
-  human: "", mc: "AI MC", backend: "백엔드", search: "웹 검색", note: "진행 지시", system: "시스템", error: "오류",
+  human: "", mc: "AI MC", backend: "Backend", search: "Web search", note: "Host direction", system: "System", error: "Error",
 };
 
-const time = (at: number): string => new Date(at).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+const time = (at: number): string => new Date(at).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 
 /** 대화·진행 로그. 아래에 붙어 있으면 새 항목을 따라 스크롤한다. */
 export function LogPanel({ logs }: { logs: LogEntry[] }) {
@@ -20,8 +20,8 @@ export function LogPanel({ logs }: { logs: LogEntry[] }) {
   if (logs.length === 0) {
     return (
       <div className="log-empty">
-        <p>아직 대화가 없습니다.</p>
-        <p className="muted">마이크를 연결하고 세션을 시작하면 이곳에 전사와 백엔드 결과가 표시됩니다.</p>
+        <p>The floor is yours.</p>
+        <p className="muted">Connect your microphone, start a session, and speak. Your conversation and the co-host’s decisions will appear here.</p>
       </div>
     );
   }
@@ -46,9 +46,9 @@ export function LogPanel({ logs }: { logs: LogEntry[] }) {
           {Array.isArray(e.meta?.sourceUtteranceIds) && <div className="evidence">
             <span>Evidence: </span>
             {e.meta.sourceUtteranceIds.filter((id): id is string => typeof id === "string").map((id) => (
-              <a key={id} href={`#utterance-${id}`}>{logs.find((entry) => entry.id === id)?.speaker ?? id} · {id}</a>
+              <a key={id} href={`#utterance-${id}`}>{logs.find((entry) => entry.id === id)?.speaker ?? "Source"} · view utterance</a>
             ))}
-            {typeof e.meta.reason === "string" && <p>{e.meta.reason}</p>}
+            {typeof e.meta.speakText === "string" && e.meta.speakText && <blockquote className="proposed-speech">{e.meta.speakText}<small>Meta-generated wording · not a receipt of playback</small></blockquote>}
           </div>}
         </li>
       ))}

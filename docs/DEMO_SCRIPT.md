@@ -1,15 +1,20 @@
-# Provisional three-minute demo script
+# Three-minute English demo — production script
 
-Production target only: verify official video limits before recording. This is a script, not evidence that a recording or live evaluation exists. Use consenting speakers and obtain separate permission for public voice/face publication.
+The three-minute requirement is from owner-supplied participant instructions (see RULES.md). No completed recording is claimed. Capture real human trials using HUMAN_ACCEPTANCE.md first. The narration below deliberately distinguishes verified provider probes from pending human acceptance; update a claim only after recording its evidence.
 
-| Time | Screen and action | English narration |
+| Time | Shot / action | English narration |
 |---|---|---|
-| 0:00–0:20 | Show project and provider labels | “This is AI Conversation Director, a co-host for human discussions. Its job is to wait, clarify, summarize, or ask a useful follow-up.” |
-| 0:20–0:50 | Show two consenting people speaking, including Korean input | “People own the conversation. Meta transcribes the audio and decides whether an intervention is useful.” |
-| 0:50–1:20 | Operator hands off; show actual decision and source utterance IDs | “The question is grounded in these recorded utterances. A separate, clearly labeled TTS provider voices Meta’s text.” |
-| 1:20–1:45 | A person begins speaking over AI; show actual interruption event | “This is the automatic interruption test.” Only claim success if listener audio actually stops; show failure honestly otherwise. |
-| 1:45–2:05 | Use HOLD separately, then resume with a changed topic | “This is a separate manual stop. Old results must not restart playback.” |
-| 2:05–2:30 | Show an actual WAIT and recording folder | “Waiting is an explicit decision. The session preserves separated audio, transcripts and execution evidence.” |
-| 2:30–3:00 | Show provenance and limitations | “We reused our existing studio and recording foundation. This work adds the Meta co-host integration. These are the tests completed and these are the remaining limitations.” |
+| 0:00–0:20 | Title, two people, operator interface | “A good co-host knows when to speak—and when to leave the conversation alone. AI Conversation Director helps small creator teams explore a topic without turning every human sentence into a chatbot prompt.” |
+| 0:20–0:45 | Actual conversation; show participant identities and transcript | “Meta transcribes each participant's audio. Muse Spark considers the recent conversation and chooses WAIT, ASK, CLARIFY, or SUMMARIZE. The people stay in control.” |
+| 0:45–1:15 | Actual handoff and actual question; show its source utterance IDs | “Here, the host hands over the floor. Meta proposes the next question using these utterances as evidence. OpenAI TTS voices Meta's text. It does not decide what to ask.” Leave room for the actual response to be heard. |
+| 1:15–1:40 | Separate automatic interruption take, with listener audio | “Now we test interruption by speaking while the co-host is talking.” Show the actual result. Add “Playback stopped” only if the listener recording proves it; otherwise say “This trial exposed an interruption failure we still need to resolve.” |
+| 1:40–2:00 | Manual HOLD; changed topic and resume | “This is a different test: the operator presses HOLD. Cancellation invalidates pending work, so an old question must not return after the topic changes.” Show actual result, not an animation. |
+| 2:00–2:20 | Actual WAIT action and evidence panel | “Waiting is an explicit decision. In this first version, speech requires a host handoff. A recommendation alone cannot take the floor.” |
+| 2:20–2:40 | Separated artifacts and provider labels; redact private content | “We keep participant audio, generated speech and server-sent audio separate. Our real-provider synthetic-audio probe reached a separate LiveKit receiver. Human-session tests are reported separately.” |
+| 2:40–3:00 | Provenance, verified results and honest remaining limits | “We reused our existing React and LiveKit studio and recorder. The new contribution is the Meta co-host pipeline, evidence validation and turn controls. The repository documents what passed, what remains unverified, and exactly which code was reused.” |
 
-Label every segment Live, Replay of a consenting real session, or Synthetic test. Never replace a missing live success with a fixture labeled as live. Do not expose invite links, API keys, private transcripts or settings in the screen capture. Keep failed trials in the private evaluation ledger. No measured benefit or latency claim is in this script.
+If real human clips are not available, make the corresponding segment an explicitly labeled test plan or synthetic-provider demonstration and state that human acceptance is pending. Do not present planned behavior as a filmed success. Trim narration to preserve actual dialogue and keep the complete export to three minutes.
+
+Presentation tone: relaxed, candid and concise, with short witty questions where appropriate. The original project's SPNS TV reference was checked read-only; borrow only these general conversational traits. Use an independent robot co-host identity, no show logos, no presenter voice cloning, no endorsement claims and no copied signature dialogue.
+
+Before export, follow the filming checklist in HUMAN_ACCEPTANCE.md. Save original takes privately, annotate each final clip's source, and obtain publication approval for voices/faces and repository visibility.

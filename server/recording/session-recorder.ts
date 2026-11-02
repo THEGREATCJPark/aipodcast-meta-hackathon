@@ -48,7 +48,7 @@ export class SessionRecorder {
     if (out.length > 0) {
       const mixPath = join(this.dir, "mix.wav");
       const samples = mixWavFiles(out.map((t) => t.file), mixPath, this.sampleRate);
-      out.push({ file: mixPath, label: "전체 믹스", seconds: samples / this.sampleRate });
+      out.push({ file: mixPath, label: "Session mix", seconds: samples / this.sampleRate });
     }
     return out;
   }

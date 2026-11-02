@@ -2,7 +2,7 @@
 
 A Meta-powered co-host that listens to human discussions, waits when it should, and asks grounded follow-up questions when useful.
 
-**Private development build. Meta ASR/director, OpenAI TTS and LiveKit passed a real-provider probe with synthetic Korean audio. Human voice sessions remain unverified.** This project reuses an existing studio; see [provenance](docs/PROVENANCE.md) and [hackathon disclosure](HACKATHON.md). Eligibility is unresolved pending final participant rules.
+**Private development build. Meta ASR/director, OpenAI TTS and LiveKit passed a real-provider probe with synthetic Korean audio. Human voice sessions remain unverified.** This project reuses an existing studio; see [provenance](docs/PROVENANCE.md) and [hackathon disclosure](HACKATHON.md). Applicable-track reuse eligibility remains unresolved. Owner-supplied participant instructions require a public repository and a three-minute video; see the source distinctions in RULES.md.
 
 ## Run locally
 
@@ -39,7 +39,14 @@ Session artifacts stay in ignored output/ and include sensitive audio/transcript
 - Meta director: `META_DIRECTOR_MODEL` (default `muse-spark-1.3`), with validated WAIT/ASK/CLARIFY/SUMMARIZE output and utterance references.
 - **OpenAI TTS**: `TTS_MODEL` (default `tts-1`) and `TTS_VOICE` (default `alloy`). It renders Meta's chosen text; it does not decide how to moderate.
 
-Set `META_API_KEY`, `OPENAI_API_KEY`, `LIVEKIT_URL`, `LIVEKIT_API_KEY` and `LIVEKIT_API_SECRET` locally for live operation. The model defaults come from documentation; availability in this account has not been tested. Authentication work is deferred at the owner's direction.
+Set `META_API_KEY`, `OPENAI_API_KEY`, `LIVEKIT_URL`, `LIVEKIT_API_KEY` and `LIVEKIT_API_SECRET` locally for live operation. The configured models passed actual account/provider probes with synthetic input. Human microphone and full Studio acceptance remain pending.
 
 The initial mode requires operator handoff to release speech. Ordinary turns can produce WAIT or a recommendation but do not automatically speak. Input context is capped at 30 recent utterances. Provider work is limited to 15 minutes, four ASR streams, 60 director calls and 30 seconds of TTS per response, without retries. These are usage limits, **not a verified dollar spending cap**. ASR handshake gaps are logged while source WAV recording is retained. Automatic ASR reconnection is not implemented; restart the session.
 
+
+
+## English demo preparation
+
+Follow [human acceptance and filming](docs/HUMAN_ACCEPTANCE.md) before recording the [three-minute English demo](docs/DEMO_SCRIPT.md). The local capture panel requires a connected microphone and explicit browser tab selection with “Share tab audio.” It offers a local WebM preview/download capped at 180 seconds; verify a ten-second sample first. No automatic upload is performed.
+
+`npm run build:guest` prepares a guest-only static bundle at `dist/guest` for future approved HTTPS hosting. It is not a public deployment. Publishing the repository, guest site or personal recordings requires separate owner approval. The original SPNS TV reference informs only general relaxed, candid pacing and short witty questions; the submission presents an independent co-host without logos, copied signature lines or presenter voice imitation.

@@ -1,19 +1,36 @@
-# Rules verification — 2026-11-02, 09:55 KST
+# Rules evidence — 2026-11-02 KST
 
-This is a source review, not an eligibility decision or acceptance of terms.
+This review distinguishes publicly retrieved announcements from participant instructions supplied by the owner. It is not a final eligibility decision or acceptance of terms.
 
-| Item | Status | Evidence / remaining action |
+## Sources
+
+1. [Meta event page](https://dev.meta.ai/events/global-hackathon) and [organizer announcement](https://cerebralvalley.ai/e/meta-ai-developer-hackathon), independently retrieved November 2, 09:55 KST.
+2. Participant instructions recovered and supplied by the owner from [the prior conversation](https://chatgpt.com/c/6ae013f0-c068-83ec-9e01-51e7ae48e5f5). The requirements below are attributed to that participant text; the current authenticated rules have not been independently retrieved. This supersedes earlier blanket “unverified” labels for the specific supplied requirements.
+3. Public retrieval of [details](https://cerebralvalley.ai/e/meta-ai-developer-hackathon/details) returned a loading shell; [waiver](https://cerebralvalley.ai/e/meta-ai-developer-hackathon/waiver) was inaccessible through the retrieval tool.
+
+| Requirement | Evidence status | Project action |
 |---|---|---|
-| Submission deadline | Verified public announcement | [Meta event](https://dev.meta.ai/events/global-hackathon) and [organizer](https://cerebralvalley.ai/e/meta-ai-developer-hackathon) state November 4, 9 PM ET: November 5, 2026, 11 AM KST. Pages permit later changes. Recheck before submission. |
-| Internal package target | Project decision | November 4 evening KST; not an official deadline. |
-| Pre-existing source reuse | Unverified | Full participant rules not retrieved. Disclose source and dates; creating a new repository does not establish eligibility. |
-| Change from application idea | Unverified | Participant confirmation or final rules required. |
-| External TTS / mixed providers | Unverified | No permission inferred from general event description. |
-| Public source repository | Unverified | Do not publish until rule review and owner approval. |
-| Runnable demo URL | Unverified | Local execution is not a public judging URL. |
-| Video duration / format | Unverified | Three minutes is an internal production target only. |
-| Final submission fields | Unverified | Participant form has not been retrieved; submission copy is provisional. |
-| Final judging rubric | Partially verified | Public page describes broad track criteria; detailed weights unverified. Application selection weights are not final judging weights. |
-| Acceptance / eligibility | Unverified | Accepted-participant status and participant-specific terms require owner review. |
+| Deadline: November 4, 21:00 ET / November 5, 11:00 KST | Independently verified public announcement; subject to changes | Recheck before transmission; internal package target November 4 evening KST. |
+| Public repository | Owner-supplied participant instructions | Prepare reviewed public source; repository remains private until explicit owner approval. |
+| Three-minute video | Owner-supplied participant instructions | Produce an English three-minute video from actual recordings; none completed yet. |
+| Actual product, code and video assessed | Owner-supplied participant instructions | Provide reproducible source and honest footage; screenshots alone do not prove live operation. |
+| List contributors | Owner-supplied participant instructions | Confirm all human contributors and disclose AI assistance before submission. |
+| One project per team | Owner-supplied participant instructions | Owner must confirm this is the team's single entry. |
+| Distinguish event contribution from existing work | Owner-supplied participant instructions | Preserve provenance and identify commits after imported baseline. |
+| Startup track reuse | Explicitly permitted in owner-supplied participant text | Does not establish indie-track permission or this project's eligibility. |
+| Indie track reuse | Unresolved | Obtain applicable track interpretation before claiming eligibility. |
+| Change from application idea | Unresolved | Confirm with final rules or organizer. |
+| External TTS / mixed providers | Unresolved | Disclose OpenAI TTS; do not infer permission from unrelated reuse rules. |
+| Runnable URL, hosting duration, exact form fields | Unresolved | Retrieve actual form; local execution is not a public deployment. |
+| Participant acceptance and final terms | Owner review required | Do not accept terms or transmit entry without authorization. |
 
-The [details page](https://cerebralvalley.ai/e/meta-ai-developer-hackathon/details) returned only a loading shell in web retrieval. The [waiver](https://cerebralvalley.ai/e/meta-ai-developer-hackathon/waiver) was inaccessible through that tool. This is an access limitation, not evidence that rules are absent. Obtain the authenticated final rules and submission form before claiming eligibility, publishing, or transmitting an entry. If reuse is prohibited, stop the reuse-based submission and report an eligible alternative.
+## Judging rubric supplied by the participant
+
+| Criterion | Weight |
+|---|---:|
+| Impact | 30% |
+| Meta usage | 25% |
+| Technical execution | 20% |
+| Demo | 25% |
+
+These weights come from the owner-supplied participant instructions, not the public application selection criteria. Current authenticated text has not been independently verified. A new private repository does not erase earlier development or establish compliance. If the applicable rules prohibit this reuse, do not hide it; revise the entry approach.
