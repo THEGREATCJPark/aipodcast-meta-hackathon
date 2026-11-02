@@ -8,7 +8,7 @@ The deadline remains November 4 at 21:00 EST / November 5 at 11:00 KST. Guide se
 
 The waiver expressly allows compliant open-source components when built upon/enhanced. It does not explicitly settle Indie reuse of this private personal foundation. The baseline commit is dated October 28; earlier development is not audited. Do not assert every baseline line was written before or during the event without evidence. Startup reuse is explicit, but switching tracks is not a workaround: a startup representative must meet the startup and employment/authority requirements.
 
-No explicit rule settling the application-idea pivot or external TTS was found. No Meta-only exclusivity was found either; general third-party-service language is not specific TTS approval. These interpretations remain organizer questions.
+No explicit rule settling the application-idea pivot or external TTS was found in the inspected text. No Meta-only exclusivity was found either. Subsequently, the owner reported that idea changes are allowed and directed preparation to proceed without organizer questions. We rely on that owner-supplied confirmation for the pivot, while preserving its distinct provenance. External TTS and inherited-code use remain transparently disclosed; no specific organizer approval or guaranteed eligibility is asserted. These are recorded interpretations, not blockers to continuing private preparation.
 
 The waiver retains entrant IP ownership while granting broad perpetual, irrevocable, worldwide, royalty-free organizer usage rights, including adaptation and promotion. It also describes non-confidential materials, media/likeness rights, liability release/indemnity and California venue. The form has a separate unchecked promotional permission checkbox; its required status was not exposed. Reading the waiver is not new acceptance, and its displayed October 25 date does not prove the owner's acceptance status. See [approval register](APPROVALS.md).
 
@@ -21,4 +21,4 @@ The waiver retains entrant IP ownership while granting broad perpetual, irrevoca
 | Technical depth and execution | 20% |
 | Demo | 25% |
 
-These were read in both the participant guide and official waiver. They are not application-selection weights. A new repository does not establish eligibility. Unsent clarification questions and later approval gates are recorded alongside this file.
+These were read in both the participant guide and official waiver. They are not application-selection weights. A new repository does not establish eligibility. The organizer question draft is archived, not queued for sending. Later publication/terms/submission approvals remain separate.

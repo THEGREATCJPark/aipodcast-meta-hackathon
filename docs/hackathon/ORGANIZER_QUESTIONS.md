@@ -1,4 +1,6 @@
-# Organizer clarification draft — NOT SENT
+# Archived organizer clarification draft — DO NOT SEND
+
+Superseded by owner instruction on November 2, 2026: proceed without organizer questions; idea changes were reported allowed. Retained only as historical preparation. No answer or organizer confirmation is fabricated from this draft.
 
 Destination: official Hackathon Discord #questions, addressed to Cerebral Valley as directed in the Participant Guide. Send only after owner authorization. Do not attach keys, recordings or invitation tokens.
 

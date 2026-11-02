@@ -10,7 +10,7 @@ Required status below was confirmed from ariaRequired in the rendered form. No v
 
 | Exact field label | Prepared value / status |
 |---|---|
-| Team Name | Proposed “AI Conversation Director”; owner confirmation pending |
+| Team Name | Prepared value: “AI Conversation Director”; included in final review |
 | Project Description | English draft in SUBMISSION.md; discloses existing source and synthetic evidence |
 | Public GitHub Repository | Target URL prepared, but repository is still private; publication approval required |
 | 3-Minute Demo Video | Missing actual video URL; filming deferred by owner |
@@ -25,7 +25,7 @@ Team Members shows Park ChanJun. The owner should confirm the complete contribut
 
 | Question | Observed choices | Preparation decision |
 |---|---|---|
-| Track | Indie; Startups | Leave unanswered pending owner track decision and applicable reuse clarification |
+| Track | Indie; Startups | Prepare Indie for individual builder, with explicit inherited-code disclosure and factual eligibility review before final transmission |
 | Problem theme | Build for Your World; Push the Frontier | Draft choice: Build for Your World, matching the creator-domain problem; included in final submission review |
 | How likely to build with Meta API | Very likely; Somewhat likely; Neutral; Somewhat unlikely; Very unlikely | Owner's subjective response required |
 | Overall opinion of Meta API | Very favorable; Somewhat favorable; Neutral; Somewhat unfavorable; Very unfavorable | Owner's subjective response required |
@@ -59,13 +59,13 @@ The form asks permission for Meta and Cerebral Valley to publish, share and prom
 
 ## Participant-guide implications
 
-The authenticated guide confirms a public repository and three-minute video; the demo should focus on new work and distinguish event contributions. Startup reuse is explicit. Indie reuse remains unresolved; application-idea pivot and external TTS were not specified in the inspected guide. Do not convert that silence into permission. RULES.md contains the broader rules review.
+The authenticated guide confirms public source and three-minute video; distinguish new work. Owner subsequently reported idea change allowed and instructed no organizer questions. Proceed with disclosed inherited code and TTS; do not convert absence of a specific rule into a fabricated organizer approval. RULES.md retains the source distinctions.
 
 ## Current evidence and release state
 
 68 automated tests, typecheck, web/guest builds and CI passed at the recorded checkpoint. Real-provider synthetic Studio research and a separate synthetic interruption test passed within their recorded scopes. No real human conversation, final video, public release, promotional permission or submission receipt is claimed.
 
-Remaining work is split: public source approval/review, rule clarification, owner form choices and promotional permission can be prepared without filming; the required video and human acceptance remain intentionally deferred. Do not call the project submission-ready merely because the code builds.
+Public source review and final form preparation continue without organizer clarification. Subjective survey answers belong to final owner review; they are not inferred from successful tests. Human acceptance and required video remain deferred. The build alone is not submission readiness.
 
 ## Waiver subsequently inspected
 

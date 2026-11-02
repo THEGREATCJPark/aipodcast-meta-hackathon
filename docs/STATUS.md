@@ -23,7 +23,7 @@ A separate synthetic-input automatic-interruption trial passed with zero late AI
 
 ## Release / rules / form blockers
 
-The authenticated official guide, waiver and actual submission form were read on November 2 at 10:48 KST. Public source, three-minute video, contributors, single entry and event-contribution disclosure are independently confirmed. Exact fields and English copy are in SUBMISSION_FORM.md and SUBMISSION.md. No standalone live URL field was observed; hosting/access expectations still need clarification. Indie reuse, application-idea change and external TTS interpretation remain unresolved. Owner approvals and an unsent organizer question draft are in docs/hackathon/APPROVALS.md and ORGANIZER_QUESTIONS.md.
+The authenticated guide, waiver and form were read on November 2 at 10:48 KST. Required public source, three-minute video, contributors, single entry and event-contribution disclosure are confirmed. Fields/copy are in SUBMISSION_FORM.md and SUBMISSION.md. The owner subsequently reported idea changes allowed and directed continuation without organizer questions. Prepare reproducible source plus video; no standalone live URL field was observed. Inherited-code/TTS interpretations remain disclosed rather than blocking private preparation. Publication/terms/submission approvals remain in docs/hackathon/APPROVALS.md; the organizer draft is archived.
 
 Repository remains private pending explicit publication approval. No public app, finished video, public voice/face-release approval, final terms acceptance or submission receipt exists. SUBMISSION_READINESS.md separates engineering, human and release gates; this is not “only filming remains.”
 

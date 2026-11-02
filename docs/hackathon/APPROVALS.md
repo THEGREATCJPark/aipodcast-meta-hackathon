@@ -4,7 +4,6 @@ Checked November 2, 2026. Human trials and filming are deferred. Source remains 
 
 | Decision | Concrete action awaiting approval | Consequence |
 |---|---|---|
-| Organizer clarification | Send ORGANIZER_QUESTIONS.md to official Discord #questions | Discloses project, idea change and baseline facts to organizers. Not sent. |
 | Public repository | Make THEGREATCJPark/aipodcast-meta-hackathon public after source/history/rights review | All tracked source and history become public. Any open-source license grant is a separate owner decision; no automatic MIT license. |
 | Public media | Publish reviewed three-minute English video at an agreed host | Participants must authorize public voice/face use covering organizer reuse, not just local recording. Deferred. |
 | Hosted access, if needed | Publish an agreed guest-only or judge deployment | Agree host, access, duration and cost; never expose localhost management server directly. |
@@ -19,4 +18,4 @@ Confirm track/eligibility, preferred team/credit name, all human contributors, s
 
 ## Timing
 
-This is a register of later gates, not a request for blanket early approval. The outgoing organizer draft is ready to review. Publication and final submission still depend on eligibility interpretation, human acceptance and media preparation. No new paid service is proposed.
+The owner instructed us to proceed without organizer questions and reported that idea changes are allowed. ORGANIZER_QUESTIONS.md is archived and must not be sent. Ordinary preparation decisions are delegated; they are not new approval gates. Public exposure, rights grants, new paid commitments and final transmission still need specific approval. Human acceptance and media remain deferred. No new paid service is proposed.

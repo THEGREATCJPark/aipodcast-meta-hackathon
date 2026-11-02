@@ -34,7 +34,7 @@ Meta models handle the central conversation decisions, not a decorative feature.
 Park ChanJun. Confirm the participant list is complete and the team is submitting only one project. Additional private profile metadata is not reproduced here.
 
 ## Required radio choices — owner answers pending
-- Track: Indie / Startups. Do not select based only on a desired reuse exception. Startup reuse is explicit in the guide; applicable Indie reuse remains unresolved.
+- Track: prepare Indie Developer Track for the individual-builder entry; do not switch to Startup to obtain a reuse exception. Include inherited-code disclosure and the owner's factual eligibility review in final submission review; no organizer question is queued.
 - Problem theme: **Build for Your World** is the prepared choice, matching the creator-domain problem; included in final submission review. Push the Frontier is the other choice.
 - Likelihood of building with Meta API: owner answer required; do not infer from technical success.
 - Overall opinion of Meta API: owner answer required; do not invent an endorsement.
@@ -45,7 +45,7 @@ The optional X viral-post link and partner feedback can remain empty unless the 
 ## Promotional permission and final release gates
 The form includes a checkbox authorizing Meta and Cerebral Valley to publish, share and promote submitted materials across channels. It remains unchecked. Its required status was not established; explicit owner approval is needed for this permission and final submission.
 
-- [ ] Resolve applicable Indie reuse, application-idea pivot and external TTS questions; the latter two were not specified in the inspected guide.
+- [x] Record owner's confirmation that idea change is allowed and instruction to proceed without organizer questions. Disclose inherited code, new contributions and external TTS without asserting a guaranteed eligibility ruling.
 - [ ] Confirm team name, complete contributors, single entry, track/theme and subjective survey responses.
 - [ ] Review source rights, dependency notices, history, secrets and personal data; approve public repository publication.
 - [ ] Resume human acceptance/filming when the owner chooses; produce an actual three-minute English video and approve public voice/face use.

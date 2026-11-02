@@ -28,8 +28,8 @@ No human success or completed footage is claimed. See HUMAN_ACCEPTANCE.md and DE
 | Area | State and required action |
 |---|---|
 | Public source | Still PRIVATE. Authenticated official guide and actual form confirm public source required; review history/content and obtain owner approval before publication |
-| Applicable rules | Indie reuse, change from the application idea (JazzLink), and external TTS permission unresolved; obtain applicable rules or organizer interpretation |
-| Judge access | Local studio and undeployed guest-only bundle; establish required access path and confirm whether a runnable URL is mandatory |
+| Applicable rules | Owner reports idea change allowed and instructs no organizer questions. Proceed with explicit baseline/new-work/TTS disclosure; interpretation limits retained, no eligibility guarantee |
+| Judge access | Prepare source reproduction plus required video; no live URL field observed. Do not add public hosting or costs without a demonstrated need and approval |
 | Submission form | Actual authenticated form inspected; exact field mapping and English copy prepared. No client maxlength observed; server limits unknown. Owner supplies subjective survey answers, confirms team/track, reviews promotional permission. No entries transmitted |
 | Voice/face rights | Separate public-release consent needed for any recorded participants |
 | Final freeze / transmission | Freeze source after validation, review final copy, obtain terms/submission authorization, retain receipt |
