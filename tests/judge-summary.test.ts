@@ -3,6 +3,10 @@ import assert from 'node:assert/strict';
 import { researchSummary } from '../web/studio/research-summary.js';
 import type { LogEntry } from '../shared/events.js';
 const e = (stage:string, meta:Record<string,unknown> = {}, at=1):LogEntry => ({id:`${stage}-${at}`,kind:'system',at,text:stage,meta:{stage,...meta}});
+test('new result supersedes a pending-result WAIT explanation without inventing a new model verdict',()=>{
+  const r=researchSummary([e('research-request',{jobId:'a'},1),e('research-review',{jobId:'a',action:'WAIT',reason:'Pending result'},2),e('research-complete',{jobId:'a'},3)]);
+  assert.equal(r.state,'Result ready · checking context'); assert.equal(r.reason,undefined);
+});
 test('summary distinguishes generated speech from server transport and ignores other generations',()=>{
   const logs=[e('research-request',{jobId:'a'}),e('research-release',{jobId:'a',generation:4}),e('tts-generated',{generation:4}),e('server-first-audio-accepted',{generation:3})];
   assert.match(researchSummary(logs).state,/not yet confirmed sent/);

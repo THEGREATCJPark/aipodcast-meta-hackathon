@@ -9,6 +9,7 @@ export function researchSummary(logs: LogEntry[]) {
   const latest = (stage: string) => own.findLast(e => e.meta?.stage === stage);
   const result = latest('research-complete');
   const review = latest('research-review');
+  const currentReview = review && (!result || review.at >= result.at) ? review : undefined;
   const release = latest('research-release');
   const audio = release ? events.find(e => e.meta?.stage === 'server-first-audio-accepted' && e.meta?.generation === release.meta?.generation) : undefined;
   const tts = release ? events.find(e => e.meta?.stage === 'tts-generated' && e.meta?.generation === release.meta?.generation) : undefined;
@@ -19,12 +20,12 @@ export function researchSummary(logs: LogEntry[]) {
   let state = 'No pending request';
   if (request) state = 'Searching';
   if (result) state = 'Result ready · checking context';
-  if (review?.meta?.action === 'WAIT') state = result ? 'Waiting · Meta chose WAIT' : 'Searching · Meta chose WAIT';
-  if (review?.meta?.action === 'DELIVER' && !release) state = 'Waiting · application speech gate';
+  if (currentReview?.meta?.action === 'WAIT') state = result ? 'Waiting · Meta chose WAIT' : 'Searching · Meta chose WAIT';
+  if (currentReview?.meta?.action === 'DELIVER' && !release) state = 'Waiting · application speech gate';
   if (release) state = 'Released · preparing speech';
   if (tts) state = 'Speech generated · not yet confirmed sent';
   if (audio) state = 'Delivered to server transport';
-  if (failure || ttsFailure) state = 'Failed · recording retained';
+  if ((failure && (!currentReview || failure.at >= currentReview.at)) || ttsFailure) state = 'Failed · recording retained';
   if (cancelled && !failure) state = 'Cancelled';
   if (stopped) state = stopped.meta?.stage === 'manual-hold' ? 'Stopped · manual HOLD' : stopped.meta?.stage === 'session-close' ? 'Session ended' : 'Output interrupted · speech detected';
   const sources = (Array.isArray(result?.meta?.sources) ? result.meta.sources : []).flatMap(raw => {
@@ -40,6 +41,6 @@ export function researchSummary(logs: LogEntry[]) {
   return { state, request, result, review, sources,
     answer: review?.meta?.action === 'DELIVER' && typeof review.meta.speakText === 'string' ? review.meta.speakText : null,
     decision: decision?.meta?.action === 'WAIT' ? 'Meta chose WAIT' : decision && decision.meta?.handoff === false && decision.meta.action !== 'LOOKUP' ? `Meta proposed ${decision.meta?.action} · application requires Handoff` : null,
-    reason: cancelled?.meta?.reason ?? review?.meta?.reason,
+    reason: cancelled?.meta?.reason ?? currentReview?.meta?.reason,
   };
 }
