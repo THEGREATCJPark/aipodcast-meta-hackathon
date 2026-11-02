@@ -1,3 +1,7 @@
+## Submission scope freeze — 2026-11-02
+
+Owner prioritizes submission completion. Freeze application features at 8688280; fix only demonstrated shooting/submission blockers. Follow FINAL_SHOOTING_GUIDE.md: one presenter, an actual contextual lookup, and manual HOLD/hold-state footage. A short microphone/AI capture check is required; two-human acceptance, external guest hosting and broad evaluation are deferred, not passed. Earlier sections below retain engineering targets but do not impose them as prerequisites for this solo video. Remaining delivery steps are actual English footage, export/link review, approved source/media publication and final form/terms/submission.
+
 ## Pre-filming update — 2026-11-02
 
 Current automated checks: 107/107 tests, typecheck and main/guest builds. Capture now rejects unusable inputs and stops with a warning if audio is lost, preserving available footage. Private committed-source packaging and read-only local preparation checks are ready. Fourteen real Meta synthetic-text calls exposed and mitigated research overclaim and uncertainty-attribution issues; broader factual accuracy remains unproven. See EVALUATION.md for failures as well as passes.

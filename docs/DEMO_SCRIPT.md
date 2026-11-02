@@ -1,5 +1,7 @@
 # Three-minute English demo: the co-host who can check a fact
 
+Superseded for filming by [FINAL_SHOOTING_GUIDE.md](FINAL_SHOOTING_GUIDE.md). The owner has frozen submission scope: one real presenter, one actual contextual lookup, and manual HOLD. The broader scenarios and validation targets below are retained as historical planning, not prerequisites for the final solo video.
+
 Status: production plan, NOT recorded human evidence. At checkpoint 813a027, the full voice path passed three consecutive real-provider synthetic trials across Good and Vinge references, including continued speech and fresh Meta relevance review. This supports rehearsal readiness, not human acceptance. Do not film scripted AI replies as actual model outputs. The owner will perform human input and filming after preparation; capture and real-microphone checks remain required.
 
 ## Editorial direction
