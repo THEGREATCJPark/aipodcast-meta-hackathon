@@ -1,5 +1,5 @@
 import { ZodError } from "zod";
-import { reviewResearch, ResearchReviewSchema } from "./research-review.js";
+import { reviewResearch, ResearchReviewSchema, ReviewResponseError } from "./research-review.js";
 import type { ResearchResult } from "./research.js";
 import { research, ResearchResultSchema } from "./research.js";
 import { randomUUID } from "node:crypto";
@@ -22,6 +22,7 @@ export interface MetaServices {
 }
 /** Only classifications and schema coordinates leave this boundary; never provider messages/payloads. */
 export function safeResearchFailure(error: unknown): Record<string, unknown> {
+  if (error instanceof ReviewResponseError) return error.diagnostic;
   if (error instanceof ZodError) return { category: "invalid_response", issues: error.issues.slice(0, 12).map(issue => ({ code: issue.code, path: issue.path.map(part => typeof part === "number" ? part : /^(id|status|output|content|type|role|text|annotations|url|title|start_index|end_index|responseId|sources|results|searchCallIds|requestedAt|completedAt|kind|startIndex|endIndex|snippet)$/.test(String(part)) ? String(part) : "[field]") })) };
   if (error instanceof Error) {
     if (error.name === "TimeoutError") return { category: "timeout" };
