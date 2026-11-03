@@ -1,3 +1,7 @@
+## Current Gemini 3.8 TTS selection — 2026-11-03 KST
+
+Gemini 3.8 Flash TTS / Kore is the default co-host speech renderer. Two-speaker Gemini audio (38.56 s + 7.72 s) and a ten-second Omni opening were generated successfully after fixing an inherited-key precedence issue. The first complete app attempt reached Meta DELIVER but its Gemini TTS request failed with HTTP 429; recording remains available. **132 tests, typecheck and web/guest builds passed.** See [GEMINI_TTS.md](GEMINI_TTS.md). Earlier OpenAI full-run evidence remains historical, not Gemini-output evidence.
+
 ## Current cadence and typography work — 2026-11-03 KST
 
 The studio now uses self-hosted Instrument Sans / IBM Plex Mono and a clearer English hierarchy. Rapid synthetic host turns no longer wait for ASR. Meta classifies unreviewed lookup candidates in the background; current-context review and floor guards still govern speech. Stale reviews are aborted when the conversation changes. **123 tests, typecheck and web build passed.**

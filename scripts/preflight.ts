@@ -14,7 +14,7 @@ try {
   const payload = await response.json();
   const status = payload?.data?.status;
   check("Studio state responds", response.ok && payload.success === true && !!status);
-  check("Meta, OpenAI TTS and LiveKit configuration present (not an access test)", !!status?.metaConfigured && !!status?.openaiConfigured && !!status?.livekitConfigured);
+  check("Meta, selected speech provider and LiveKit configuration present (not an access test)", !!status?.metaConfigured && (status?.ttsProvider === 'gemini' ? !!status?.geminiConfigured : !!status?.openaiConfigured) && !!status?.livekitConfigured);
   check("Studio idle before rehearsal", status?.sessionActive === false && status?.recording === false && status?.agentInRoom === false);
   check("Meta selected", payload?.data?.settings?.engine === "meta");
   check("Research PD enabled for the planned spoken-lookup scene", payload?.data?.settings?.researchEnabled === true);

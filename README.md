@@ -6,7 +6,7 @@ An AI research producer that lets speakers keep talking while it checks a reques
 
 For small creator teams without a dedicated researcher. Enable research, ask a short contextual question, continue talking, then let Meta review whether a sourced answer still belongs in the conversation.
 
-**Private development build. Meta ASR/director, web research, OpenAI TTS and LiveKit have actual-provider synthetic-input evidence; human voice sessions remain unverified.** This project reuses an existing studio; see [provenance](docs/PROVENANCE.md) and [hackathon disclosure](HACKATHON.md). Applicable-track reuse eligibility remains unresolved. The authenticated official guide and actual submission form require public source and a three-minute video; see [rules](docs/hackathon/RULES.md).
+**Private development build. Meta ASR/director, web research and LiveKit have actual-provider synthetic-input evidence; human voice sessions remain unverified.** Speech now defaults to Gemini 3.8 Flash TTS. Standalone Gemini speech generation succeeded; the full co-host Gemini-output run reached Meta DELIVER but its TTS request was quota-blocked. Earlier full runs used OpenAI speech. See [Gemini verification](docs/GEMINI_TTS.md). This project reuses an existing studio; see [provenance](docs/PROVENANCE.md) and [hackathon disclosure](HACKATHON.md). Applicable-track reuse eligibility remains unresolved. The authenticated official guide and actual submission form require public source and a three-minute video; see [rules](docs/hackathon/RULES.md).
 
 Preparation links: [judge setup](docs/JUDGE_GUIDE.md), [actual form and field mapping](docs/SUBMISSION_FORM.md), [English submission copy](docs/SUBMISSION.md), [publication review](docs/PUBLICATION_REVIEW.md), and [owner approval gates](docs/hackathon/APPROVALS.md). Nothing has been submitted or made public.
 
@@ -45,9 +45,10 @@ Session artifacts stay in ignored output/ and include sensitive audio/transcript
 
 - Meta realtime ASR: `META_ASR_MODEL` (default `muse-voice-transcribe-1.0`), using one ENDPOINTING stream per participant identity.
 - Meta director: `META_DIRECTOR_MODEL` (default `muse-spark-1.3`), with validated WAIT/ASK/CLARIFY/SUMMARIZE output and utterance references.
-- **OpenAI TTS**: `TTS_MODEL` (default `tts-1`) and `TTS_VOICE` (default `alloy`). It renders Meta's chosen text; it does not decide how to moderate.
+- **Gemini 3.8 Flash TTS**: pinned `gemini-3.8-flash-tts`, voice `GEMINI_TTS_VOICE` (default `Kore`). `TTS_PROVIDER` defaults to `gemini`. It renders Meta's chosen text verbatim; Meta still decides the reply and whether it belongs in the conversation.
+- OpenAI speech remains an explicitly selected comparison option (`TTS_PROVIDER=openai`, `TTS_MODEL`, `TTS_VOICE`); it is never an automatic fallback.
 
-Set `META_API_KEY`, `OPENAI_API_KEY`, `LIVEKIT_URL`, `LIVEKIT_API_KEY` and `LIVEKIT_API_SECRET` locally for live operation. The configured models passed actual account/provider probes with synthetic input. Human microphone and full Studio acceptance remain pending.
+Set `META_API_KEY`, `GEMINI_API_KEY`, `LIVEKIT_URL`, `LIVEKIT_API_KEY` and `LIVEKIT_API_SECRET` locally for the default live route. The local `.env` Gemini key takes precedence over a stale inherited process key. Gemini standalone speech calls succeeded, followed by monthly-cap failures; the full Gemini-output co-host path is not yet verified. OpenAI keys are needed only for its explicit comparison/legacy routes and optional editorial timing tools. Human microphone and full Studio acceptance remain pending.
 
 The default mode requires operator handoff to release speech; the opt-in explicit research exception is described below. Ordinary turns can produce WAIT or a recommendation but do not automatically speak. Input context is capped at 30 recent utterances. Provider work is limited to 15 minutes, four ASR streams, 60 director calls and 30 seconds of TTS per response, without retries. These are usage limits, **not a verified dollar spending cap**. ASR handshake gaps are logged while source WAV recording is retained. Automatic ASR reconnection is not implemented; restart the session.
 

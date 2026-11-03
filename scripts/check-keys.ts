@@ -4,6 +4,7 @@
  * - Gemini: 모델 목록(무료)에서 Live 모델 확인
  */
 import "dotenv/config";
+import { env } from "../server/config.js";
 import { RoomServiceClient } from "livekit-server-sdk";
 import WebSocket from "ws";
 
@@ -55,7 +56,7 @@ async function openai(): Promise<void> {
 }
 
 async function gemini(): Promise<void> {
-  const key = process.env.GEMINI_API_KEY?.trim();
+  const key = env.GEMINI_API_KEY;
   if (!key) return out("Gemini", "키 없음");
   const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=200", { headers: { "x-goog-api-key": key } });
   if (!res.ok) {

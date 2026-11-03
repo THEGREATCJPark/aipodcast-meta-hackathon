@@ -1,3 +1,7 @@
+## Gemini speech validation — 2026-11-03 KST
+
+The selected speech model is gemini-3.8-flash-tts (Kore for the co-host, Puck/Charon for synthetic hosts). 132 tests, typecheck and web/guest builds passed. Three standalone generation requests succeeded. Full app trial 2026-11-03_1142_meta_25c0 at clean SHA a16946a reached Meta DELIVER, then Gemini TTS failed with HTTP 429. A direct local-key diagnostic confirmed a monthly spending cap response. This is not a passed end-to-end speech flow. See [GEMINI_TTS.md](GEMINI_TTS.md), including the correction to earlier inherited-key diagnostics.
+
 ## Cadence revision — 2026-11-03 KST
 
 Current commands: `npm test` (123 passed, zero failed), `npm run typecheck`, `npm run build:web`. Eight new regression cases cover background lookup under continued speech, queued requests between rapid turns, stale ASK rejection, hold/close/resume/permission invalidation, and immediate cancellation of an obsolete review. Failures were reproduced before the respective fixes.

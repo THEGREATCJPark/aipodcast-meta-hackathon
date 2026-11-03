@@ -31,13 +31,13 @@ In the final recording, host-to-host vocal gaps measured with 10 ms energy bins 
 
 The separate `video-workspace/scripts/v6-cadence/` renderer uses recorded tracks and script text, aligns captions against Whisper word timestamps, and retains QA per session. Automatic checks cover full decode, original audio correlation, caption overlap and loudness. Human end-to-end listening remains pending. Browser visual verification is unavailable because local browser control is disabled in the current tool settings; HTTP asset delivery, build and typechecks are verified. Extracted video frames were inspected separately.
 
-## Gemini connection and current blocker
+## Earlier Gemini connection diagnosis (corrected)
 
 The local `GEMINI_API_KEY` authenticated successfully for model discovery. Models available in the returned list include `gemini-3.8-flash-tts` and `gemini-omni-1.1-flash`. The [official speech guide](https://aistudio.google.com/docs/speech-generation) and [Omni guide](https://aistudio.google.com/docs/omni) supply the Interactions protocol.
 
 `scripts/media/gemini-media.ts` prepares two-speaker US-English host dialogue (Puck / Charon) and a ten-second podcast-to-robot opening with native audio. Prompts and non-secret response metadata stay under ignored `output/media-v6/`. Successful outputs are cached by request hash; a different generated asset cannot silently replace an existing file.
 
-Initial calls and the owner's requested retry both failed with HTTP 429: **monthly spending cap exceeded**. No audio or video was generated. Credentials were neither displayed nor changed, and the cap was not increased. This is the Gemini project's cap, separate from Meta credits.
+Those initial calls and retries returned HTTP 429 from an inherited process key that differed from the local .env key. That diagnosis has since been corrected: the local key successfully generated the dialogue and opening. The app now prefers the local Gemini key and defaults to Gemini 3.8 Flash TTS. Subsequent local-key co-host speech calls were also quota-blocked. See [GEMINI_TTS.md](GEMINI_TTS.md) for exact results; do not infer local-key availability from the earlier inherited-key failures.
 
 The owner only needs to check the project associated with the `.env` key at [AI Studio spend settings](https://ai.studio/spend). After it is available, the agent can run:
 

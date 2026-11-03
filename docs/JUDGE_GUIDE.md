@@ -18,7 +18,7 @@ The corrected implementation passed 115 automated tests, typecheck and both buil
 
 ## Local real-provider run
 
-Copy .env.example to a local .env. Supply your own authorized META_API_KEY, OPENAI_API_KEY (TTS only), LIVEKIT_URL, LIVEKIT_API_KEY and LIVEKIT_API_SECRET. Do not paste keys into the web interface or commit .env. The maintained Meta route uses muse-voice-transcribe-1.0 and muse-spark-1.3; speech rendering uses OpenAI tts-1/alloy. Existing account access and provider charges apply.
+Copy .env.example to a local .env. Supply your own authorized META_API_KEY, GEMINI_API_KEY (TTS only in the co-host route), LIVEKIT_URL, LIVEKIT_API_KEY and LIVEKIT_API_SECRET. Do not paste keys into the web interface or commit .env. The maintained Meta route uses muse-voice-transcribe-1.0 and muse-spark-1.3; speech rendering defaults to Gemini gemini-3.8-flash-tts / Kore. Existing account access and provider charges apply. Standalone Gemini speech succeeded; a subsequent full co-host run was quota-blocked at TTS. See GEMINI_TTS.md. Earlier recordings used OpenAI speech.
 
 Run `npm run dev`, open http://localhost:4400, choose Meta, and start a session only after participants consent. Standard responses need Handoff. Optional Research PD is off by default; enable and save it to permit explicit spoken lookup requests without a second button. HOLD stops pending output. Stop exports local session artifacts under output/; they are not uploaded automatically.
 
