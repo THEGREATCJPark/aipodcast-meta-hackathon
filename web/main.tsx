@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { GuestPage } from "./guest/GuestPage";
 import { Studio } from "./studio/Studio";
 import "./styles.css";
+import "./studio.css";
 
 const isGuest = location.pathname.startsWith("/join");
 

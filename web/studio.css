@@ -1,0 +1,108 @@
+/* Live desk: restrained type, one ink accent, colour reserved for actual state.
+   Presentation only; research state remains an event-log projection. */
+.studio {
+  --bg: #f6f5f1; --panel: #fffefa; --panel-2: #eeede7; --line: #deded5;
+  --text: #262b28; --muted: #686d65; --amber: #345c49; --amber-deep: #244634;
+  --red: #a3372c; --green: #34664b; --blue: #345e75; --violet: #6e5278;
+  --font: "Segoe UI", system-ui, sans-serif; --mono: Consolas, ui-monospace, monospace;
+  background: var(--bg); color: var(--text); font-family: var(--font);
+  min-height: 100dvh; height: auto;
+}
+.studio .topbar { padding: 18px 32px; background: var(--panel); backdrop-filter: none; gap: 20px; }
+.studio .brand { gap: 14px; }
+.studio .brand h1 { font-size: 16px; font-weight: 600; letter-spacing: -.035em; }
+.studio .onair { border: 0; background: var(--panel-2); font-size: 10px; padding: 7px 9px; }
+.studio .onair.live { background: #f5e5e0; color: var(--red); animation: none; box-shadow: none; }
+.studio .btn { border-radius: 5px; font-size: 12px; padding: 9px 13px; transition: background 140ms, border-color 140ms; }
+.studio .btn:active:not(:disabled) { transform: none; }
+.studio .btn.primary { color: #fff; background: var(--amber); }
+.studio .btn.primary:hover:not(:disabled) { background: var(--amber-deep); }
+.studio .btn:disabled { opacity: .55; filter: none; }
+.studio .btn.stop { background: #fbefeb; border-color: #d9b6ad; color: #8d3025; }
+.studio .btn.resume { background: #eef4ef; border-color: #a6bdac; color: #245337; }
+.studio .btn.handoff { background: var(--text); border-color: var(--text); color: white; }
+.studio .setup-details { border-bottom: 1px solid var(--line); }
+.studio .setup-details > summary { padding: 10px 32px; font-size: 12px; }
+.studio .setup-details .badges { padding: 8px 32px; }
+.studio .badge { border: 0; padding: 2px 8px 2px 0; font-size: 11px; }
+.studio .cohost-notice { padding: 8px 32px 16px; border: 0; max-width: 1100px; }
+.studio .cohost-notice label { display: block; padding-top: 10px; font-weight: 600; }
+.studio input[type=checkbox] { accent-color: var(--amber); }
+.studio .lounge-heading { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 32px 40px 26px; background: none; border: 0; }
+.studio .lounge-heading > div > span { font: 10px var(--mono); letter-spacing: .13em; color: var(--muted); }
+.studio .lounge-heading h2 { font-size: clamp(26px, 2.5vw, 36px); font-weight: 450; letter-spacing: -.055em; margin: 9px 0 6px; line-height: 1.15; }
+.studio .lounge-heading p { font-size: 13px; display: block; }
+.desk-status { display: flex; align-items: center; gap: 12px; min-width: 128px; }
+.desk-status i { width: 10px; height: 10px; background: #9b9e92; border-radius: 50%; }
+.desk-status i.is-speaking { background: var(--green); }
+.desk-status span { font: 9px var(--mono); letter-spacing: .12em; color: var(--muted); }
+.desk-status strong { display: block; font: 500 16px var(--font); letter-spacing: -.02em; margin-top: 5px; color: var(--text); }
+.studio .stage { min-height: 600px; }
+.studio .judge-view .room { padding: 0 40px 24px; gap: 12px; overflow: visible; }
+.studio .judge-disclosure { font-size: 10px; color: var(--muted); margin: 0 0 14px; gap: 6px 24px; }
+.studio .judge-columns { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; min-height: 390px; }
+.studio .judge-conversation, .studio .judge-research { border: 0; border-radius: 0; background: none; padding: 26px 30px; overflow: visible; min-width: 0; }
+.studio .judge-research { border-left: 1px solid var(--line); display: flex; flex-direction: column; }
+.section-index, .source-label { font: 10px var(--mono); letter-spacing: .1em; color: var(--muted); }
+.studio .panel-heading { margin-bottom: 20px; }
+.studio .panel-heading h2 { font-size: 19px; font-weight: 550; letter-spacing: -.035em; margin: 7px 0 0; }
+.studio .speaker-status { font-size: 11px; min-height: 18px; }
+.studio .judge-conversation ol { margin-top: 16px; }
+.studio .judge-conversation li { padding: 16px 0; }
+.studio .judge-conversation li:last-child { border-bottom: 0; }
+.turn-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; }
+.studio .judge-conversation strong { color: var(--text); font-size: 11px; font-weight: 600; }
+.turn-heading time { font: 10px var(--mono); color: var(--muted); flex-shrink: 0; }
+.studio .judge-conversation p { font-size: 16px; line-height: 1.65; letter-spacing: -.015em; margin: 8px 0 0; overflow-wrap: anywhere; }
+.desk-empty { padding: 44px 0 36px; }
+.empty-rule { display: block; width: 28px; height: 2px; background: var(--amber); margin-bottom: 20px; }
+.studio .desk-empty h3 { font-size: 22px; font-weight: 450; letter-spacing: -.035em; margin: 0; }
+.studio .desk-empty p { font-size: 14px; color: var(--muted); }
+.desk-empty small { display: block; margin-top: 22px; font-size: 11px; color: var(--muted); }
+.studio .research-status { background: #eef1eb; border: 1px solid #dce3d8; border-radius: 4px; color: #3c5743; padding: 8px 10px; font: 11px/1.5 var(--mono); margin: 0 0 22px; }
+.studio .judge-research h3 { font-size: 18px; font-weight: 500; line-height: 1.5; letter-spacing: -.025em; margin: 0 0 10px; }
+.research-intro { color: var(--muted); font-size: 13px; line-height: 1.7; max-width: 340px; margin: 0 0 26px; }
+.studio .judge-answer { border-left: 2px solid var(--amber); padding: 2px 0 2px 18px; margin: 16px 0 24px; font-size: 22px; line-height: 1.5; letter-spacing: -.025em; }
+.source-label { margin-top: 24px; }
+.studio .source-cards { grid-template-columns: 1fr; margin: 10px 0 20px; }
+.studio .source-cards a { background: var(--bg); border-radius: 4px; padding: 12px 14px; }
+.studio .source-cards strong { font-size: 12px; }
+.studio .judge-limit { margin-top: auto; padding-top: 24px; font-size: 10px; line-height: 1.6; max-width: 420px; }
+.studio .judge-logs > summary { padding: 8px 0; font-size: 11px; }
+.studio .judge-view .controls { padding: 14px 0 0; border-top: 1px solid var(--line); }
+.studio .control-hint { margin-left: auto; max-width: 460px; font-size: 11px; }
+.studio .person, .studio .person.active, .studio .person.mc.active { box-shadow: none; transform: none; }
+.studio .person.mc .avatar { background: #e5ece4; color: var(--amber); }
+.studio .hint, .studio .preview pre, .studio .appendix pre { color: var(--muted); }
+.studio .k-error .log-text { color: var(--red); }
+.studio .log-item + .log-item { border-color: var(--line); }
+.studio .settings { max-height: 900px; }
+.studio .room, .studio .settings { min-width: 0; }
+.studio :is(input, textarea, select, summary, a):focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
+@media (min-width: 1500px) { .studio .lounge-heading, .studio .judge-view .room { padding-left: max(40px, calc((100vw - 1440px)/2)); padding-right: max(40px, calc((100vw - 1440px)/2)); } }
+@media (max-width: 850px) {
+  .studio .topbar { padding: 16px 20px; gap: 14px; }
+  .studio .top-actions { margin-left: 0; }
+  .studio .setup-details > summary, .studio .cohost-notice, .studio .setup-details .badges { padding-left: 20px; padding-right: 20px; }
+  .studio .lounge-heading { padding: 26px 20px 22px; }
+  .studio .judge-view .room { padding: 0 20px 20px; }
+  .studio .judge-columns { grid-template-columns: 1fr; }
+  .studio .judge-research { border-left: 0; border-top: 1px solid var(--line); }
+  .studio .judge-conversation, .studio .judge-research { padding: 24px; }
+  .studio .judge-summary { min-height: 0; }
+  .studio .control-hint { margin-left: 0; }
+  .studio .controls { align-items: stretch; }
+}
+@media (max-width: 480px) {
+  .studio .lounge-heading { align-items: flex-start; }
+  .studio .lounge-heading h2 { font-size: 28px; }
+  .desk-status { min-width: 72px; gap: 7px; padding-top: 5px; }
+  .desk-status strong { font-size: 13px; }
+  .desk-status span { font-size: 8px; }
+  .studio .control-buttons { display: grid; grid-template-columns: 1fr 1fr; }
+  .studio .control-buttons .btn { padding: 10px 8px; white-space: normal; }
+  .studio .judge-conversation p { font-size: 15px; }
+  .studio .judge-answer { font-size: 19px; }
+}
+/* Keep the emergency control reachable as the transcript grows. */
+.studio .judge-view .controls { position: sticky; bottom: 0; z-index: 2; background: var(--bg); padding: 14px 0; }

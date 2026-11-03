@@ -19,7 +19,7 @@ const MC_LABEL: Record<McState, string> = {
 export function Studio() {
   const { settings, status, logs, socketOpen, connectionError, setSettings, refresh } = useStudio();
   const [error, setError] = useState<string | null>(null);
-  const [demo, setDemo] = useState(() => new URLSearchParams(window.location.search).get("view") === "judge");
+  const [demo, setDemo] = useState(() => new URLSearchParams(window.location.search).get("view") !== "studio");
   const [consent, setConsent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [mic, setMic] = useState<VoiceRoomHandle | null>(null);
@@ -89,16 +89,8 @@ export function Studio() {
           <h1>Conversation Co-host</h1>
           {status.recording && <span className="rec" title="Saved locally when the session ends">● REC <Elapsed key={status.sessionId} sessionId={status.sessionId} /></span>}
         </div>
-        <div className="badges">
-          <Badge ok={socketOpen} label="Studio" />
-          <Badge ok={status.livekitConfigured} label="LiveKit" />
-          <Badge ok={status.metaConfigured} label="Meta key" />
-          <Badge ok={status.openaiConfigured} label="OpenAI TTS" />
-          {settings.engine !== "meta" && <Badge ok={status.geminiConfigured} label="Gemini" />}
-          <Badge ok={Boolean(mic)} label="Microphone" />
-        </div>
         <div className="top-actions">
-          <button className="btn ghost" onClick={() => setDemo(!demo)}>{demo ? "Studio controls" : "Judge view"}</button>
+          <button className="btn ghost" onClick={() => setDemo(!demo)}>{demo ? "Settings & tools" : "Back to conversation"}</button>
           {mic ? (
             <>
               <button className="btn ghost" disabled={busy} onClick={() => void run(async () => { await mic.setMuted(!muted); setMuted(!muted); })}>{muted ? "Unmute" : "Mute"}</button>
@@ -116,14 +108,22 @@ export function Studio() {
       {connectionError && <div className="connection-warning" role="alert">{connectionError} <button className="btn tiny" onClick={() => void refresh().catch(() => undefined)}>Refresh state</button></div>}
       {error && <div className="toast" role="alert">{error}</div>}
 
-      <details className="setup-details" open={demo ? undefined : true}><summary>Setup, consent and provider details</summary><div className="cohost-notice">
+      <details className="setup-details"><summary>{consent ? "Connection & recording details" : "Before you start · review recording consent"}</summary>        <div className="badges">
+          <Badge ok={socketOpen} label="Studio" />
+          <Badge ok={status.livekitConfigured} label="LiveKit" />
+          <Badge ok={status.metaConfigured} label="Meta key" />
+          <Badge ok={status.openaiConfigured} label="OpenAI TTS" />
+          {settings.engine !== "meta" && <Badge ok={status.geminiConfigured} label="Gemini" />}
+          <Badge ok={Boolean(mic)} label="Microphone" />
+        </div>
+<div className="cohost-notice">
         <strong>{status.sessionActive ? "LIVE SESSION" : "LOCAL LIVE SETUP"}</strong> · Connected input uses real providers. Participant labels identify synthetic test sources; recordings are not live human trials.
         {status.providerModels && <p>ASR: {status.providerModels.asr} · Director: {status.providerModels.director} · TTS: OpenAI {status.providerModels.tts} / {status.providerModels.voice}</p>}
         <p>Human-controlled co-host · Meta speech recognition and decisions · OpenAI speech synthesis. Key badges indicate configuration, not successful model access.</p>
         {settings.engine === "meta" && <p className="research-mode"><strong>Research PD: {settings.researchEnabled ? "ON" : "OFF"}</strong> · {settings.researchEnabled ? "Explicit spoken lookup requests can trigger a researched, spoken answer. HOLD cancels it." : "Web research is disabled. Use Handoff for ordinary co-host questions."}</p>}
         {(!status.sessionActive || !mic) && <label><input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} /> I consent to local recording and transmission to LiveKit, Meta and the selected speech provider. Publication needs separate permission.</label>}
       </div></details>
-      <div className="lounge-heading"><span>THE CONVERSATION LOUNGE</span><h2>An AI research producer that lets speakers keep talking while it checks a requested reference.</h2><p>For small creator teams without a dedicated researcher.</p></div>
+      <div className="lounge-heading"><div><span>CONVERSATION STUDIO / {demo ? "LIVE DESK" : "PRODUCTION"}</span><h2>{demo ? "Keep the conversation going." : "Set the room."}</h2><p>{demo ? "A reference checked. A thought uninterrupted." : "Session settings, guests and execution records."}</p></div><div className="desk-status"><i className={status.mcState === "speaking" ? "is-speaking" : ""} /><span>CO-HOST<strong>{MC_LABEL[status.mcState]}</strong></span></div></div>
       <main className={`stage ${demo ? "judge-view" : ""}`}>
         <section className="room">
           {demo ? <JudgeSummary logs={logs} status={status} /> : <><div className="people">
