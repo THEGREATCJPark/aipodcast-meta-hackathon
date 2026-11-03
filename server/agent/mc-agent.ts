@@ -1,4 +1,5 @@
 import { MetaSession } from "../meta/session.js";
+import { env } from "../config.js";
 import { WavTrack } from "../recording/wav-track.js";
 import { join } from "node:path";
 import { randomUUID } from "node:crypto";
@@ -113,6 +114,7 @@ export class McAgent {
       metaConfigured: Boolean(this.deps.metaKey()),
       ...(this.session instanceof MetaSession ? { providerModels: this.session.models, metaState: this.session.turns.held ? "held" : this.session.state === "speaking" && !this.playout.active ? "waiting" : this.session.state } : {}),
       openaiConfigured: Boolean(this.deps.openaiKey()),
+      ttsProvider: this.session instanceof MetaSession ? this.session.models.ttsProvider ?? 'openai' : env.TTS_PROVIDER,
       geminiConfigured: Boolean(this.deps.geminiKey()),
       engine: this.session ? this.session.id : null,
       persona: this.session && this.settings ? personaLabel(this.settings) : null,

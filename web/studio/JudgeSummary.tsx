@@ -5,8 +5,10 @@ export function JudgeSummary({ logs, status }: { logs: LogEntry[]; status: Studi
   const r = researchSummary(logs);
   const turns = logs.filter(e=>e.kind==='human').slice(-5);
   const synthetic = turns.some(e=>e.speaker?.toLowerCase().includes('synthetic')) || status.participants.some(p=>p.name.toLowerCase().includes('synthetic'));
+  const recordedProvider = [...logs].reverse().find(e => e.meta?.stage === 'tts-request')?.meta?.provider;
+  const speechProvider = typeof recordedProvider === 'string' ? recordedProvider : status.ttsProvider === 'gemini' ? 'Gemini' : 'OpenAI';
   return <section className="judge-summary" aria-label="Conversation and research summary">
-    <div className="judge-disclosure">{synthetic ? 'Synthetic voices · Actual Meta session' : status.sessionActive ? 'Live session' : 'Ready to record'}<span>Meta research & decisions · OpenAI speech · LiveKit audio</span></div>
+    <div className="judge-disclosure">{synthetic ? 'Synthetic voices · Actual Meta session' : status.sessionActive ? 'Live session' : 'Ready to record'}<span>Meta research & decisions · {speechProvider} speech · LiveKit audio</span></div>
     <div className="judge-columns">
       <section className="judge-conversation" aria-label="Current conversation">
         <div className="panel-heading"><span className="section-index">01 / On the floor</span><h2>Conversation</h2></div>

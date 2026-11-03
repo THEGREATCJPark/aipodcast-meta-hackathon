@@ -1,5 +1,8 @@
 import "dotenv/config";
 import { z } from "zod";
+import { existsSync, readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { selectMediaCredential } from "./credential.js";
 
 const EnvSchema = z.object({
   PORT: z.coerce.number().int().min(1024).max(65535).default(4400),
@@ -8,6 +11,8 @@ const EnvSchema = z.object({
   META_DIRECTOR_MODEL: z.string().default("muse-spark-1.3"),
   TTS_MODEL: z.string().default("tts-1"),
   TTS_VOICE: z.string().default("alloy"),
+  TTS_PROVIDER: z.enum(["gemini", "openai"]).default("gemini"),
+  GEMINI_TTS_VOICE: z.string().default("Kore"),
   OPENAI_API_KEY: z.string().optional(),
   GEMINI_API_KEY: z.string().optional(),
   LIVEKIT_URL: z.string().optional(),
@@ -25,7 +30,9 @@ export type Env = z.infer<typeof EnvSchema>;
 const blankToUndefined = (env: NodeJS.ProcessEnv): Record<string, string | undefined> =>
   Object.fromEntries(Object.entries(env).map(([k, v]) => [k, v?.trim() ? v.trim() : undefined]));
 
-export const env: Env = EnvSchema.parse(blankToUndefined(process.env));
+const localEnvPath = fileURLToPath(new URL('../.env', import.meta.url));
+const geminiCredential = selectMediaCredential('GEMINI_API_KEY', existsSync(localEnvPath) ? readFileSync(localEnvPath, 'utf8') : undefined, process.env.GEMINI_API_KEY);
+export const env: Env = EnvSchema.parse(blankToUndefined({ ...process.env, GEMINI_API_KEY: geminiCredential.key }));
 
 export interface LivekitConfig {
   url: string;

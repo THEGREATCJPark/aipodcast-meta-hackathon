@@ -73,7 +73,9 @@ export function Studio() {
       await refresh();
     });
 
-  const engineReady = settings.engine === "meta" ? status.metaConfigured && status.openaiConfigured : settings.engine === "gemini-live" ? status.geminiConfigured : status.openaiConfigured;
+  const speechProvider = status.ttsProvider === 'gemini' ? 'Gemini' : 'OpenAI';
+  const speechReady = status.ttsProvider === 'gemini' ? status.geminiConfigured : status.openaiConfigured;
+  const engineReady = settings.engine === "meta" ? status.metaConfigured && speechReady : settings.engine === "gemini-live" ? status.geminiConfigured : status.openaiConfigured;
 
   const createInvite = (): Promise<void> =>
     run(async () => {
@@ -112,14 +114,14 @@ export function Studio() {
           <Badge ok={socketOpen} label="Studio" />
           <Badge ok={status.livekitConfigured} label="LiveKit" />
           <Badge ok={status.metaConfigured} label="Meta key" />
-          <Badge ok={status.openaiConfigured} label="OpenAI TTS" />
+          <Badge ok={speechReady} label={`${speechProvider} TTS`} />
           {settings.engine !== "meta" && <Badge ok={status.geminiConfigured} label="Gemini" />}
           <Badge ok={Boolean(mic)} label="Microphone" />
         </div>
 <div className="cohost-notice">
         <strong>{status.sessionActive ? "LIVE SESSION" : "LOCAL LIVE SETUP"}</strong> · Connected input uses real providers. Participant labels identify synthetic test sources; recordings are not live human trials.
-        {status.providerModels && <p>ASR: {status.providerModels.asr} · Director: {status.providerModels.director} · TTS: OpenAI {status.providerModels.tts} / {status.providerModels.voice}</p>}
-        <p>Human-controlled co-host · Meta speech recognition and decisions · OpenAI speech synthesis. Key badges indicate configuration, not successful model access.</p>
+        {status.providerModels && <p>ASR: {status.providerModels.asr} · Director: {status.providerModels.director} · TTS: {speechProvider} {status.providerModels.tts} / {status.providerModels.voice}</p>}
+        <p>Human-controlled co-host · Meta speech recognition and decisions · {speechProvider} speech synthesis. Key badges indicate configuration, not successful model access.</p>
         {settings.engine === "meta" && <p className="research-mode"><strong>Research PD: {settings.researchEnabled ? "ON" : "OFF"}</strong> · {settings.researchEnabled ? "Explicit spoken lookup requests can trigger a researched, spoken answer. HOLD cancels it." : "Web research is disabled. Use Handoff for ordinary co-host questions."}</p>}
         {(!status.sessionActive || !mic) && <label><input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} /> I consent to local recording and transmission to LiveKit, Meta and the selected speech provider. Publication needs separate permission.</label>}
       </div></details>

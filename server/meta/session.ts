@@ -10,8 +10,9 @@ import { MetaAsr, type AsrCallbacks } from "./asr-realtime.js";
 import { decide, validateDecision, type Decision, type Utterance } from "./director.js";
 import { TurnManager } from "./turn-manager.js";
 import { synthesize } from "../speech/tts.js";
+import { synthesizeGemini } from "../speech/gemini-tts.js";
 
-export interface MetaOptions { key: string; ttsKey: string; asr: string; director: string; tts: string; voice: string; researchEnabled?: boolean }
+export interface MetaOptions { key: string; ttsKey: string; asr: string; director: string; tts: string; voice: string; ttsProvider?: 'openai' | 'gemini'; researchEnabled?: boolean }
 type AsrTransport = Pick<MetaAsr, "connect" | "append" | "close">;
 export interface MetaServices {
   createAsr?: (key: string, model: string, offsetMs: number, callbacks: AsrCallbacks) => AsrTransport;
@@ -85,15 +86,16 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
   private pending = false;
   private pendingHandoff: { generation: number; revision: number } | null = null;
   private deadline: NodeJS.Timeout | undefined;
-  constructor(private options: MetaOptions, private services: MetaServices = { decide, synthesize, research }) {
-    super(); this.models = { asr: options.asr, director: options.director, tts: options.tts, voice: options.voice };
+  constructor(private options: MetaOptions, private services: MetaServices = { decide, synthesize: options.ttsProvider === 'gemini' ? synthesizeGemini : synthesize, research }) {
+    super(); this.models = { asr: options.asr, director: options.director, tts: options.tts, voice: options.voice, ttsProvider: options.ttsProvider ?? 'openai' };
   }
+  private get ttsProviderName(): string { return this.options.ttsProvider === 'gemini' ? 'Google Gemini' : 'OpenAI'; }
   async connect(): Promise<void> {
     if (this.isReady || this.turns.closed) throw new Error("Create a fresh MetaSession for each run");
     this.isReady = true; this.startedAt = Date.now();
     this.deadline = setTimeout(() => { this.limited = true; this.hold("provider-limit"); for (const stream of this.streams.values()) stream.close(); this.emit("error", "15 minute provider limit reached; recording continues until Stop", "session_limit"); }, 15 * 60 * 1000);
     this.emit("started", this.runId);
-    this.emit("info", "Meta handoff mode: live account access unverified until provider response; OpenAI TTS only renders Meta text.");
+    this.emit("info", `Meta handoff mode: live account access unverified until provider response; ${this.ttsProviderName} TTS only renders Meta text.`);
   }
   appendAudio(_pcm: Int16Array): void { /* mixed PCM deliberately not sent to Meta */ }
   appendParticipant(identity: string, pcm: Int16Array): void {
@@ -232,7 +234,7 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
       phase = "tts";
       await this.speak(speakText, ticket);
     } catch {
-      if (!ticket.signal.aborted) { this.evidence("provider-failure", { phase, provider: phase === "tts" ? "OpenAI" : "Meta", generation: ticket.generation, contextRevision: ticket.revision, disposition: "WAIT", recordingPreserved: true }); this.state = "error"; this.emit("error", "Meta/TTS request failed or timed out; WAIT, recording continues, no fallback", "provider_failure"); }
+      if (!ticket.signal.aborted) { this.evidence("provider-failure", { phase, provider: phase === "tts" ? this.ttsProviderName : "Meta", generation: ticket.generation, contextRevision: ticket.revision, disposition: "WAIT", recordingPreserved: true }); this.state = "error"; this.emit("error", "Meta/TTS request failed or timed out; WAIT, recording continues, no fallback", "provider_failure"); }
     } finally {
       if (this.classificationController === classification) this.classificationController = null;
       this.busy = false;
@@ -289,7 +291,7 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
       // Consume exactly once. Subsequent human interruption cancels TTS, never replays this result.
       const text=verdict.speakText!;this.researchJob=null;clearTimeout(job.timer);this.busy=true;
       this.evidence("research-release",{jobId:job.id,reviewedRevision:revision});
-      try{await this.speak(text,ticket);}catch{if(!ticket.signal.aborted){this.evidence("provider-failure",{phase:"tts",provider:"OpenAI",generation:ticket.generation,contextRevision:ticket.revision,disposition:"WAIT",recordingPreserved:true});this.state="error";this.emit("error","OpenAI TTS failed; recording continues","tts_failure");}}
+      try{await this.speak(text,ticket);}catch{if(!ticket.signal.aborted){this.evidence("provider-failure",{phase:"tts",provider:this.ttsProviderName,generation:ticket.generation,contextRevision:ticket.revision,disposition:"WAIT",recordingPreserved:true});this.state="error";this.emit("error",`${this.ttsProviderName} TTS failed; recording continues`,"tts_failure");}}
       finally{this.busy=false;const handoff=this.pendingHandoff;this.pendingHandoff=null;if(handoff&&this.turns.permits(handoff)){this.pending=false;void this.evaluate(true);}else if(this.pending){this.pending=false;void this.evaluate(false);}}
     }catch(error: unknown){
       if(this.researchJob===job&&!job.controller.signal.aborted&&!reviewController.signal.aborted){this.evidence("research-review-failed",{jobId:job.id,disposition:"WAIT",failure:safeResearchFailure(error)});this.state="waiting";}
@@ -300,7 +302,7 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
     }
   }
   private async speak(text:string,ticket:{generation:number;revision:number;signal:AbortSignal}):Promise<void>{
-    this.evidence("tts-request",{provider:"OpenAI",model:this.options.tts,characters:text.length,text});
+    this.evidence("tts-request",{provider:this.ttsProviderName,model:this.options.tts,voice:this.options.voice,characters:text.length,text});
     const pcm=await this.services.synthesize(this.options.ttsKey,this.options.tts,this.options.voice,text,ticket.signal);
     if(!this.turns.permits(ticket))return;
     if(!pcm.length||pcm.length>24000*30)throw new Error("Invalid TTS duration");

@@ -5,6 +5,7 @@
  */
 import { env, livekitConfig } from '../server/config.js';
 import { synthesize } from '../server/speech/tts.js';
+import { GEMINI_TTS_MODEL } from '../server/speech/gemini-tts.js';
 import { AgentRoom } from '../server/agent/room.js';
 import { createToken } from '../server/livekit/tokens.js';
 import { AudioFrame } from '@livekit/rtc-node';
@@ -41,11 +42,12 @@ const dialogue = [
   [1, "There we go. Let's keep that source. The interesting part is still the feedback loop."],
   [0, "Yeah, and whether the experiments can keep up. That's the conversation I want to have."],
 ] as const;
-type Clip = { speaker: number; text: string; pcm: Int16Array; provider: string; voice?: string };
+type Clip = { speaker: number; text: string; pcm: Int16Array; provider: string; voice?: string; gapMs?: number; fixturePath?: string; preservePadding?: boolean };
 const clips: Clip[] = [];
 const e: any = { kind: 'synthetic-cadence-real-Meta-app', humanTrial: false, startedAt: Date.now(), scenario: 'cadence',
   source: fixtureArg ? 'explicit-fixture-manifest' : 'OpenAI timing control; Gemini generation blocked by monthly spending cap',
-  cohost: { asr: env.META_ASR_MODEL, director: env.META_DIRECTOR_MODEL, tts: `OpenAI ${env.TTS_MODEL} / ${env.TTS_VOICE}` },
+  cohost: { asr: env.META_ASR_MODEL, director: env.META_DIRECTOR_MODEL, tts: env.TTS_PROVIDER === 'gemini' ? `Gemini ${GEMINI_TTS_MODEL} / ${env.GEMINI_TTS_VOICE}` : `OpenAI ${env.TTS_MODEL} / ${env.TTS_VOICE}` },
+  fixtureManifest: fixtureArg ? resolve(fixtureArg) : null,
   gitHead: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(), workingTreeDirty: Boolean(execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim()),
   utterances: [], receivedNonSilentAiFrames: 0, receiverAudioDuringPublishedSpeech: 0,
   followupDisclosure: 'Prewritten synthetic follow-up lines, scheduled after observed answer audio; not spontaneous human reactions.',
@@ -62,9 +64,11 @@ if (fixtureArg) {
   if (manifest.sampleRate !== 24000 || manifest.channels !== 1 || manifest.format !== 'pcm16le' || manifest.turns.length !== dialogue.length) throw new Error('Invalid fixture manifest');
   for (const c of manifest.turns) {
     if (![0, 1].includes(c.speaker) || typeof c.text !== 'string') throw new Error('Invalid fixture speaker/text');
-    const bytes = Uint8Array.from(readFileSync(resolve(dirname(fixtureArg), c.path)));
+    const fixturePath = resolve(dirname(fixtureArg), c.path);
+    const bytes = Uint8Array.from(readFileSync(fixturePath));
     if (bytes.length % 2 || !bytes.length || bytes.length > 24000 * 2 * 30) throw new Error('Invalid fixture audio');
-    clips.push({ speaker: c.speaker, text: c.text, pcm: trim(new Int16Array(bytes.buffer)), provider: manifest.provider, voice: c.voice });
+    if (c.sha256 && createHash('sha256').update(bytes).digest('hex') !== c.sha256) throw new Error('Fixture digest mismatch');
+    clips.push({ speaker: c.speaker, text: c.text, pcm: c.preservePadding ? new Int16Array(bytes.buffer) : trim(new Int16Array(bytes.buffer)), provider: manifest.provider, voice: c.voice, gapMs: c.gapMs, fixturePath, preservePadding: c.preservePadding });
   }
 } else {
   const cache = join(env.OUTPUT_DIR, 'probes', 'synthetic-tts-cache'); mkdirSync(cache, { recursive: true });
@@ -98,13 +102,14 @@ function guard() {
   if ([...logs.values()].some(x => x.kind === 'error') || stage('research-cancelled').some(x => x.meta.reason === '60-second TTL expired')) throw new Error('Provider failure or expired research; inspect the preserved session events');
 }
 async function until(test: () => boolean) { while (!test()) { guard(); await sleep(40); } }
-async function play(i: number, gapMs = 220) {
+async function play(i: number, requestedGapMs?: number) {
   guard();
   const clip = clips[i];
+  const gapMs = requestedGapMs ?? clip.gapMs ?? 220;
   const start = frameIndex + Math.ceil(gapMs / 20), frames = Math.ceil(clip.pcm.length / 480);
   active = { clip, start, end: start + frames };
   const u: any = { index: i, speaker: clip.speaker, identity: e.participants[clip.speaker].identity, text: clip.text, provider: clip.provider,
-    voice: clip.voice, syntheticSendStartedAt: epoch + start * 20, syntheticSendEndedAt: epoch + (start + frames) * 20,
+    voice: clip.voice, fixturePath: clip.fixturePath, preservePadding: clip.preservePadding, syntheticSendStartedAt: epoch + start * 20, syntheticSendEndedAt: epoch + (start + frames) * 20,
     pcmDurationMs: clip.pcm.length / 24, precedingScheduledGapMs: gapMs, waitsForAsr: false };
   e.utterances.push(u);
   if (i === 2) e.explicitRequestStartedAt = u.syntheticSendStartedAt;
@@ -158,7 +163,7 @@ try {
   });
   e.followupStartedAt = Date.now();
   for (const i of [8, 9]) await play(i, 220);
-  await sleep(1500); await api('/api/control', { action: 'hold' });
+  await sleep(3000); await api('/api/control', { action: 'hold' });
   e.holdState = (await api('/api/state')).status.mcState;
 } catch (error) { e.error = error instanceof Error ? error.message : 'Probe failed'; }
 finally {

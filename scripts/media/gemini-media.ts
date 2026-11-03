@@ -6,11 +6,15 @@ import 'dotenv/config';
 import { mkdirSync, writeFileSync, existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
+import { fileURLToPath } from 'node:url';
+import { selectMediaCredential } from '../../server/credential.js';
 
 const mode = process.argv[2];
 const root = join('output', 'media-v6');
 mkdirSync(root, { recursive: true });
-const key = process.env.GEMINI_API_KEY;
+const localEnvPath = fileURLToPath(new URL('../../.env', import.meta.url));
+const credential = selectMediaCredential('GEMINI_API_KEY', existsSync(localEnvPath) ? readFileSync(localEnvPath, 'utf8') : undefined, process.env.GEMINI_API_KEY);
+const key = credential.key;
 if (!key) throw new Error('Set GEMINI_API_KEY in the local app .env. Never send the value in chat.');
 const style = 'Two American friends recording a thoughtful but lively technology podcast. Natural US English, relaxed close-mic delivery, quick conversational responses, contractions and changing intonation. About 175 words per minute. No announcer voice, no exaggerated excitement, no long dramatic pauses. Keep the turn handovers short, roughly a quarter second. Read only the supplied words, never the speaker names or directions.';
 export const hostTurns = [
@@ -43,7 +47,7 @@ async function generate(body: any, name: string, type: 'audio' | 'video') {
     body: JSON.stringify(body), signal: AbortSignal.timeout(300000),
   });
   const result = await response.json() as any;
-  const meta: any = { provider: 'Google Gemini', model: body.model, purpose: 'Editorial synthetic media; not co-host reasoning',
+  const meta: any = { provider: 'Google Gemini', model: body.model, credentialSource: credential.source, purpose: 'Editorial synthetic media; not co-host reasoning',
     startedAt, completedAt: new Date().toISOString(), httpStatus: response.status, requestSha256: signature,
     requestId: result.id ?? null, status: result.status ?? null, usage: result.usage ?? result.usage_metadata ?? null };
   if (!response.ok) {

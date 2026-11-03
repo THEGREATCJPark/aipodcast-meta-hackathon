@@ -23,7 +23,8 @@ export type McState = "offline" | "connecting" | "listening" | "speaking" | "hel
 export interface StudioStatus {
   livekitConfigured: boolean;
   metaConfigured: boolean;
-  providerModels?: { asr: string; director: string; tts: string; voice: string };
+  providerModels?: { asr: string; director: string; tts: string; voice: string; ttsProvider?: 'openai' | 'gemini' };
+  ttsProvider?: 'openai' | 'gemini';
   metaState?: "listening" | "thinking" | "waiting" | "speaking" | "held" | "error";
   openaiConfigured: boolean;
   geminiConfigured: boolean;
