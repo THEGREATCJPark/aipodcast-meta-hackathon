@@ -73,6 +73,7 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
   private researchCalls = 0;
   private researchJob: ResearchJob | null = null;
   private reviewingResearch = false;
+  private reviewController: AbortController | null = null;
   private reviewPending = false;
   private reviewCalls = 0;
   private researchedRequests = new Set<string>();
@@ -130,6 +131,7 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
     if (!this.isReady) return;
     this.turns.human(identity, speaking);
     if (speaking) {
+      this.reviewController?.abort();
       this.emit("interrupted");
       if (!this.turns.held) this.state = "listening";
       this.evidence("automatic-interruption", { identity, listenerStopMeasured: false });
@@ -147,6 +149,7 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
     if (!this.isReady || this.seenUtterances.has(u.id) || !u.text.trim()) return;
     if (this.seenUtterances.size >= 5000) { this.limited = true; this.hold("provider-limit"); this.emit("error", "Transcript limit reached; recording continues", "transcript_limit"); return; }
     this.seenUtterances.add(u.id);
+    this.reviewController?.abort();
     this.turns.changed(); this.emit("interrupted");
     this.utterances = [...this.utterances, u].sort((a,b) => a.startMs - b.startMs).slice(-30);
     this.emit("inputTranscript", { delta: u.text, startMs: u.startMs, endMs: u.endMs, identity: u.identity, utteranceId: u.id });
@@ -269,11 +272,12 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
     if(this.reviewCalls>=60){this.cancelResearch("60 review-call cap reached");return;}
     if(Date.now()>=job.expiresAt){this.cancelResearch("60-second TTL expired");return;}
     this.reviewCalls++;this.reviewingResearch=true;this.reviewPending=false;
+    const reviewController = new AbortController(); this.reviewController = reviewController;
     const revision=this.turns.revision;
     const reviewedResult=job.result;
     this.evidence("research-review-request",{jobId:job.id,call:this.reviewCalls,resultReady:reviewedResult!==null,humansSpeaking:this.turns.speakers.size>0});
     try{
-      const verdict=ResearchReviewSchema.parse(await(this.services.reviewResearch??reviewResearch)(this.options.key,this.options.director,{query:job.query,requestUtteranceIds:job.sourceIds,requestUtterances:job.requestUtterances,resultSources:reviewedResult?.sources.map(({title,url})=>({title,url}))??[],resultText:reviewedResult?.text??null,utterances:this.utterances.slice(),contextRevision:revision,humansSpeaking:this.turns.speakers.size>0},job.controller.signal));
+      const verdict=ResearchReviewSchema.parse(await(this.services.reviewResearch??reviewResearch)(this.options.key,this.options.director,{query:job.query,requestUtteranceIds:job.sourceIds,requestUtterances:job.requestUtterances,resultSources:reviewedResult?.sources.map(({title,url})=>({title,url}))??[],resultText:reviewedResult?.text??null,utterances:this.utterances.slice(),contextRevision:revision,humansSpeaking:this.turns.speakers.size>0},AbortSignal.any([job.controller.signal,reviewController.signal])));
       if(this.researchJob!==job||job.controller.signal.aborted)return;
       if(Date.now()>=job.expiresAt){this.cancelResearch("60-second TTL expired during review");return;}
       if(revision!==this.turns.revision||verdict.contextRevision!==revision){this.reviewPending=true;return;}
@@ -288,8 +292,9 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
       try{await this.speak(text,ticket);}catch{if(!ticket.signal.aborted){this.evidence("provider-failure",{phase:"tts",provider:"OpenAI",generation:ticket.generation,contextRevision:ticket.revision,disposition:"WAIT",recordingPreserved:true});this.state="error";this.emit("error","OpenAI TTS failed; recording continues","tts_failure");}}
       finally{this.busy=false;const handoff=this.pendingHandoff;this.pendingHandoff=null;if(handoff&&this.turns.permits(handoff)){this.pending=false;void this.evaluate(true);}else if(this.pending){this.pending=false;void this.evaluate(false);}}
     }catch(error: unknown){
-      if(this.researchJob===job&&!job.controller.signal.aborted){this.evidence("research-review-failed",{jobId:job.id,disposition:"WAIT",failure:safeResearchFailure(error)});this.state="waiting";}
+      if(this.researchJob===job&&!job.controller.signal.aborted&&!reviewController.signal.aborted){this.evidence("research-review-failed",{jobId:job.id,disposition:"WAIT",failure:safeResearchFailure(error)});this.state="waiting";}
     }finally{
+      if (this.reviewController === reviewController) this.reviewController = null;
       this.reviewingResearch=false;
       if(this.reviewPending&&this.researchJob){this.reviewPending=false;void this.reviewJob();}
     }

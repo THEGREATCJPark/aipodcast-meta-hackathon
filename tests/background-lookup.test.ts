@@ -82,3 +82,24 @@ test('a lookup between two quick turns is not lost while the previous classifica
   assert.equal(searches, 1, 'later ordinary conversation must not overwrite the unclassified lookup request');
   assert.deepEqual(candidateIds, ['request', 'next']);
 });
+
+test('a new transcript aborts the obsolete review immediately and reviews fresh context without waiting for its timeout', async t => {
+  let firstSignal!: AbortSignal, reviews = 0, spoken = 0;
+  const failures: unknown[] = [];
+  const s = new MetaSession(options, {
+    decide: async (_k, _m, _u, revision) => lookup(revision), research: async () => result,
+    reviewResearch: async (_k, _m, input, signal) => {
+      if (++reviews === 1) {
+        firstSignal = signal;
+        await new Promise<void>((_resolve, reject) => signal.addEventListener('abort', () => reject(new DOMException('Stale review', 'AbortError')), { once: true }));
+      }
+      return { action: 'DELIVER', reason: 'Fresh review', contextRevision: input.contextRevision, speakText: 'According to Source, Vinge wrote it.' };
+    }, synthesize: async () => { spoken++; return new Int16Array(480); },
+  });
+  s.on('error', () => undefined); s.on('evidence', x => { if (x.stage === 'research-review-failed') failures.push(x); });
+  await s.connect(); t.after(() => s.close()); s.acceptUtterance(utterance); await tick();
+  assert.equal(reviews, 1);
+  s.acceptUtterance({ ...utterance, id: 'last-final', text: 'And experiments still take time.', startMs: 200, endMs: 300 });
+  assert.equal(firstSignal.aborted, true, 'fresh ASR must not sit behind an obsolete network request');
+  await tick(); assert.equal(reviews, 2); assert.equal(spoken, 1); assert.equal(failures.length, 0);
+});
