@@ -77,6 +77,9 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
   private reviewCalls = 0;
   private researchedRequests = new Set<string>();
   private busy = false;
+  // A search classification grants no speech permission. Continued conversation may
+  // outlive this snapshot; the eventual answer still requires a fresh review ticket.
+  private classificationController: AbortController | null = null;
   private pending = false;
   private pendingHandoff: { generation: number; revision: number } | null = null;
   private deadline: NodeJS.Timeout | undefined;
@@ -149,8 +152,9 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
     if (this.researchJob) void this.reviewJob();
     else void this.evaluate(false);
   }
-  cancel(reason: string): void { this.pendingHandoff = null; this.turns.invalidate(); this.emit("interrupted"); this.emit("info", `Cancelled: ${reason}`); }
-  hold(reason = "manual-hold"): void { this.cancelResearch(reason); this.pendingHandoff = null; this.pending = false; this.turns.hold(); this.evidence(reason); this.state = "held"; this.emit("interrupted"); }
+  private cancelClassification(): void { this.classificationController?.abort(); this.classificationController = null; }
+  cancel(reason: string): void { this.cancelClassification(); this.pendingHandoff = null; this.turns.invalidate(); this.emit("interrupted"); this.emit("info", `Cancelled: ${reason}`); }
+  hold(reason = "manual-hold"): void { this.cancelClassification(); this.cancelResearch(reason); this.pendingHandoff = null; this.pending = false; this.turns.hold(); this.evidence(reason); this.state = "held"; this.emit("interrupted"); }
   resume(): void {
     if (!this.isReady || this.limited) return;
     if ([...this.failedAsr].some(identity => this.retriedAsr.has(identity))) { this.emit("info", "ASR reconnect attempt exhausted; restart session to resume transcription."); return; }
@@ -158,7 +162,7 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
       this.retriedAsr.add(identity); this.streams.delete(identity);
       this.evidence("asr-reconnect-authorized", { identity, maxRetries: 1 });
     }
-    this.failedAsr.clear(); this.pendingHandoff = null;
+    this.cancelClassification(); this.failedAsr.clear(); this.pendingHandoff = null;
     this.turns.resume(); this.state = "listening"; this.emit("interrupted"); this.evidence("resume-listening");
   }
   instruct(_content: string): void { /* MC uses explicit hold/resume methods; text is never control authority */ }
@@ -187,18 +191,23 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
       }
       return;
     }
-    if (this.turns.speakers.size) { if (!handoff) this.pending = true; else this.emit("info", "Human speaking: handoff was not queued. Handoff again after the floor is clear."); return; }
+    const backgroundClassification = !handoff && Boolean(this.options.researchEnabled);
+    if (this.turns.speakers.size && !backgroundClassification) { if (!handoff) this.pending = true; else this.emit("info", "Human speaking: handoff was not queued. Handoff again after the floor is clear."); return; }
     if (this.calls >= 60) { this.limited = true; this.hold("provider-limit"); this.emit("error", "60 director call cap reached; recording continues", "call_limit"); return; }
     this.calls++; this.pending = false;
-    this.busy = true; const ticket = this.turns.begin(); const context = this.utterances.slice();
-    this.state = "thinking"; this.evidence("director-request", { handoff, call: this.calls, model: this.options.director });
+    const classification = backgroundClassification ? new AbortController() : null;
+    if (classification) this.classificationController = classification;
+    this.busy = true;
+    const ticket = classification ? { generation: this.turns.generation, revision: this.turns.revision, signal: classification.signal } : this.turns.begin();
+    const context = this.utterances.slice();
+    this.state = "thinking"; this.evidence("director-request", { handoff, backgroundClassification, call: this.calls, model: this.options.director });
     let phase: "director" | "tts" = "director";
     try {
       const d: Decision = await this.services.decide(this.options.key, this.options.director, context, ticket.revision, handoff, ticket.signal);
-      if (!this.turns.permits(ticket)) return;
+      if (classification ? ticket.signal.aborted || !this.isReady || this.turns.held || !this.options.researchEnabled : !this.turns.permits(ticket)) return;
       validateDecision(d, context, ticket.revision);
       this.emit("decision", d);
-      this.evidence("director-complete", { action: d.action, sourceUtteranceIds: d.sourceUtteranceIds, handoff });
+      this.evidence("director-complete", { action: d.action, sourceUtteranceIds: d.sourceUtteranceIds, handoff, backgroundClassification, requestContextRevision: ticket.revision });
       this.state = "waiting";
       let speakText = d.speakText;
       if (d.action === "LOOKUP") {
@@ -215,6 +224,7 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
     } catch {
       if (!ticket.signal.aborted) { this.evidence("provider-failure", { phase, provider: phase === "tts" ? "OpenAI" : "Meta", generation: ticket.generation, contextRevision: ticket.revision, disposition: "WAIT", recordingPreserved: true }); this.state = "error"; this.emit("error", "Meta/TTS request failed or timed out; WAIT, recording continues, no fallback", "provider_failure"); }
     } finally {
+      if (this.classificationController === classification) this.classificationController = null;
       this.busy = false;
       if (this.state === "thinking") this.state = this.turns.held ? "held" : "listening";
       const handoff = this.pendingHandoff; this.pendingHandoff = null;
@@ -286,5 +296,5 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
     for(let offset=0;offset<pcm.length;offset+=4800){if(!this.turns.permits(ticket))return;this.emit("audio",pcm.slice(offset,offset+4800));}
     this.emit("info","TTS queued; actual sent PCM saved separately in mc.wav. Listener receipt unmeasured.");this.emit("turnEnd");
   }
-  async close(): Promise<void> { this.cancelResearch("session-close"); this.pendingHandoff = null; this.pending = false; this.evidence("session-close"); this.isReady = false; this.turns.close(); clearTimeout(this.deadline); for (const stream of this.streams.values()) stream.close(); this.streams.clear(); this.emit("interrupted"); }
+  async close(): Promise<void> { this.cancelClassification(); this.cancelResearch("session-close"); this.pendingHandoff = null; this.pending = false; this.evidence("session-close"); this.isReady = false; this.turns.close(); clearTimeout(this.deadline); for (const stream of this.streams.values()) stream.close(); this.streams.clear(); this.emit("interrupted"); }
 }

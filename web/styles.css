@@ -14,8 +14,8 @@
   --violet: #c49bff;
   --radius-s: 6px;
   --radius-m: 12px;
-  --font: "IBM Plex Sans KR", system-ui, sans-serif;
-  --mono: "JetBrains Mono", ui-monospace, monospace;
+  --font: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 

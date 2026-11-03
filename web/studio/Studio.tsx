@@ -86,7 +86,7 @@ export function Studio() {
       <header className="topbar">
         <div className="brand">
           <span className={`onair ${status.sessionActive ? "live" : ""}`}>{status.sessionActive ? "ON AIR" : "IDLE"}</span>
-          <h1>Conversation Co-host</h1>
+          <h1>AI MC <span>/ Studio</span></h1>
           {status.recording && <span className="rec" title="Saved locally when the session ends">● REC <Elapsed key={status.sessionId} sessionId={status.sessionId} /></span>}
         </div>
         <div className="top-actions">
@@ -123,7 +123,7 @@ export function Studio() {
         {settings.engine === "meta" && <p className="research-mode"><strong>Research PD: {settings.researchEnabled ? "ON" : "OFF"}</strong> · {settings.researchEnabled ? "Explicit spoken lookup requests can trigger a researched, spoken answer. HOLD cancels it." : "Web research is disabled. Use Handoff for ordinary co-host questions."}</p>}
         {(!status.sessionActive || !mic) && <label><input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} /> I consent to local recording and transmission to LiveKit, Meta and the selected speech provider. Publication needs separate permission.</label>}
       </div></details>
-      <div className="lounge-heading"><div><span>CONVERSATION STUDIO / {demo ? "LIVE DESK" : "PRODUCTION"}</span><h2>{demo ? "Keep the conversation going." : "Set the room."}</h2><p>{demo ? "A reference checked. A thought uninterrupted." : "Session settings, guests and execution records."}</p></div><div className="desk-status"><i className={status.mcState === "speaking" ? "is-speaking" : ""} /><span>CO-HOST<strong>{MC_LABEL[status.mcState]}</strong></span></div></div>
+      <div className="lounge-heading"><div><span>Podcast studio / {demo ? "Conversation" : "Production"}</span><h2>{demo ? "Keep talking." : "Set the room."}</h2><p>{demo ? "Your conversation. A producer on call." : "Session settings, guests and execution records."}</p></div><div className="desk-status"><i className={status.mcState === "speaking" ? "is-speaking" : ""} /><span>CO-HOST<strong>{MC_LABEL[status.mcState]}</strong></span></div></div>
       <main className={`stage ${demo ? "judge-view" : ""}`}>
         <section className="room">
           {demo ? <JudgeSummary logs={logs} status={status} /> : <><div className="people">
