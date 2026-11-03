@@ -56,3 +56,29 @@ test('background ASK is discarded even if the floor becomes clear before it comp
   await s.connect(); t.after(() => s.close()); s.humanSpeaking('sam', true); s.acceptUtterance(utterance); await tick();
   assert.equal(typeof finish, 'function'); s.humanSpeaking('sam', false); finish(); await tick(); assert.equal(spoken, 0);
 });
+
+test('a lookup between two quick turns is not lost while the previous classification is busy', async t => {
+  let finish!: () => void, calls = 0, searches = 0, candidateIds: string[] = [];
+  const s = new MetaSession(options, {
+    decide: async (...args: any[]) => {
+      const revision = args[3];
+      if (++calls === 1) {
+        await new Promise<void>(resolve => { finish = resolve; });
+        return { ...lookup(revision), action: 'WAIT', query: undefined, sourceUtteranceIds: [] };
+      }
+      candidateIds = args[6] ?? [];
+      return lookup(revision);
+    },
+    research: async () => { searches++; return result; },
+    reviewResearch: async (_k, _m, input) => ({ action: 'WAIT', reason: 'People continue speaking', contextRevision: input.contextRevision }),
+    synthesize: async () => { throw new Error('No speech expected'); },
+  });
+  s.on('error', () => undefined); await s.connect(); t.after(() => s.close());
+  s.humanSpeaking('sam', true);
+  s.acceptUtterance({ ...utterance, id: 'intro', text: 'Let us talk about the singularity.' }); await tick();
+  s.acceptUtterance({ ...utterance, startMs: 200, endMs: 300 });
+  s.acceptUtterance({ ...utterance, id: 'next', identity: 'sam', text: 'Meanwhile, hardware still matters.', startMs: 310, endMs: 500 });
+  finish(); await tick();
+  assert.equal(searches, 1, 'later ordinary conversation must not overwrite the unclassified lookup request');
+  assert.deepEqual(candidateIds, ['request', 'next']);
+});

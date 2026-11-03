@@ -80,6 +80,7 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
   // A search classification grants no speech permission. Continued conversation may
   // outlive this snapshot; the eventual answer still requires a fresh review ticket.
   private classificationController: AbortController | null = null;
+  private classifiedUtterances = new Set<string>();
   private pending = false;
   private pendingHandoff: { generation: number; revision: number } | null = null;
   private deadline: NodeJS.Timeout | undefined;
@@ -152,7 +153,10 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
     if (this.researchJob) void this.reviewJob();
     else void this.evaluate(false);
   }
-  private cancelClassification(): void { this.classificationController?.abort(); this.classificationController = null; }
+  private cancelClassification(): void {
+    this.classificationController?.abort(); this.classificationController = null;
+    for (const u of this.utterances) this.classifiedUtterances.add(u.id);
+  }
   cancel(reason: string): void { this.cancelClassification(); this.pendingHandoff = null; this.turns.invalidate(); this.emit("interrupted"); this.emit("info", `Cancelled: ${reason}`); }
   hold(reason = "manual-hold"): void { this.cancelClassification(); this.cancelResearch(reason); this.pendingHandoff = null; this.pending = false; this.turns.hold(); this.evidence(reason); this.state = "held"; this.emit("interrupted"); }
   resume(): void {
@@ -193,25 +197,28 @@ export class MetaSession extends EventEmitter<EngineEvents> implements LiveEngin
     }
     const backgroundClassification = !handoff && Boolean(this.options.researchEnabled);
     if (this.turns.speakers.size && !backgroundClassification) { if (!handoff) this.pending = true; else this.emit("info", "Human speaking: handoff was not queued. Handoff again after the floor is clear."); return; }
+    const context = this.utterances.slice();
+    const lookupRequestCandidates = backgroundClassification ? context.filter(u => !this.classifiedUtterances.has(u.id)).map(u => u.id) : undefined;
+    if (lookupRequestCandidates && !lookupRequestCandidates.length) { this.pending = false; return; }
     if (this.calls >= 60) { this.limited = true; this.hold("provider-limit"); this.emit("error", "60 director call cap reached; recording continues", "call_limit"); return; }
     this.calls++; this.pending = false;
     const classification = backgroundClassification ? new AbortController() : null;
     if (classification) this.classificationController = classification;
     this.busy = true;
     const ticket = classification ? { generation: this.turns.generation, revision: this.turns.revision, signal: classification.signal } : this.turns.begin();
-    const context = this.utterances.slice();
-    this.state = "thinking"; this.evidence("director-request", { handoff, backgroundClassification, call: this.calls, model: this.options.director });
+    for (const id of lookupRequestCandidates ?? []) this.classifiedUtterances.add(id);
+    this.state = "thinking"; this.evidence("director-request", { handoff, backgroundClassification, lookupRequestCandidates, call: this.calls, model: this.options.director });
     let phase: "director" | "tts" = "director";
     try {
-      const d: Decision = await this.services.decide(this.options.key, this.options.director, context, ticket.revision, handoff, ticket.signal);
+      const d: Decision = await this.services.decide(this.options.key, this.options.director, context, ticket.revision, handoff, ticket.signal, lookupRequestCandidates);
       if (classification ? ticket.signal.aborted || !this.isReady || this.turns.held || !this.options.researchEnabled : !this.turns.permits(ticket)) return;
-      validateDecision(d, context, ticket.revision);
+      validateDecision(d, context, ticket.revision, lookupRequestCandidates);
       this.emit("decision", d);
       this.evidence("director-complete", { action: d.action, sourceUtteranceIds: d.sourceUtteranceIds, handoff, backgroundClassification, requestContextRevision: ticket.revision });
       this.state = "waiting";
       let speakText = d.speakText;
       if (d.action === "LOOKUP") {
-        const requestId = context.at(-1)!.id;
+        const requestId = lookupRequestCandidates?.filter(id => d.sourceUtteranceIds.includes(id)).at(-1) ?? context.at(-1)!.id;
         if (!this.options.researchEnabled) { this.evidence("research-blocked", { reason: "Research is disabled in local settings" }); return; }
         if (this.researchedRequests.has(requestId) || this.researchCalls >= 8) { this.evidence("research-blocked", { reason: "Request already attempted or 8-call session cap reached" }); return; }
         this.researchedRequests.add(requestId); this.researchCalls++;
