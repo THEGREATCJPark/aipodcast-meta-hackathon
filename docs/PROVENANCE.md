@@ -1,4 +1,6 @@
 # Provenance
+
+November 3 additions: self-hosted Instrument Sans and IBM Plex Mono (unmodified upstream Google Fonts files, included SIL OFL texts; see `web/fonts/README.md`), background Meta lookup classification, candidate preservation across rapid turns, stale-review cancellation and the cadence probe. Dinamo is a typography reference; no commercial Dinamo font files are included. Gemini editorial generation code was prepared from current official documentation, but generation attempts were rejected by the account's monthly spending cap; no generated asset is claimed from those calls.
 Imported 2026-11-02 KST from https://github.com/THEGREATCJPark/aipodcast.
 App baseline: b79131169fcd74abfb20a45e1daad78d29217cf8 (commit dated 2026-10-28 KST).
 Snapshot: 23985f2f84cc7d86c651b35eea5e03ca98f01022; only difference is the execution brief.

@@ -1,4 +1,4 @@
-# Conversation Co-host
+# AI MC — Conversation Co-host
 
 Built with Meta Model API. Independent hackathon prototype; not an official Meta product.
 
@@ -9,6 +9,8 @@ For small creator teams without a dedicated researcher. Enable research, ask a s
 **Private development build. Meta ASR/director, web research, OpenAI TTS and LiveKit have actual-provider synthetic-input evidence; human voice sessions remain unverified.** This project reuses an existing studio; see [provenance](docs/PROVENANCE.md) and [hackathon disclosure](HACKATHON.md). Applicable-track reuse eligibility remains unresolved. The authenticated official guide and actual submission form require public source and a three-minute video; see [rules](docs/hackathon/RULES.md).
 
 Preparation links: [judge setup](docs/JUDGE_GUIDE.md), [actual form and field mapping](docs/SUBMISSION_FORM.md), [English submission copy](docs/SUBMISSION.md), [publication review](docs/PUBLICATION_REVIEW.md), and [owner approval gates](docs/hackathon/APPROVALS.md). Nothing has been submitted or made public.
+
+Latest work: [cadence and typography revision](docs/MEDIA_V6.md), with a [private listening sample](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/tag/cadence-preview-v6). Host exchanges are faster; the remaining Meta reply delay and Gemini spending-cap blocker are recorded explicitly. This sample is not the final submission film.
 
 ## Run locally
 

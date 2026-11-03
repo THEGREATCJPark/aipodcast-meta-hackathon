@@ -2,6 +2,8 @@
 
 A Meta-powered co-host that listens to human discussions, waits when it should, and asks grounded follow-up questions when useful.
 
+November 3 update: improved studio typography and rapid-turn handling. Meta can recognize a pending lookup while speakers continue; current-context review still controls delivery. A scripted cadence check uses OpenAI host inputs and real Meta responses. Gemini opening/host generation remains blocked by the account's spending cap. See [current media evidence](docs/MEDIA_V6.md).
+
 This private independent repository imports pre-existing AI MC Studio code. The React/Vite UI, Express server, LiveKit transport, legacy GPT/Gemini engines and recording foundation were not created from scratch for this repository. See [provenance](docs/PROVENANCE.md).
 
 - Original app baseline: `b79131169fcd74abfb20a45e1daad78d29217cf8`.

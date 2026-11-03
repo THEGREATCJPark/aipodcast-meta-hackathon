@@ -1,4 +1,12 @@
-## Current release preparation — 2026-11-02 KST
+## Current cadence and typography work — 2026-11-03 KST
+
+The studio now uses self-hosted Instrument Sans / IBM Plex Mono and a clearer English hierarchy. Rapid synthetic host turns no longer wait for ASR. Meta classifies unreviewed lookup candidates in the background; current-context review and floor guards still govern speech. Stale reviews are aborted when the conversation changes. **123 tests, typecheck and web build passed.**
+
+Final actual-provider synthetic run `2026-11-03_1119_meta_c98b` passed at clean execution SHA `b4775198afe385f6be05ef46a7d8d6b62d979dfb`. Host vocal gaps are approximately 0.4 s in this recording. AI answer onset still follows the last discussion clip by 12.689 s; do not call it instant. New listening media and all four diagnostic attempts are documented in [MEDIA_V6.md](MEDIA_V6.md).
+
+**Blocked:** Gemini host audio and opening generation both return HTTP 429, monthly spending cap exceeded, including the owner's requested retry. No Gemini media was generated. Human recording remains deferred while this sample is reviewed. Full human listening and browser visual acceptance remain pending; local browser control is currently disabled. The v5 cuts remain comparison files, not an accepted final submission film.
+
+## Historical release preparation — 2026-11-02 KST
 
 The local v3 edit is complete: `../video-workspace/output/submission-v3.mp4`, 155.300 seconds, 1920x1080/30fps, SHA256 `993d57cdf826adf438ef093cab073c9c06d4172cab63dd915fe94ba9d8ddc367`. Codex verified its existence/hash against Claude's report. Claude's automated media/ASR checks passed; full watch/listen acceptance remains pending. No public URL, publication or submission exists.
 

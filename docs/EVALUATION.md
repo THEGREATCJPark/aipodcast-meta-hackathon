@@ -1,3 +1,11 @@
+## Cadence revision — 2026-11-03 KST
+
+Current commands: `npm test` (123 passed, zero failed), `npm run typecheck`, `npm run build:web`. Eight new regression cases cover background lookup under continued speech, queued requests between rapid turns, stale ASK rejection, hold/close/resume/permission invalidation, and immediate cancellation of an obsolete review. Failures were reproduced before the respective fixes.
+
+Four actual-provider synthetic diagnostic sessions, including two failures, are recorded in [MEDIA_V6.md](MEDIA_V6.md). Latest successful execution: `2026-11-03_1119_meta_c98b`, clean SHA `b4775198afe385f6be05ef46a7d8d6b62d979dfb`. Sender end → first AI receiver audio was 12,689 ms; no human acoustic or perceptual timing was measured. Median host vocal gap in the recording was 0.420 s. This is not a performance or reliability benchmark. Human trials and human listening acceptance remain unverified.
+
+Gemini model discovery succeeded, but host/audio-video generation and a requested retry failed with HTTP 429 monthly-spending-cap errors. The listening control uses OpenAI inputs and real Meta responses, not Gemini outputs.
+
 ## Recovered podcast handoff — 2026-11-02, 19:12 KST
 
 **Supersedes the earlier STOP/fallback-only status below.** The owner authorized diagnosing and correcting the blocker. An instrumented actual failure (`2026-11-02_1906_meta_a2a7`) confirmed completion-limit exhaustion: 1000 total tokens, 998 reasoning tokens, no visible content. The review budget is now 4096; incomplete envelopes are explicitly rejected/classified. The 220-character speech cap, TTL, timeout, revision guards, HOLD and cancellation remain unchanged. No fallback model or automatic retry was added. See [diagnosis](META_REVIEW_DIAGNOSIS.md).
