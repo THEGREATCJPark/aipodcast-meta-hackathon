@@ -10,11 +10,11 @@ Required status below was confirmed from ariaRequired in the rendered form. No v
 
 | Exact field label | Prepared value / status |
 |---|---|
-| Team Name | Prepared value: “Conversation Co-host”; included in final review |
+| Team Name | Prepared value: “Keep Talking”; confirmed in current submission copy |
 | Project Description | English draft in SUBMISSION.md; discloses existing source and synthetic evidence |
 | Public GitHub Repository | Public repository URL verified; see SUBMISSION.md |
 | 3-Minute Demo Video | Keep Talking v11, 89.2 s, 1080p30, 11 MB review / 87 MB master; explicit v11 URL in SUBMISSION.md |
-| Describe your use of Meta products to build the submitted project | English draft describing Meta ASR, director and web_search; separate OpenAI TTS and Codex assistance disclosed |
+| Describe your use of Meta products to build the submitted project | English draft describing Meta ASR, director and web_search; separate speech rendering and development assistance documented without assigning the v11 voice to the older TTS provider |
 | Why are Meta's models important to your solution? | English draft focused on actual model roles; no unsupported superiority claim |
 
 ## Prefilled membership

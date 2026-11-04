@@ -22,6 +22,6 @@ The imported foundation is ac71d68, derived from app baseline b79131169fcd74abfb
 4. server/agent/mc-agent.ts: actual LiveKit output and recorder integration.
 5. tests/research.test.ts and asr-pacing.test.ts: failures, stale results and timing regressions.
 
-Use `git diff ac71d68..786a773` for the implemented event changes and EVALUATION.md for observed behavior. Evidence includes synthetic input through actual services, not completed human trials. Codex assisted development; no Muse Code use is claimed. Meta makes core decisions/research; OpenAI only renders speech.
+Use `git diff ac71d68..hackathon/meta-2026` for the full event contribution (or compare with `786a773` for the earlier implementation checkpoint) and EVALUATION.md for observed behavior. Evidence includes synthetic input through actual services, not completed human trials. Codex assisted development; no Muse Code use is claimed. Meta makes the core decisions and performs research; the selected v11 filmed session uses separate Gemini speech rendering. Earlier sessions used a different TTS provider.
 
 The owner has directed continuation without organizer clarification and reports the idea change is permitted. This map supports honest contribution disclosure; it does not manufacture a track-specific eligibility ruling.

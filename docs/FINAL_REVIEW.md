@@ -1,28 +1,25 @@
-# Final owner review — Keep Talking v8 (2026-11-04)
+# Final entrant handoff — Keep Talking v11 (November 4, 2026)
 
-**Prepared, NOT submitted.** The selected final-candidate English demo is **[Keep Talking v8 — 2:21.97](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/download/keep-talking-v8/keep-talking-v8.mp4)**. The v8 private release also contains the 192 MB master, subtitles and QA evidence. The source and release remain private. No further feature work, human trial or recut is required in the selected disclosed synthetic-demo scope.
+**Current candidate:** [Keep Talking v11 — 89.2-second English film](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/download/keep-talking-v11/keep-talking-v11-antigravity-review.mp4).
 
-## Prepared to send
+**Current public source:** https://github.com/THEGREATCJPark/aipodcast-meta-hackathon (default branch `hackathon/meta-2026`).
 
-- Team: **Conversation Co-host**. Proposed track: **Indie**. Proposed theme: **Build for Your World**. The earlier authenticated form showed **Park ChanJun** prefilled. Confirm the full human contributor list and one entry per team.
-- Source: [aipodcast-meta-hackathon](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon), default branch `hackathon/meta-2026`. The v8 media source is code snapshot `2ea416b`; [GitHub CI at that snapshot](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/actions/runs/41584443719) passed 132 tests, typecheck and main/guest builds. The final submitted source SHA should be the then-current branch tip with CI verified.
-- Film: v8 141.97 seconds, 1080p30. [Video hash, source identification and disclosure](VIDEO_V8.md). Use the smaller **21 MB** copy when public playback is verified, not the 192 MB archival master.
-- English form entries: [SUBMISSION.md](SUBMISSION.md); exact field inventory as observed Nov 2: [SUBMISSION_FORM.md](SUBMISSION_FORM.md).
-- Reused source, event contributions, release/privacy risks: [HACKATHON.md](../HACKATHON.md), [CONTRIBUTIONS.md](CONTRIBUTIONS.md), [PROVENANCE.md](PROVENANCE.md), [PUBLICATION_REVIEW.md](PUBLICATION_REVIEW.md), [RULES.md](hackathon/RULES.md).
-- Judging/reproduction: [JUDGE_GUIDE.md](JUDGE_GUIDE.md).
+The selected film has real Meta transcription, lookup, WAIT and DELIVER decisions with scripted synthetic participants, separate voice rendering and edited pacing. The technical evidence and media roles are documented in [VIDEO_V11.md](VIDEO_V11.md). Older video releases and records remain historical.
 
-## What the entrant must personally approve
+## Form answers and review order
 
-1. **Review the entire v8 film** with audio and captions. Check intelligibility, proper names, synthetic host continuity and the return to discussion after Meta's answer. Approve this *exact* file for public release.
-2. Confirm rights to the inherited code, synthetic voices and Gemini Omni visuals; full team credits; track eligibility and the team's single entry. The Indie/private-baseline rule is not specifically resolved by an organizer ruling; disclose it.
-3. Explicitly approve **repository visibility change** and **video publication**. Public GitHub history may be accessible even without an open-source license. Verify both final links in a signed-out browser.
-4. Review the actual latest form, waiver and independent promotional checkbox. Supply genuine personal Meta API opinion/recommendation answers; **do not claim Muse Code was used**.
-5. Authorize the final one-time form submission before the currently documented **Nov 5, 11:00 KST** deadline, then preserve a real confirmation receipt.
+1. Open [SUBMISSION.md](SUBMISSION.md) for the participant's **builder-tone English field copy** (not a record of actual form entry).
+2. Use the **v11 direct MP4 URL above**, not v8 or v9.
+3. Read [HACKATHON.md](../HACKATHON.md) and [CONTRIBUTIONS.md](CONTRIBUTIONS.md) for the scope of new work versus the imported voice-studio foundation.
+4. For judge reproduction, use [JUDGE_GUIDE.md](JUDGE_GUIDE.md). Existing technical records remain accessible under [EVALUATION.md](EVALUATION.md).
 
-## Important claims to avoid
+## Remaining owner actions
 
-The filmed app scene uses synthetic participants, actual Meta lookup/answer, **OpenAI** app TTS and prewritten post-answer reactions. Separate scenes are generated Gemini Omni editorial footage, not a live 3D UI. Default **Gemini 3.8 Flash TTS/Kore** had a quota-blocked integrated attempt and is not proven end-to-end. Do not claim live human acceptance, instant answers, zero-delay interruption, a fully autonomous fact checker, verified general accuracy or time saved.
+- Listen to and watch the final 89.2-second film and verify video playback while signed out.
+- Confirm the entrant name(s), track, personal feedback ratings, eligibility and submission terms.
+- Open the [actual submission form](https://cerebralvalley.ai/e/meta-ai-developer-hackathon/hackathon/submit), paste the v11-aligned answers, submit and retain the receipt.
+- If the form requires an embedded hosted video rather than a direct MP4, host the same approved cut and check signed-out playback before replacing the link.
 
-No public live app URL was present as a distinct field in the November 2 observation. Do not expose the localhost admin server. If the final form changes or rejects the GitHub video URL, record and satisfy that actual requirement without inventing one.
+**State:** Public repository and v11 film exist. No form submission receipt or new terms acceptance was established by this repository cleanup. Historical approvals and release-risk logs are retained in [PUBLICATION_REVIEW.md](PUBLICATION_REVIEW.md).
 
-**No terms, checkbox or form have been accepted or sent, and there is no submission receipt.**
+The previously verified deadline is **November 5, 2026 at 11:00 KST**. Check the event's live form for any later instruction.
