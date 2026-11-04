@@ -1,51 +1,43 @@
-# Judge reproduction guide
+# Judge guide — Keep Talking / Conversation Co-host
 
-This document prepares source-based review; it is not a hosted demo URL or proof of completed human testing. The repository is currently private pending approval. Read HACKATHON.md and PROVENANCE.md before evaluating event contributions.
+**Submission candidate:** [Watch 2:22 v8](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/download/keep-talking-v8/keep-talking-v8.mp4) · [Release QA & subtitles](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/tag/keep-talking-v8) · [What the video shows](VIDEO_V8.md).
 
-## Offline review — no service credentials
+This is an independent Meta hackathon entry, not an official Meta product. The filmed studio scenes are generated editorial material; the **continuous real Meta application evidence** is from session `2026-11-02_1908_meta_adc9` with **synthetic host inputs**, a genuine searched/sourced Meta response, **OpenAI speech synthesis** and LiveKit reception. The conversation after the answer is a prewritten fixture triggered upon observed completion, not a human trial. The app's current Gemini TTS default was separately quota-blocked at HTTP 429 after Meta DELIVER.
 
-Use Node 22.22 or newer compatible with package.json and the lockfile. In the project folder:
+## No-credential review
 
-```sh
+Node **22.22+** (compatible Node 22), npm:
+
+~~~sh
 npm ci
 npm test
 npm run typecheck
 npm run build:web
 npm run build:guest
-```
+npm run dev
+~~~
 
-The corrected implementation passed 115 automated tests, typecheck and both builds; prior CI results belong to their recorded checkpoints. Tests exercise stale-result cancellation, permission gates, source validation, audio pacing, recorder preservation and guest-token restrictions. Fixtures are labeled synthetic; they do not establish human conversation quality.
+Studio at http://localhost:4400 and judge summary at http://localhost:4400/?view=judge. Offline tests do not need API keys. The source checkpoint `2ea416b` has [successful GitHub CI](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/actions/runs/41584443719): **132/132 tests**, typecheck and both builds. A later documentation-only update must be checked on its own CI run.
 
-## Local real-provider run
+### How to inspect the event contribution
 
-Copy .env.example to a local .env. Supply your own authorized META_API_KEY, GEMINI_API_KEY (TTS only in the co-host route), LIVEKIT_URL, LIVEKIT_API_KEY and LIVEKIT_API_SECRET. Do not paste keys into the web interface or commit .env. The maintained Meta route uses muse-voice-transcribe-1.0 and muse-spark-1.3; speech rendering defaults to Gemini gemini-3.8-flash-tts / Kore. Existing account access and provider charges apply. Standalone Gemini speech succeeded; a subsequent full co-host run was quota-blocked at TTS. See GEMINI_TTS.md. Earlier recordings used OpenAI speech.
+| Start here | Look for |
+|---|---|
+| [HACKATHON.md](../HACKATHON.md), [PROVENANCE.md](PROVENANCE.md), [CONTRIBUTIONS.md](CONTRIBUTIONS.md) | Clearly separated inherited studio and new event work |
+| `server/meta/asr-realtime.ts` and `server/meta/director.ts` | Participant transcription and Meta evidence-linked WAIT/ASK/LOOKUP decisions |
+| `server/meta/research.ts`, `server/meta/research-review.ts`, `server/meta/session.ts` | Real web_search evidence; fresh-context WAIT/DELIVER/DISCARD/CANCEL; bounded permission, expiry and source rules |
+| `server/agent/mc-agent.ts`, `server/agent/playout.ts` | Floor policy, Handoff/HOLD, late-output cancellation and audio transport |
+| `tests/research.test.ts`, `tests/background-lookup.test.ts`, `tests/asr-pacing.test.ts` | Source validation, ongoing dialogue/race regressions and audio timing |
+| [EVALUATION.md](EVALUATION.md) | Actual-provider session IDs, failed attempts and limitations |
 
-Run `npm run dev`, open http://localhost:4400, choose Meta, and start a session only after participants consent. Standard responses need Handoff. Optional Research PD is off by default; enable and save it to permit explicit spoken lookup requests without a second button. HOLD stops pending output. Stop exports local session artifacts under output/; they are not uploaded automatically.
+The demo is **not** a general autonomous fact-checker. Explicit opt-in Research PD is required. Ordinary interventions need operator Handoff, and new speech does not authorize an unrelated autonomous AI monologue.
 
-For an explicitly paid synthetic integration check on an idle studio:
+## Optional live provider reproduction (may incur charges)
 
-```sh
-npx tsx scripts/probe-conversation.ts --scenario=podcast
-# Separate control probe, not a physical button or acoustic interruption trial:
-npx tsx scripts/video/record-control.ts
-```
+Copy `.env.example` to an ignored local `.env`, add your **own** keys for `META_API_KEY`, `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`, plus the deliberately selected speech provider. Default `TTS_PROVIDER=gemini` uses `GEMINI_API_KEY` and Kore; the recorded successful app path used explicit `TTS_PROVIDER=openai` with `OPENAI_API_KEY`. There is **no silent fallback**. External quotas can prevent a live spoken result.
 
-These commands create synthetic speech, use actual providers and restore prior settings. They are not part of offline CI and do not replace human trials. See EVALUATION.md for observed successes and failures.
+Start the studio, enable Research PD in settings, connect a consenting participant and ask for a source during a conversation. For automated synthetic integration, the existing `scripts/probe-conversation.ts` uses OpenAI-generated **input fixtures** and real Meta services; supply authorized provider access. Such runs are paid, and are not a substitute for a human study.
 
-## Review the event contribution
+## Security and limitations
 
-- server/meta: transcription adapter, contextual decisions, research, citation validation and cancellation.
-- server/agent: permission checks and actual audio-output integration.
-- tests/research.test.ts and tests/asr-pacing.test.ts: search/cancellation and timing regressions.
-- Studio research evidence: generated words, source kind and timing are distinct from listener playback.
-
-The inherited studio and recorder are disclosed infrastructure, not claimed as newly invented event features. Current limitations include no automatic ASR retry loop, no completed human/external-guest acceptance and no public video URL (local v3 is rendered, listening approval pending). After ASR failure, Resume authorizes one reconnect attempt per identity; a repeated failure requires restart, and missing transcription is not backfilled. A public judge-access arrangement will be added only if required and approved; do not expose the localhost administrative server through a tunnel.
-
-
-## Reliability audit checkpoint — 2026-11-02
-
-The current suite passed 115/115 tests, typecheck and both web/guest builds; large-chunk warnings remain. Research now survives ordinary speech, then requires fresh Meta relevance/permission review before delivery. `npx tsx scripts/probe-conversation.ts` is an explicit paid two-synthetic-speaker real-provider probe (add --scenario=good for the other reference; default is vinge). It caches only synthetic input TTS under ignored output/; ASR, search, review and answer TTS still use real services; `npx tsx scripts/evaluate-director.ts` runs six paid text scenarios. Both were exercised with results scoped in EVALUATION.md. Neither proves human acceptance or source accuracy. The independent repository default branch now opens the Meta version.
-
-Review the ASR gap/reconnect evidence, queued-handoff generation checks, session transition guards and full-identity recording filename suffixes. If transcription fails, inspect the error, use Resume once to authorize recovery, and expect a possible transcript gap. Handoff cannot bypass failed transcription. A second failed attempt requires a session restart. Speech or HOLD must invalidate any queued handoff before it can speak.
-
-Human testing remains deferred. Synthetic filming and local v3 editing are complete; full video listening acceptance remains pending. Do not infer microphone permissions, external guest usability or capture audio quality from passing Node tests or builds. The local capture preview/download remains available for a later explicitly initiated channel check.
+The main localhost operator server is **not a public hosted app** and must not be tunneled for judges. The guest-only bundle is not proof of a publicly deployed and tested guest flow. Files in `output/` may contain voice tracks, transcripts and provider metadata; keep them private. No measured p95 latency, generalized fact accuracy, usability lift, real-world microphone acceptance or instantaneous interruption is claimed. See [readiness](SUBMISSION_READINESS.md) for publication and form gates.

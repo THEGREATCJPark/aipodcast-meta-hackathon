@@ -2,7 +2,7 @@
 
 Observed in Chrome at https://cerebralvalley.ai/e/meta-ai-developer-hackathon/hackathon/submit, alongside https://cerebralvalley.ai/e/meta-ai-developer-hackathon/details. This inventory records the actual visible form, not a guessed template. No data was entered, no checkbox was selected and no submission was sent.
 
-English field-mapped copy is in SUBMISSION.md. Current release identity is in the private package manifest. Human trials are deferred; the synthetic v3 video has been rendered and awaits full listening/publication approval. This inventory records the November 2 inspection, not a claim of a fresh form visit.
+English field-mapped copy is in SUBMISSION.md. **Final candidate as of November 4 is Keep Talking v8 (2:21.97), not the historical v3.** The actual compressed review file is present in the private v8 GitHub release. The inspected form state is still dated November 2; no new form visit or submission is claimed. Public access, listening approval and contributor/rights review remain pending. This inventory records the November 2 inspection, not a claim of a fresh form visit.
 
 ## Required text/link fields
 
@@ -13,7 +13,7 @@ Required status below was confirmed from ariaRequired in the rendered form. No v
 | Team Name | Prepared value: “Conversation Co-host”; included in final review |
 | Project Description | English draft in SUBMISSION.md; discloses existing source and synthetic evidence |
 | Public GitHub Repository | Target URL prepared, but repository is still private; publication approval required |
-| 3-Minute Demo Video | Local 155.3-second v3 exists; public video URL pending approval |
+| 3-Minute Demo Video | Keep Talking v8, 141.97 s (2:21.97), 1080p30, 21 MB review / 192 MB master; accessible video link pending public verification |
 | Describe your use of Meta products to build the submitted project | English draft describing Meta ASR, director and web_search; separate OpenAI TTS and Codex assistance disclosed |
 | Why are Meta's models important to your solution? | English draft focused on actual model roles; no unsupported superiority claim |
 
@@ -63,7 +63,7 @@ The authenticated guide confirms public source and three-minute video; distingui
 
 ## Current evidence and release state
 
-115 tests, typecheck and main/guest builds passed on the corrected implementation. Two actual-provider synthetic full runs at 564027c completed the podcast sequence. Local v3 is rendered; human listening and human conversation acceptance are distinct and remain unverified. No public release, promotional permission or submission receipt is claimed. User-specific ratings and contributor/rights confirmation remain final owner items.
+At release-source commit 2ea416b, 132 tests, typecheck and main/guest builds passed in GitHub CI. Two actual-provider synthetic full runs at 564027c included the podcast sequence. The selected v8 edit is rendered and attached to a private prerelease; complete human listening and human conversation acceptance remain unverified. No public release, promotional permission or submission receipt is claimed. User-specific ratings and contributor/rights confirmation remain final owner items.
 
 ## Waiver subsequently inspected
 

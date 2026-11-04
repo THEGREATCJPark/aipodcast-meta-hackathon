@@ -1,29 +1,37 @@
-# Submission readiness — 2026-11-02 KST
+# Submission readiness — Keep Talking v8 (2026-11-04 KST)
 
-**Engineering and English submission copy are prepared. Public release, video listening acceptance and submission are not complete.** No new feature, human conversation trial or reshoot is a prerequisite in the owner-approved synthetic-demo scope.
+**Decision: the existing v8 recording is the selected submission candidate. Stop new feature work and unnecessary recuts. Final approval/publication/form transmission remain outstanding.** The app has actual-provider synthetic evidence; a human field trial is not claimed and is not required for the selected synthetic-demo scope.
 
-| Deliverable | Current evidence | Remaining action |
+| Deliverable | Evidence as checked | Status / remaining gate |
 |---|---|---|
-| Independent source | Branch hackathon/meta-2026; baseline and new contributions disclosed | Use final private package manifest for source SHA |
-| Implementation | 115 tests, typecheck, main/guest builds passed; 4096-token review budget fixes observed completion exhaustion | No broad reliability or human-acceptance claim |
-| Actual Meta demonstration | Two post-fix complete synthetic runs at 564027c, including actual WAIT, DELIVER and post-answer discussion | Preserve failed runs and limitations |
-| English submission fields | SUBMISSION.md maps to the observed form; model/TTS/reuse disclosure included | Owner's personal opinions, contributor/track/rights confirmation |
-| Source review/package | Run prepare-submission.ts against the final clean commit; exact audit and ZIP hash in manifest.json | Public release approval; no implied open-source license grant |
-| Video | Local v3, 155.300s, 1080p30; correct source session and same-session audio | Full watch/listen, approve host/publication, obtain video URL |
-| Judge access | JUDGE_GUIDE.md provides credential-free checks and local provider setup | Verify approved public source/video links logged out; hosting only if actually required |
-| Actual submission | No form transmitted, no permissions accepted | Review final form for changed instructions, approve terms and submit; retain receipt |
+| Source | `hackathon/meta-2026`, media source commit `2ea416b`; inherited foundation and contributions disclosed | Documentation harmonized for final candidate; freeze final source SHA only after final CI |
+| Engineering | GitHub Actions at `2ea416b`: **132/132 tests**, typecheck, main and guest build successful; large-bundle warning only | Check CI again on this documentation update; live-user reliability not established |
+| Actual Meta path | Synthetic session `2026-11-02_1908_meta_adc9`, full Meta ASR/lookup/review/sourced answer with OpenAI TTS and LiveKit, including post-answer synthetic discussion | Disclose synthetic inputs and scripted post-answer lines |
+| Current speech default | Gemini 3.8 Flash TTS / Kore | Standalone succeeded; full app output failed under 429 quota; do not claim an end-to-end Gemini result |
+| Video | [Keep Talking v8](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/tag/keep-talking-v8): **141.97 s**, 1080p30, 21 MB review / 192 MB master, release QA reports passed | Owner must watch/listen all the way through and approve exact file |
+| English form answers | [Submission copy](SUBMISSION.md) mapped to actual field names observed Nov 2 | Confirm current form instructions and personal answers; do not invent ratings |
+| Public GitHub | Repository is still **private** | Owner approves source/history/rights and makes it public; confirm signed-out access |
+| Public video | Currently a **private prerelease**; real video asset URL prepared | Owner approves publication; open URL signed out or use approved public video host |
+| Judge access | Offline tests and credential setup in [JUDGE_GUIDE](JUDGE_GUIDE.md); no live public app field observed | Source/video sufficient for prepared fields if the current form agrees; do not expose admin server |
+| Legal/track | Indie/private inherited code interpretation remains unresolved; waiver/promotion permission not accepted | Owner reviews eligibility, contributor list, waiver and publication rights |
+| Submission receipt | None | Submit the approved form before deadline and save its receipt |
 
-## Owner review, once the package and video are reviewed
+## The minimum final handoff
 
-- Confirm team name Conversation Co-host, Park ChanJun and any additional human contributors, single entry, proposed Indie track and Build for Your World theme.
-- Answer the form's required personal opinion questions. Optional surveys remain blank unless supplied or required by actual server validation. Do not invent endorsements or Muse Code use.
-- Confirm rights to reused source and synthetic media; authorize public repository and video separately. Public visibility does not require us to invent or grant an MIT license.
-- Review waiver/promotional permission and authorize final transmission. Existing private-baseline eligibility interpretation remains disclosed, not guaranteed.
+1. Review [v8 video identity, disclosure and SHA-256](VIDEO_V8.md) and **watch/listen to the 21 MB file**, especially voice continuity, cited proper names and the transition after Meta's answer.
+2. Approve releasing **both** the source (including Git history) and this specific video, after confirming contributor and asset rights.
+3. Publish, then verify repository and video in a signed-out browser. If the direct release asset does not play publicly or is rejected by the form, choose an approved public host; do not submit a guessed URL.
+4. Enter the field copy in [SUBMISSION.md](SUBMISSION.md). Confirm one Indie entry, Build for Your World and genuinely chosen personal response ratings. Read the current waiver and promotional checkbox.
+5. Send the submission **only with explicit entrant authorization**, before **2026-11-05 11:00 KST** (per inspected guide; recheck current notice), and keep the receipt.
 
-## Video duration and human review
+## No unsupported claims
 
-The observed field is labelled 3-Minute Demo Video. No separately documented exact/minimum duration was established. The 155.3-second candidate is under three minutes; check the actual final form instructions before submission rather than padding the film. Automated audio checks are not a human listening pass. Human conversation/guest usability remain unverified and deferred.
+- Synthetic two-speaker fixture ≠ a human podcast pilot.
+- Actual Meta result + prewritten follow-up ≠ fully organic reactions.
+- One recorded delay of roughly 10–13 seconds ≠ instant answer or a product speed benchmark.
+- Source-linked model output ≠ guaranteed factual correctness.
+- Code passing CI ≠ human microphone/guest acceptance.
+- Current Gemini TTS quota blocker ≠ a verified Gemini co-host end-to-end success.
+- An uploaded private prerelease ≠ a publicly accessible submission link.
 
-## Package identity
-
-After committing the reviewed documents, `npx tsx scripts/prepare-submission.ts` produces `output/submission/<full-SHA>/ai-mc-studio-source.zip` and `manifest.json`. This clean-commit archive contains source/docs, not .git, credentials, local data or media. A separate ignored release packet records final file hashes and pending owner approvals. Neither artifact publishes anything.
+For private source ZIP packaging, `npx tsx scripts/prepare-submission.ts` may be run on a clean final checkout to generate a SHA-bound archive and manifest; no ZIP, media or terms acceptance is required from this documentation update itself. See [publication audit](PUBLICATION_REVIEW.md) and [approval register](hackathon/APPROVALS.md).

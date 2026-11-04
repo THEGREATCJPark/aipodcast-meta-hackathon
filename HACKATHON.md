@@ -1,26 +1,38 @@
-# Conversation Co-host — hackathon disclosure
+# Keep Talking / Conversation Co-host — hackathon disclosure
 
-A Meta-powered co-host that listens to human discussions, waits when it should, and asks grounded follow-up questions when useful.
+**Independent prototype built with Meta Model API for Meta Global AI Developer Hackathon 2026.** We are not claiming an official Meta affiliation.
 
-November 3 update: improved studio typography and rapid-turn handling. Meta can recognize a pending lookup while speakers continue; current-context review still controls delivery. The earlier cadence check uses OpenAI input and real Meta responses. Gemini 3.8 Flash TTS host generation and an Omni opening have now succeeded. The co-host speech default is Gemini 3.8 Flash TTS / Kore; its full-run output attempt was subsequently quota-blocked. See [current Gemini evidence](docs/GEMINI_TTS.md) and [earlier cadence evidence](docs/MEDIA_V6.md).
+## Scope and honest contribution boundary
 
-This private independent repository imports pre-existing AI MC Studio code. The React/Vite UI, Express server, LiveKit transport, legacy GPT/Gemini engines and recording foundation were not created from scratch for this repository. See [provenance](docs/PROVENANCE.md).
+This entry **imports an existing AI MC Studio foundation**, including a React/Vite interface, Express server, LiveKit transport, legacy GPT/Gemini engines, recording and session infrastructure. It was not all written during this hackathon or invented when the new repository was created.
 
-- Original app baseline: `b79131169fcd74abfb20a45e1daad78d29217cf8`.
-- Reviewed snapshot: `23985f2f84cc7d86c651b35eea5e03ca98f01022`.
-- Independent import: `ac71d68`.
-- Work branch: `hackathon/meta-2026`.
-- Final submission SHA: not frozen; record `git rev-parse HEAD` after final validation.
+- Original app: https://github.com/THEGREATCJPark/aipodcast ; baseline `b79131169fcd74abfb20a45e1daad78d29217cf8` (dated 2026-10-28).
+- Reviewed source snapshot: `23985f2f84cc7d86c651b35eea5e03ca98f01022`.
+- Independent private repository import: `ac71d68`.
+- Submission branch: `hackathon/meta-2026` (default branch).
+- v8 media/code source snapshot: `2ea416b220bd423245e5eeb0930264ce3845b028`. Later submission-document commits do not alter this filmed execution; the final submitted code SHA should be taken from the then-current branch HEAD.
 
-New work is the Meta-specific pipeline, turn controls, tests and submission documentation recorded in commits after the import. Do not equate repository creation with the start of all code development. Codex assisted implementation and documentation. Earlier recorded inputs and answers use OpenAI TTS. Newly prepared synthetic hosts use Gemini 3.8 Flash TTS; the co-host speech adapter now selects Gemini 3.8 Flash TTS explicitly. Its first full-run TTS request failed under the account cap, so no successful Gemini co-host output is claimed. Editorial narration and speaker visualization are separately disclosed and are not app capabilities. Dependency versions are in package-lock.json; dependency notices and original-source rights still require review before publication. No project-wide open-source license is inferred from repository access.
+**Event additions:** Meta participant ASR, Muse Spark contextual decisions, opt-in spoken LOOKUP and Meta Responses web_search, validated source attribution, research survival through human speech, current-context relevance review, stale-result/permission cancellation, speaker timing reliability fixes, judge-facing evidence display, synthetic real-provider probes and Meta-specific regression tests. See [review map](docs/CONTRIBUTIONS.md) and [evidence ledger](docs/EVALUATION.md). Codex assisted coding, validation and documentation; no use of Muse Code is claimed.
 
-The authenticated guide and form require public source, three-minute video, contributors, one team entry and event-contribution disclosure. The owner reports idea change allowed and directs preparation without organizer questions. Inherited-code and TTS interpretations remain disclosed in [RULES](docs/hackathon/RULES.md), not presented as organizer approvals. See [contribution map](docs/CONTRIBUTIONS.md) and [actual fields](docs/SUBMISSION_FORM.md). No standalone live URL field was observed; no entry or public deployment is claimed.
+## Selected video and its provenance
 
-Video execution checkpoint: 564027c (2026-11-02), not a submitted final entry. The release source commit is identified by the final private package manifest. Actual-provider synthetic-input evidence is recorded separately from automated tests and pending human acceptance in EVALUATION.md.
+**[Keep Talking v8 (2:21.97)](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/download/keep-talking-v8/keep-talking-v8.mp4)** · [Release with quality reports and 192 MB master](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/tag/keep-talking-v8) · [Exact identifiers](docs/VIDEO_V8.md).
 
+The intro and surrounding studio footage use **Gemini Omni-generated synthetic people/robot scenes**. The one continuous actual app core records `2026-11-02_1908_meta_adc9`, using two **synthetic** hosts, real Meta transcription, lookup, source review and spoken-answer authorization, a separate **OpenAI** TTS renderer and LiveKit audio reception. The actual Meta response is not prewritten or swapped. Two subsequent host reactions were prewritten and sent only after actual answer audio was received; they do not prove spontaneous human interaction. The runtime UI and editorial graphics are distinct. No copied SPNS TV brand, voice imitation or endorsement is claimed; only general conversational pacing informed the creative direction.
 
-Contributor record: repository owner THEGREATCJPark; preferred credited name and any additional human contributors must be confirmed before submission. Codex is disclosed as AI assistance, not asserted to be a human team member. The owner must confirm this is the team's single submitted project.
+The source app **now defaults to Gemini 3.8 Flash TTS / Kore**. Standalone Gemini audio generation was successful; the latest complete Gemini speech route failed at HTTP 429 after Meta DELIVER because of the recorded account spending cap. A passing OpenAI-output demo must not be mislabeled a successful Gemini-output integration. Provider-specific results: [GEMINI_TTS.md](docs/GEMINI_TTS.md).
 
-Creative direction: the original project persona reference was read without modifying its source. The independent hackathon co-host adopts general relaxed, candid pacing and concise witty questions; no show branding, copied signature dialogue, presenter voice imitation or endorsement is claimed.
+## Verification and limits
 
-The research-PD extension adds explicit opt-in spoken lookup routing through Meta Responses web_search, validated search/citation evidence and stale-result cancellation. This is focused contextual research, not unrestricted automatic fact checking. Runtime validation and human acceptance are separate in EVALUATION.md. The synthetic v3 demonstration is rendered and pending full listening/publication approval; no scripted answer is substituted for actual Meta output.
+- CI on release source `2ea416b`: **132 automated tests passed, 0 failures**, typecheck and main/guest builds passed; [CI run](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/actions/runs/41584443719). The test count includes inherited tests, not 132 all-new event cases.
+- Several real-provider synthetic sessions passed, including the filmed `adc9` core; failed runs are preserved in [EVALUATION.md](docs/EVALUATION.md).
+- No genuine two-person human podcast trial, verified public production deployment, measured creator benefit or general accuracy/reliability claim. A roughly 10–13 s observed synthetic vocal gap is not zero-latency research.
+- No general automatic fact-checking or automatic LLM fallback. Source URLs do not guarantee claim-level factual correctness.
+
+## Eligibility, rights and entry
+
+The authenticated participant guide and submission form require a **public repository, 3-minute-demo field, contributor disclosure and new-work differentiation**. The recorded form did not show a separate live-app URL field. The owner reported that idea changes are permitted, but there is **no specific organizer ruling** in these documents resolving Indie use of this pre-existing private baseline or external TTS. We disclose both rather than asserting eligibility.
+
+Repository/history and v8 release are **currently private**. Publication exposes tracked history; no project-wide MIT/open-source license is granted by default. Dependency and original-source rights require owner review. The waiver grants broad organizer media/IP use rights, and the promotional checkbox is separate. No consent, terms acceptance or form submission is claimed here.
+
+Entrant/team display prepared as **Conversation Co-host**, with the previously observed prefilled member **Park ChanJun**. The owner must confirm all actual contributors, a single entry, track, rights and personal survey answers. [Owner approvals](docs/hackathon/APPROVALS.md) · [Prepared English form copy](docs/SUBMISSION.md) · [Readiness](docs/SUBMISSION_READINESS.md).

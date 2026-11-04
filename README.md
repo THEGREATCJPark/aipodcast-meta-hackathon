@@ -1,71 +1,68 @@
-# AI MC — Conversation Co-host
+# Keep Talking — Conversation Co-host
 
-Built with Meta Model API. Independent hackathon prototype; not an official Meta product.
+**An AI research producer that lets people keep talking while it checks a reference.**
 
-An AI research producer that lets speakers keep talking while it checks a requested reference.
+Built with the Meta Model API for the **Meta Global AI Developer Hackathon 2026**. An independent prototype, not an official Meta product.
 
-For small creator teams without a dedicated researcher. Enable research, ask a short contextual question, continue talking, then let Meta review whether a sourced answer still belongs in the conversation.
+### Watch the 2:22 demo
 
-**Private development build. Meta ASR/director, web research and LiveKit have actual-provider synthetic-input evidence; human voice sessions remain unverified.** Speech now defaults to Gemini 3.8 Flash TTS. Standalone Gemini speech generation succeeded; the full co-host Gemini-output run reached Meta DELIVER but its TTS request was quota-blocked. Earlier full runs used OpenAI speech. See [Gemini verification](docs/GEMINI_TTS.md). This project reuses an existing studio; see [provenance](docs/PROVENANCE.md) and [hackathon disclosure](HACKATHON.md). Applicable-track reuse eligibility remains unresolved. The authenticated official guide and actual submission form require public source and a three-minute video; see [rules](docs/hackathon/RULES.md).
+**[Watch the final-candidate English demo — Keep Talking v8](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/download/keep-talking-v8/keep-talking-v8.mp4)** · [Release, master and evidence](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/tag/keep-talking-v8) · [English subtitles](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/tag/keep-talking-v8)
 
-Preparation links: [judge setup](docs/JUDGE_GUIDE.md), [actual form and field mapping](docs/SUBMISSION_FORM.md), [English submission copy](docs/SUBMISSION.md), [publication review](docs/PUBLICATION_REVIEW.md), and [owner approval gates](docs/hackathon/APPROVALS.md). Nothing has been submitted or made public.
+The video is **2:21.97, 1080p/30fps**. The 21 MB review copy and 192 MB FilmCraft master carry the same decoded audio. These GitHub links are **not accessible to the public while the repository remains private**. They must be tested signed out after publication approval. A smaller review copy is the recommended link for the submission form; the master is available for archival purposes.
 
-Latest work: [cadence and typography revision](docs/MEDIA_V6.md), with a [private listening sample](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/tag/cadence-preview-v6). Host exchanges are faster; the remaining Meta reply delay and Gemini spending-cap blocker are recorded explicitly. This sample is not the final submission film.
+**What happens:** A podcast scene introduces the co-host → the speakers ask it to check a missing reference → Meta searches as they keep discussing the topic → a brief sourced answer arrives → the hosts react and resume their discussion. The demo deliberately avoids a lengthy architecture slideshow and a separate HOLD sequence.
 
-## Run locally
+### Why it exists
 
-Use Node 22.22 or later within the supported Node 22 line, and npm. Earlier Node 22.18 installed successfully but emitted a dependency engine warning.
+Small podcast and creator teams often have no dedicated producer to verify a forgotten name or retrieve a reference in the middle of a conversation. A voice chatbot that speaks after every turn is the wrong tool. **Keep Talking** is a restrained research co-host: an explicit request starts a source-checked lookup, but the discussion continues and Meta reconsiders whether its answer is still relevant before the app lets it speak.
 
-```sh
+### How it works
+
+1. **Listen.** Meta `muse-voice-transcribe-1.0` transcribes separate participants.
+2. **Decide.** Meta `muse-spark-1.3` evaluates context and chooses WAIT, ASK, CLARIFY, SUMMARIZE or LOOKUP, referring to actual utterances.
+3. **Research.** When Research PD is enabled and requested, Meta Responses `web_search` returns a short source-backed answer. The app validates completed-search evidence and current context before delivery.
+4. **Respect the floor.** Continued speech does not cancel the lookup. The app holds audio until speakers finish and discards stale results on changed context, withdrawal, HOLD, session end or revoked permission.
+5. **Speak and preserve evidence.** A separate TTS provider renders Meta-authored text; LiveKit sends the audio and the session recorder retains transcripts, source references, audio tracks and event history. Speech synthesis never replaces Meta's research decision.
+
+Normal unsolicited remarks require an operator Handoff. Research PD is **opt-in, off by default**; an explicit spoken lookup may be delivered without a second Handoff once the floor is free.
+
+### Evidence and disclosure
+
+| What | Verified scope |
+|---|---|
+| Offline CI | **132 tests passed**, TypeScript checks and web/guest builds passed at source commit [`2ea416b`](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/commit/2ea416b220bd423245e5eeb0930264ce3845b028); [CI record](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/actions/runs/41584443719) |
+| Actual Meta app session in v8 | **`2026-11-02_1908_meta_adc9`**: synthetic hosts → real Meta ASR, search, review and DELIVER → OpenAI TTS → received audio; one continuous recorded screen/audio core at 1x |
+| v8 editorial scenes | Generated Gemini Omni studio/robot footage and scripted synthetic host lines. Post-answer dialogue was written in advance and triggered after the actual response finished. Not an unscripted human conversation |
+| Current speech configuration | Default **Gemini 3.8 Flash TTS / Kore**. Standalone speech succeeded, but the full co-host Gemini-output run was blocked by HTTP 429/monthly spending cap. The successful recorded demo used **OpenAI speech**, not Gemini output |
+| Not established | Two-person human usability, generalized accuracy/reliability, instant results, precise acoustic interruption latency, measured creator time savings |
+
+**Do not interpret edited studio footage as an application feature or prewritten follow-up dialogue as spontaneous user feedback.** The real Meta answer was not substituted with a scripted answer. See [v8 media provenance](docs/VIDEO_V8.md), [engineering evaluation](docs/EVALUATION.md) and [provider limitations](docs/GEMINI_TTS.md).
+
+### Run and verify locally
+
+Requires Node **22.22+** within the compatible Node 22 line and npm:
+
+~~~sh
 npm ci
-npm run dev
-```
-
-Open http://localhost:4400. The studio can be inspected without provider credentials. Audio operation needs local server-only credentials and a LiveKit service. Put credentials only in this independent project's ignored .env, using .env.example as the variable reference. Never copy original private settings, recordings or tokens. Do not send key values through chat.
-
-```sh
 npm test
 npm run typecheck
 npm run build:web
-```
+npm run build:guest
+npm run dev
+~~~
 
-## Experience and evidence
+Studio: http://localhost:4400 · Judge view: http://localhost:4400/?view=judge
 
-The intended path is human audio → Meta transcription → Meta contextual decision → human-controlled speech gate → separate TTS → LiveKit playback → separated audio and execution evidence. Meta errors must remain visible and must not silently route to another LLM. Live means new human input and actual model calls; replay means a previously recorded consenting session; synthetic tests are fixtures. These are not interchangeable.
+The interface and offline tests run without paid credentials. For a live Meta session, copy `.env.example` to a locally ignored `.env` and supply your own authorized `META_API_KEY`, `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET` and the TTS provider's key. Current default Gemini route needs `GEMINI_API_KEY`; to intentionally reproduce the earlier verified OpenAI audio route use `TTS_PROVIDER=openai` with an authorized `OPENAI_API_KEY`. **No automatic provider fallback.** API calls may incur charges.
 
-The operator can use HOLD, resume and handoff. A completed build or a passing fixture does not prove automatic interruption at the listener. [Evaluation](docs/EVALUATION.md) records baseline and subsequent checks separately and lists unverified real-world behavior.
+Do **not** expose the localhost operator/server over a public tunnel or commit .env, output/, data/, raw recordings, secrets or participant transcripts. Guest-only code is buildable but external hosting/real guest acceptance has not been verified. Provider access and a consented participant are required for live microphone use.
 
-## Judge access and limits
+### What is new for the event?
 
-Local source execution is the current access path. No public app, public replay or submitted video is available. Do not tunnel the management server. External guest use requires consent and a verified deployment/access path. No latency, accuracy or time-savings claim has been measured for Meta.
+This entry **builds upon a pre-existing React/Vite/Express/LiveKit studio and recorder**. Its hackathon contribution is the Meta-specific ASR/director, contextual and evidence-checked research producer, speech/floor controls, cancellation/revision handling, judge presentation and associated tests. We do not claim the original studio was built during this event.
 
-Session artifacts stay in ignored output/ and include sensitive audio/transcripts/settings. Do not publish them automatically. See [architecture](docs/ARCHITECTURE.md), [status](docs/STATUS.md), [rules](docs/hackathon/RULES.md), [demo script](docs/DEMO_SCRIPT.md) and [submission draft](docs/SUBMISSION.md).
+[Contribution map](docs/CONTRIBUTIONS.md) · [Original baseline and provenance](docs/PROVENANCE.md) · [Hackathon disclosure](HACKATHON.md) · [Judge setup](docs/JUDGE_GUIDE.md) · [English entry text](docs/SUBMISSION.md) · [Final readiness and approval gates](docs/SUBMISSION_READINESS.md)
 
-## Implemented provider roles
+### Submission status
 
-- Meta realtime ASR: `META_ASR_MODEL` (default `muse-voice-transcribe-1.0`), using one ENDPOINTING stream per participant identity.
-- Meta director: `META_DIRECTOR_MODEL` (default `muse-spark-1.3`), with validated WAIT/ASK/CLARIFY/SUMMARIZE output and utterance references.
-- **Gemini 3.8 Flash TTS**: pinned `gemini-3.8-flash-tts`, voice `GEMINI_TTS_VOICE` (default `Kore`). `TTS_PROVIDER` defaults to `gemini`. It renders Meta's chosen text verbatim; Meta still decides the reply and whether it belongs in the conversation.
-- OpenAI speech remains an explicitly selected comparison option (`TTS_PROVIDER=openai`, `TTS_MODEL`, `TTS_VOICE`); it is never an automatic fallback.
-
-Set `META_API_KEY`, `GEMINI_API_KEY`, `LIVEKIT_URL`, `LIVEKIT_API_KEY` and `LIVEKIT_API_SECRET` locally for the default live route. The local `.env` Gemini key takes precedence over a stale inherited process key. Gemini standalone speech calls succeeded, followed by monthly-cap failures; the full Gemini-output co-host path is not yet verified. OpenAI keys are needed only for its explicit comparison/legacy routes and optional editorial timing tools. Human microphone and full Studio acceptance remain pending.
-
-The default mode requires operator handoff to release speech; the opt-in explicit research exception is described below. Ordinary turns can produce WAIT or a recommendation but do not automatically speak. Input context is capped at 30 recent utterances. Provider work is limited to 15 minutes, four ASR streams, 60 director calls and 30 seconds of TTS per response, without retries. These are usage limits, **not a verified dollar spending cap**. ASR handshake gaps are logged while source WAV recording is retained. Automatic ASR reconnection is not implemented; restart the session.
-
-
-
-## English demo and editor handoff
-
-Open `http://localhost:4400/?view=judge` for the event-based conversation/research summary. Detailed logs and setup remain expandable; HOLD stays visible. TTS generation, server transmission and external receiver evidence are separate.
-
-Final editing is assigned to Claude. The local `output/handoff/claude-v2/` package contains raw evidence and an asset manifest; no new final edit or narration is generated in this phase. The earlier `output/video/render-final-v1/submission.mp4` is preserved as a reference from an older UI/run. Synthetic inputs must never be presented as human acceptance. Personal voice recording is not a prerequisite for this submission version.
-
-`npm run build:guest` prepares the guest-only bundle for future approved hosting. SPNS TV informs relaxed conversational pacing only; this project uses no copied branding or presenter voice imitation.
-## Optional research producer
-
-Research PD is off by default. Enable it in local Meta settings and save before a session to allow explicit spoken lookup requests such as “Can you check that for us?” Meta can resolve the request from recent discussion and use its Responses `web_search` tool. A valid search result shows source links and recorded request/completion timing. This opted-in answer can speak without another Handoff when the floor is clear; ordinary discussion responses still need Handoff. New speech cancels output while research continues. Meta reviews a ready result against the latest dialogue before releasing a short answer. HOLD, withdrawal, session end and permission revocation cancel the research job. Source links support inspection, not a guarantee that the answer is correct.
-
-The research path uses the existing Meta key/director model, with eight search attempts per session and a 25-second timeout. It may consume provider quota. Failure does not switch to another LLM. See [submission readiness](docs/SUBMISSION_READINESS.md) for current validation and unresolved release gates. See the current status and editor handoff for recorded evidence and remaining capture limits.
-
-
-Research validation checkpoint: a synthetic English request passed through the full Studio into real Meta web search, a provider-annotated answer, OpenAI TTS and a separate LiveKit receiver without pressing Handoff. The earlier failed ASR-buffer trial and subsequent pacing fix are recorded in EVALUATION.md. Human discussion remains unverified; synthetic receiver observations have bounded scopes described in EVALUATION.md.
+**Prepared, not submitted.** The project and v8 release remain private until explicit owner approval. No public-access verification, terms acceptance, promotional consent or submission receipt is implied. The Indie-track treatment of the inherited private foundation has not been specifically confirmed by the organizers. The final form requires a public repository and a demo video; see the [form inventory](docs/SUBMISSION_FORM.md) and [recorded rules](docs/hackathon/RULES.md).
