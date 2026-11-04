@@ -12,8 +12,6 @@ The demo starts like a podcast and reveals the AI producer at work. It follows *
 
 *Demo disclosure:* The hosts are synthetic voices, and the cinematic studio scenes are editorial visuals—not an in-app 3D feature. The Meta requests, search, decision and spoken answer in the app segment are real; the hosts' follow-up lines were written in advance. This is not a human-user study.
 
-> The demo and repository links remain private until publication is approved. This repository has not been submitted to the competition.
-
 ### What makes it different
 
 - **Context, not a standalone question.** A short request can refer to a subject introduced across multiple speakers.
