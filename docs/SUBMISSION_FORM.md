@@ -2,7 +2,7 @@
 
 Observed in Chrome at https://cerebralvalley.ai/e/meta-ai-developer-hackathon/hackathon/submit, alongside https://cerebralvalley.ai/e/meta-ai-developer-hackathon/details. This inventory records the actual visible form, not a guessed template. No data was entered, no checkbox was selected and no submission was sent.
 
-English field-mapped copy is in SUBMISSION.md. **Final candidate as of November 4 is Keep Talking v8 (2:21.97), not the historical v3.** The actual compressed review file is present in the private v8 GitHub release. The inspected form state is still dated November 2; no new form visit or submission is claimed. Public access, listening approval and contributor/rights review remain pending.
+English field-mapped answers are in [SUBMISSION.md](SUBMISSION.md). **Selected final film: [v11, 89.2 seconds](VIDEO_V11.md).** Source and video are public. Unauthenticated HTTP access was checked November 4; browser playback and final form acceptance are separate checks. The form fields below were inspected November 2; no final submission is claimed.
 
 ## Required text/link fields
 
@@ -12,8 +12,8 @@ Required status below was confirmed from ariaRequired in the rendered form. No v
 |---|---|
 | Team Name | Prepared value: “Conversation Co-host”; included in final review |
 | Project Description | English draft in SUBMISSION.md; discloses existing source and synthetic evidence |
-| Public GitHub Repository | Target URL prepared, but repository is still private; publication approval required |
-| 3-Minute Demo Video | Keep Talking v8, 141.97 s (2:21.97), 1080p30, 21 MB review / 192 MB master; accessible video link pending public verification |
+| Public GitHub Repository | Public repository URL verified; see SUBMISSION.md |
+| 3-Minute Demo Video | Keep Talking v11, 89.2 s, 1080p30, 11 MB review / 87 MB master; explicit v11 URL in SUBMISSION.md |
 | Describe your use of Meta products to build the submitted project | English draft describing Meta ASR, director and web_search; separate OpenAI TTS and Codex assistance disclosed |
 | Why are Meta's models important to your solution? | English draft focused on actual model roles; no unsupported superiority claim |
 
@@ -63,7 +63,7 @@ The authenticated guide confirms public source and three-minute video; distingui
 
 ## Current evidence and release state
 
-At release-source commit 2ea416b, 132 tests, typecheck and main/guest builds passed in GitHub CI. Two actual-provider synthetic full runs at 564027c included the podcast sequence. The selected v8 edit is rendered and attached to a private prerelease; complete human listening and human conversation acceptance remain unverified. No public release, promotional permission or submission receipt is claimed. User-specific ratings and contributor/rights confirmation remain final owner items.
+At release-source commit 2ea416b, 132 tests, typecheck and main/guest builds passed in GitHub CI. Two actual-provider synthetic full runs at 564027c included the podcast sequence. That v8 checkpoint is historical. The selected v11 film is publicly released; full human listening and human conversation acceptance remain unverified. No promotional permission or submission receipt is claimed. User-specific ratings and contributor/rights confirmation remain final owner items.
 
 ## Waiver subsequently inspected
 

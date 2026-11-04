@@ -1,6 +1,6 @@
 # Event contribution review map
 
-**Final-candidate update (2026-11-04):** Keep Talking v8 points to source commit `2ea416b`; its GitHub CI passed **132 tests**, typecheck and both builds. The v8 actual-provider core is a synthetic-host recording using Meta research/review and **OpenAI TTS**, surrounded by generated editorial studio scenes. Current default Gemini TTS was quota-blocked at full app speech. The `68 total tests at 786a773` row below is a historical checkpoint, not the current test total. See [VIDEO_V8](VIDEO_V8.md) and [EVALUATION](EVALUATION.md).
+**Selected film (November 4):** [Keep Talking v11](VIDEO_V11.md) uses the Muse Spark research session with Gemini speech output. The contribution map below records the implementation history; checkpoint test totals remain historical.
 
 The imported foundation is ac71d68, derived from app baseline b79131169fcd74abfb20a45e1daad78d29217cf8. Its snapshot date is not the development start date for every line. Only new event contributions should be featured as new work in the demo.
 

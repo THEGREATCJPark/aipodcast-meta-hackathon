@@ -1,33 +1,33 @@
 # Keep Talking — hackathon contribution
 
-An independent podcast research co-host built with the **Meta Model API** for Meta Global AI Developer Hackathon 2026. Not an official Meta product.
+**Keep the conversation. Delegate the lookup.**
 
-## The problem and the solution
+Keep Talking gives small podcast teams an AI research producer: ask a question in the context of a live discussion, keep talking while it researches, then receive a brief answer and source at a suitable pause.
 
-Podcast creators often need to verify a reference while the conversation is still happening. The co-host listens to multiple speakers, receives a short lookup request, researches in parallel, checks whether its answer is still relevant and speaks briefly when the floor is clear. A human operator retains control.
+**[Watch the selected 89-second demo](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/download/keep-talking-v11/keep-talking-v11-antigravity-review.mp4)**
 
-**[Watch the 2:22 demo](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/download/keep-talking-v8/keep-talking-v8.mp4)**
+## Why it matters
 
-The film contains an actual recorded Meta-backed application segment with synthetic participant voices. Generated studio visuals are editorial, not a live app feature. Meta's answer is generated from its actual research; the participant lines after the answer are prewritten and triggered when playback ends. This is not an unscripted human-user trial.
+A small creator team often has to choose between interrupting its discussion to search and leaving a reference unresolved. Keep Talking makes lookup a parallel task, with the hosts retaining control of the conversation.
 
-## New work for this hackathon
+## What we built during the hackathon
 
-- Meta **Muse Voice Transcribe** for per-speaker speech recognition.
-- Meta **Muse Spark** for contextual WAIT / intervention / requested LOOKUP decisions and updated relevance review.
-- Meta Responses **web_search**, with bounded source validation and traceable references.
-- Continued research during human speech, separated from permission to speak; cancellation of obsolete/withdrawn results.
-- Judge-facing conversation summary, evaluation probes and regression tests.
+- Meta-powered speech transcription and contextual decisions across speakers.
+- Explicit lookup requests, background research and source references.
+- Fresh-context review before delivery, with model WAIT decisions and an application speech gate.
+- HOLD, cancellation and stale-result protection.
+- A conversation/research interface, recording evidence and regression tests.
 
-## Pre-existing foundation and other tools
+## Meta's role
 
-The project reuses the developer's existing React/Vite, Express, LiveKit voice studio, legacy engine interfaces and recording tools. They were **not newly built for this submission**. The recorded app response uses a separate third-party speech synthesis service; cinematic studio scenes are generated editorial assets. Other models do not silently replace Meta's research decision.
+Meta handles understanding, research and conversational decisions. Voice transport, recording and speech rendering support those decisions. [Architecture](docs/ARCHITECTURE.md) · [Evaluation](docs/EVALUATION.md)
 
-Original project baseline: `b79131169fcd74abfb20a45e1daad78d29217cf8`. Independent import: `ac71d68`. Video's filmed app execution: `564027cfb9eefaf6cdba49c43b53563a6fc6582a`; video package source: `2ea416b220bd423245e5eeb0930264ce3845b028`. The final submission branch may contain later documentation updates.
+## Existing foundation
 
-[Code contribution map](docs/CONTRIBUTIONS.md) · [Full provenance](docs/PROVENANCE.md) · [Verification evidence](docs/EVALUATION.md) · [Video disclosure](docs/VIDEO_V8.md)
+The project reuses the developer's React/Vite, Express and LiveKit studio and recording foundation. Those components predate this independent repository. The original source baseline is recorded in [PROVENANCE.md](docs/PROVENANCE.md), with a [contribution map](docs/CONTRIBUTIONS.md).
 
-## Evidence and scope
+## Demonstrated scope
 
-At the v8 source checkpoint, 132 automated tests, typechecks and both web builds passed in CI. Actual Meta calls worked in controlled synthetic two-speaker sessions; failures are retained in the detailed evaluation ledger. **No general latency, reliability, factual accuracy, user benefit or human conversation acceptance is claimed.** Sources still need review.
+The selected film shows one actual application session with scripted synthetic participants, including a lookup, a WAIT decision, a sourced answer and continued host discussion. It is edited for pacing; it does not establish response-time or real-user performance benchmarks. [Film and evidence notes](docs/VIDEO_V11.md).
 
-The entrant's rights to pre-existing code and generated media, and the track-specific treatment of inherited code, need final approval. The repository and film remain private until separately authorized. No final form submission or waiver acceptance is claimed.
+Independent project built with Meta; not an official Meta product.

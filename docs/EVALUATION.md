@@ -1,3 +1,11 @@
+# Selected submission evidence — November 4, 2026
+
+The selected [v11 film](VIDEO_V11.md) uses actual session `2026-11-04_1206_meta_7fa3`: contextual lookup, research, model WAIT, current-context DELIVER and Gemini-rendered answer audio. The editor preserves the session records and exact time cuts. The film is edited for time and does not measure general latency, accuracy or human usefulness.
+
+Current submission-preparation checks (November 4): `npm test` passed **132/132**, `npm run typecheck`, `npm run build:web` and `npm run build:guest` all passed. Both builds retain the existing large-chunk warning. These commands were rerun on the current checkout; no new provider calls were made for this documentation update.
+
+The sections below are historical engineering checkpoints, including failures; they do not supersede the current selected-film record.
+
 ## Gemini speech validation — 2026-11-03 KST
 
 The selected speech model is gemini-3.8-flash-tts (Kore for the co-host, Puck/Charon for synthetic hosts). 132 tests, typecheck and web/guest builds passed. Three standalone generation requests succeeded. Full app trial 2026-11-03_1142_meta_25c0 at clean SHA a16946a reached Meta DELIVER, then Gemini TTS failed with HTTP 429. A direct local-key diagnostic confirmed a monthly spending cap response. This is not a passed end-to-end speech flow. See [GEMINI_TTS.md](GEMINI_TTS.md), including the correction to earlier inherited-key diagnostics.

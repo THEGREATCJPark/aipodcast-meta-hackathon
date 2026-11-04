@@ -1,49 +1,51 @@
-# Keep Talking — final submission copy (English)
+# Keep Talking — final submission copy
 
-**Prepared for review; not submitted.** These answers follow the participant form inspected on November 2, 2026. Confirm the current form and publication rights before sending.
+Selected film: **v11, 89.2 seconds, English**. Prepared for the submission form; form transmission and terms acceptance remain with the entrant.
 
 ## Team Name
 
-Conversation Co-host
+Keep Talking
+
+## Track
+
+Indie Developer
+
+## Problem statement
+
+Build for Your World
 
 ## Project Description
 
-**Keep Talking is an AI research co-host that lets podcast guests keep talking while it checks a missing fact or reference.**
+Keep Talking is an AI research co-host for small podcast teams without a dedicated research producer. When a host needs to check a reference, the team can delegate the lookup without stopping the discussion.
 
-Small creator teams do not always have a producer ready to look things up during a conversation. A host can ask a brief question based on earlier discussion; the AI researches the requested reference while the people continue speaking. Before responding, it checks the latest context and whether it has the floor, then delivers a concise sourced answer and steps back. The session preserves the conversation, source evidence and audio.
+The co-host understands the request in context, researches in the background, and reviews the latest conversation before delivering a short answer with a source. Research completion and permission to speak are separate: the hosts keep the floor while they are talking, and can hold or cancel output.
 
-The submission demonstrates a working Meta-powered prototype with **synthetic participants and real model calls**. In the recorded app scene, Meta transcribes and interprets the discussion, performs the lookup and reviews relevance before a separately synthesized voice delivers its answer. Generated podcast visuals provide the setting; they are not an application feature. The conversation after the response is scripted synthetic material, not human-user feedback.
+In the demo, a podcast host asks which Muse Spark model the team can run on its own hardware. The hosts keep discussing privacy and GPU memory while Keep Talking researches the question. It waits for a pause, gives a short answer with a source, and the hosts use that answer to discuss what to run locally and what to send to a hosted service.
 
-The project extends an existing audio studio and recorder. Its hackathon contributions are the Meta conversation/research pipeline, source validation, floor and cancellation handling, and a judge-facing conversation view. Existing and new work are disclosed in the repository.
+The film uses scripted synthetic hosts and an actual Meta-backed application session, edited for time. The hackathon work adds contextual research, source handling and turn control to an existing voice studio; the repository documents the contribution boundary.
 
 ## Public GitHub Repository
 
 https://github.com/THEGREATCJPark/aipodcast-meta-hackathon
 
-**Publication still requires owner approval.** Do not submit this as a public link until it opens in a signed-out browser.
-
 ## 3-Minute Demo Video
 
-https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/download/keep-talking-v8/keep-talking-v8.mp4
+https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/download/keep-talking-v11/keep-talking-v11-antigravity-review.mp4
 
-**Selected film:** *Keep Talking v8*, 2 minutes 21.97 seconds, English. [Release and subtitles](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/tag/keep-talking-v8). The final form must accept this length and URL, and the film must be publicly playable before transmission.
+Selected submission video: **Keep Talking v11 — 1:29**. [Full-quality video and captions](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/tag/keep-talking-v11). Use this explicit v11 URL rather than an older release link.
 
 ## Describe your use of Meta products to build the submitted project
 
-Meta is the core of the experience. Its speech recognition processes the separate participants; **Muse Spark** interprets requests, decides when to wait or act, uses Meta's **web search** for requested references, and checks whether a researched answer is still relevant after the discussion moves on. The application validates the source and controls whether speech may be played.
+Meta powers the core research co-host: it transcribes the participants, interprets a request against the ongoing discussion, performs web research, and checks whether the result remains relevant before choosing WAIT or DELIVER. The application then enforces the speaker-floor and cancellation rules before playing the answer.
 
-The Meta integration, research/turn controls and tests were added for the hackathon. A pre-existing LiveKit studio provides transport and recording. Spoken audio is rendered by a separate speech service; video studio imagery and synthetic hosts are editorial media, not Meta model outputs from the live app. Codex assisted development; **Muse Code is not claimed**.
+We built the Meta integration and research controls for the hackathon on an existing voice and recording foundation. A separate speech service renders Meta's answer. The repository includes the architecture, tests and run evidence.
 
 ## Why are Meta's models important to your solution?
 
-This is not just a transcription widget or a voice wrapper. Meta determines which part of the conversation matters, whether a specific lookup was requested, what the evidence supports and whether delivering that answer still fits the discussion. People can keep talking while research continues, and the system avoids speaking over them. Without those Meta-driven decisions, the central research co-host behavior would not work.
+The difficult part is deciding what to look up and when the answer belongs in the conversation. A useful research co-host must follow a discussion that continues after the request, then reconsider its result before speaking. Meta handles those contextual decisions and research together, allowing the product to support the conversation rather than turn every utterance into a chatbot exchange.
 
-## Owner-only form choices (do not invent)
+## Remaining personal form fields
 
-- Proposed **track:** Indie Developer.
-- Proposed **theme:** Build for Your World.
-- **Contributors:** Confirm the prefilled member and any other actual human contributors; one team entry.
-- **Opinion and recommendation questions:** The entrant must supply genuine answers. Do not invent ratings or claim use of untried tools.
-- **Rights / waiver / promotional checkbox:** Require separate entrant review and approval.
+The entrant supplies the actual contributor list, partner-tool feedback, opinion/recommendation ratings and any optional social link. Do not claim use of partner services or coding products that were not used.
 
-**Submission state:** The source/release are private; no waiver or promotional rights have been granted, and there is no submission receipt. The inherited-code eligibility interpretation has not been confirmed by a specific organizer ruling. See [full requirements and approvals](SUBMISSION_READINESS.md).
+Review the final form's video-host requirements and terms, then submit once and retain the receipt. [Submission checklist](SUBMISSION_READINESS.md).

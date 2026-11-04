@@ -1,3 +1,5 @@
+> November 4 update: the selected v11 film uses a completed Gemini-speech app session (`2026-11-04_1206_meta_7fa3`). The failed attempt recorded below is historical. See [current film evidence](VIDEO_V11.md).
+
 # Gemini 3.8 Flash TTS — November 3, 2026
 
 ## Current selection

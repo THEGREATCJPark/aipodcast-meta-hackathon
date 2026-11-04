@@ -1,16 +1,19 @@
 # Reviewer guide — Keep Talking
 
-**[Watch the English 2:22 demo](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/download/keep-talking-v8/keep-talking-v8.mp4)** · [What is real vs editorial](VIDEO_V8.md)
+**[Watch the 89-second demo](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/download/keep-talking-v11/keep-talking-v11-antigravity-review.mp4)** · [Demo evidence](VIDEO_V11.md)
 
-### One-minute product summary
+## What to look for
 
-Keep Talking is a **research co-host for podcast conversations**. Rather than requiring everyone to stop while somebody checks a forgotten reference, Meta can use preceding discussion to interpret a short request, research it, review whether the answer is still relevant and speak briefly when no one else is talking.
+| In the film | What the product does |
+| --- | --- |
+| A host asks which model runs locally | Interprets a lookup request in the discussion's context |
+| The hosts continue discussing privacy and GPU memory | Research runs independently of the speaker floor |
+| The app shows WAIT | A completed result does not automatically interrupt the conversation |
+| The co-host gives a short answer and source | Reviews relevance and returns the floor to the hosts |
 
-The demo includes actual Meta model/search activity from a controlled two-synthetic-speaker session. The surrounding studio imagery is a created presentation, not a real-time 3D studio. The post-answer conversation lines were scripted for the demonstration, not organic human responses.
+## Run locally
 
-### Run the code
-
-Node 22.22+; npm:
+Node.js 22.22+ and npm:
 
 ```bash
 npm ci
@@ -21,22 +24,21 @@ npm run build:guest
 npm run dev
 ```
 
-Open http://localhost:4400 for the studio or http://localhost:4400/?view=judge for the summary. **Offline build and automated tests require no model credentials.** A new live speech session requires your own authorized Meta, LiveKit and external speech-renderer credentials in an ignored local `.env` as described by `.env.example`. Enable Research PD before making an explicit voice lookup request. Real-provider calls may be charged.
+Open http://localhost:4400 for operator controls or http://localhost:4400/?view=judge for the conversation and research view.
 
-**No public live-app deployment is claimed.** Do not expose the local operator endpoint through a public tunnel.
+Offline tests and builds require no provider credentials. To run a live session, create a local `.env` using `.env.example` and configure your own Meta, LiveKit and speech-provider credentials. Keep `.env` untracked. Enable **Research PD**, connect participants and ask an explicit lookup question after introducing a topic. HOLD stops output. The local studio is an operator interface, not a public guest deployment.
 
-### Inspect the work that was added
+## Inspect the implementation
 
-| File | Main purpose |
-|---|---|
-| `server/meta/asr-realtime.ts` | Meta speech input per participant |
-| `server/meta/director.ts` | Conversational decisions grounded in actual utterances |
-| `server/meta/research.ts` and `server/meta/session.ts` | Requested lookup, source checks and updated-context delivery |
-| `server/agent/mc-agent.ts` | Control of speaker floor and output permission |
-| `tests/research.test.ts` | Lookup, source and cancellation regression cases |
+| File | Responsibility |
+| --- | --- |
+| `server/meta/asr-realtime.ts` | Per-participant speech input |
+| `server/meta/director.ts` | Contextual decisions |
+| `server/meta/research.ts` | Background lookup and sources |
+| `server/meta/research-review.ts` | Current-context review before delivery |
+| `server/agent/mc-agent.ts` | Speaker-floor and output control |
+| `tests/research.test.ts` | Research regression cases |
 
-[Detailed contribution vs inherited code](CONTRIBUTIONS.md) · [Evaluation records](EVALUATION.md)
+[Contribution map](CONTRIBUTIONS.md) · [Architecture](ARCHITECTURE.md) · [Evaluation](EVALUATION.md)
 
-### Important limits
-
-Synthetic-input integration is demonstrated, not a human usability study. The selected film's spoken answer uses a separate speech renderer and a real Meta result; it is not a prewritten model answer. A later default speech configuration has not been verified in a full live session owing to provider availability; see [technical verification](GEMINI_TTS.md) if attempting live reproduction. Audio latency is not claimed to be instantaneous; sources are for inspection, not guaranteed truth.
+The film is a controlled synthetic-input run, not a human usability study. See [production notes](VIDEO_V11.md) for the session, providers and edit boundaries.

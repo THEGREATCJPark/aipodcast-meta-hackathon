@@ -1,47 +1,45 @@
-# Keep Talking — Conversation Co-host
+# Keep Talking
 
-**Keep the conversation. Delegate the lookup.**
+### Keep the conversation. Delegate the lookup.
 
-An AI research co-host for small podcast teams. When a host forgets a name or reference, the group can ask the co-host to check it **without stopping the discussion**. The AI researches, checks whether the answer still matters, responds briefly with a source, and gives the floor back.
+**An AI research co-host for small podcast teams without a dedicated research producer.**
 
-### Watch the demo (2:22)
+A forgotten reference should not stop a good conversation. Ask Keep Talking to check it, keep discussing, and get a short answer with a source when there is room to speak.
 
-**[▶ Watch Keep Talking v8](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/download/keep-talking-v8/keep-talking-v8.mp4)** · [English captions and video assets](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/tag/keep-talking-v8)
+[![Watch Keep Talking — 89-second demo](docs/media/keep-talking-v11.jpg)](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/download/keep-talking-v11/keep-talking-v11-antigravity-review.mp4)
 
-The demo starts like a podcast and reveals the AI producer at work. It follows **one actual recorded application session** in which Meta processes the request and provides a researched answer while the hosts keep talking. The conversation resumes after the answer.
+**[Watch the 89-second demo →](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/download/keep-talking-v11/keep-talking-v11-antigravity-review.mp4)** · [Download full-quality video and English captions](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/tag/keep-talking-v11)
 
-*Demo disclosure:* The hosts are synthetic voices, and the cinematic studio scenes are editorial visuals—not an in-app 3D feature. The Meta requests, search, decision and spoken answer in the app segment are real; the hosts' follow-up lines were written in advance. This is not a human-user study.
+## A producer that knows when to speak
 
-### What makes it different
+1. **Ask in context.** Refer to something already discussed instead of starting a separate search.
+2. **Keep talking.** Research continues in the background while the hosts develop their argument.
+3. **Get the answer, keep the floor.** The co-host checks the current discussion, waits for a pause, delivers a short sourced answer, and steps back.
 
-- **Context, not a standalone question.** A short request can refer to a subject introduced across multiple speakers.
-- **Research without interruption.** The lookup continues while people speak; the co-host does not have to answer every turn.
-- **A timely answer, with a source.** Meta reviews the latest discussion before the app permits a short response.
-- **Human control.** The operator can hold or cancel output. The app records speaker audio, sources and decisions.
+The difference is **separating the moment research finishes from the moment the AI speaks**. Hosts can also hold or cancel output, and each session preserves speaker audio, transcripts and research references.
 
-### Built with Meta
+## In this demo
 
-Meta provides participant speech transcription, conversation decisions, web research and an updated relevance check before speaking. LiveKit handles voice transport; a separate speech service voices the answer. The project is an independent prototype, **not an official Meta product**.
+A host asks which Muse Spark model the team can run on its own hardware. The hosts keep discussing privacy and GPU memory while Keep Talking researches the question. It waits for a pause, gives a short answer with a source, and the hosts use that answer to discuss what to run locally and what to send to a hosted service.
 
-### Run locally
+The film combines scripted synthetic hosts with an actual Meta-backed app session, edited for time. [Demo evidence and production notes](docs/VIDEO_V11.md).
+
+## Built with Meta
+
+Meta transcribes the speakers, understands the contextual request, researches the reference and reviews whether the answer still belongs in the conversation. The app controls playback and interruption; a separate speech service voices the answer.
+
+The hackathon contribution is this conversation-aware research and turn-taking flow, built on an existing voice studio. [What we built](HACKATHON.md) · [Code provenance](docs/PROVENANCE.md)
+
+## Try it locally
 
 Requires Node.js 22.22+ and npm.
 
 ```bash
 npm ci
-npm test
-npm run typecheck
 npm run build:web
-npm run build:guest
 npm run dev
 ```
 
-Open **http://localhost:4400** (studio) or **http://localhost:4400/?view=judge** (conversation summary). The interface and offline tests can run without provider credentials. Live audio requires your own authorized Meta, LiveKit and speech-provider credentials; use `.env.example` and keep `.env` out of Git. Research PD is opt-in. Do not expose the local operator server directly to the internet.
+Open **http://localhost:4400/?view=judge** for the conversation and research view. For a live session, configure the credentials described in [.env.example](.env.example) and enable **Research PD** in the studio.
 
-### Hackathon contribution
-
-This submission **reuses an earlier React/Vite, Express, LiveKit and recording foundation**. The hackathon work adds Meta-powered contextual listening, requested research and sources, current-conversation checks, speech/turn control, associated UI and tests. It does **not** claim that the entire studio was developed during the event.
-
-[Hackathon contribution and disclosure](HACKATHON.md) · [Reviewer setup](docs/JUDGE_GUIDE.md) · [Engineering evidence](docs/EVALUATION.md) · [Video provenance](docs/VIDEO_V8.md)
-
-**Limitations:** Synthetic input has passed actual-provider trials, but real-user conversational usefulness and broad accuracy/reliability have not been established. Answers are not instant, and linked sources still require human review.
+[Reviewer setup](docs/JUDGE_GUIDE.md) · [Architecture](docs/ARCHITECTURE.md) · [Evaluation](docs/EVALUATION.md) · [Submission copy](docs/SUBMISSION.md)

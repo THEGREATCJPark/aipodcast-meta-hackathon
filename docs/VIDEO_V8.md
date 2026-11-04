@@ -1,3 +1,5 @@
+> Historical film, superseded by [the selected v11 submission](VIDEO_V11.md). Publication and candidate-status statements below describe the earlier checkpoint.
+
 # Keep Talking v8 — film and authenticity notes
 
 **[Watch video (2:21.97)](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/download/keep-talking-v8/keep-talking-v8.mp4)** · [Release files, caption track and edit records](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/tag/keep-talking-v8)

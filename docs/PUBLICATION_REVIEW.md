@@ -1,3 +1,7 @@
+# November 4 publication status
+
+The source repository and selected [v11 film](VIDEO_V11.md) are now public. Unauthenticated HTTP GET access to the repository and review MP4 returned 200 during submission preparation. Earlier private/publication-pending statements below are historical audit checkpoints. This update does not claim a new full-history secret audit, legal clearance or form submission.
+
 # v8 publication addendum — 2026-11-04
 
 The selected submission film has changed from the historical v3 described below to **Keep Talking v8**: [release](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/tag/keep-talking-v8) and [exact QA/hash/disclosure](VIDEO_V8.md). The 21 MB copy and 192 MB master are currently in a **private prerelease**, not publicly reachable. The source repository remains **private**. This documentation update does **not** rerun the historical local full-history secret audit, grant an open-source license, waive rights checks, publish source/media or submit the form. The new documentation-only paths do not intentionally contain keys or raw recordings; before making the entire repo public, review tracked history and full publication surface again.
