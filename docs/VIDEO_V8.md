@@ -1,39 +1,34 @@
-# Keep Talking v8 — selected submission video
+# Keep Talking v8 — film and authenticity notes
 
-**Status:** selected final *candidate*, not published or submitted. The owner must still perform end-to-end viewing/listening and authorize its publication. No new filming, human trial or architecture-slide sequence is necessary for the approved synthetic-demo scope.
+**[Watch video (2:21.97)](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/download/keep-talking-v8/keep-talking-v8.mp4)** · [Release files, caption track and edit records](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/tag/keep-talking-v8)
 
-## Exact artifact identity
+The English, 1080p/30 fps v8 film is the selected final candidate. The 21 MB playback copy and larger edit master are reported to contain the same decoded audio. Both remain private until source/media publication is authorized.
 
-- Release: [keep-talking-v8](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/tag/keep-talking-v8), published 2026-11-03 at 05:31:51 UTC.
-- Preferred submission link, **pending signed-out access check**: [keep-talking-v8.mp4](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/download/keep-talking-v8/keep-talking-v8.mp4)
-- Preferred copy: 20,954,934 bytes (~21 MB), SHA-256 `10342ac817c682e3f30f38dfe92589c7f6d7daeb98d2818168dee073328fd75d`.
-- Larger FilmCraft master: [submission-v8-keep-talking.mp4](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/download/keep-talking-v8/submission-v8-keep-talking.mp4), 191,616,483 bytes (~192 MB), SHA-256 `cdc73ac7569e181d52d2aaab138a75ecc0f75b8e596daced38f12dff2288f77f`.
-- Both: **2:21.97**, **1920 × 1080**, **30 fps**, with identical decoded audio according to the recorded release QA.
-- Captions: [subtitles-en-v8-keep-talking.srt](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/tag/keep-talking-v8) (release attachment; 34 non-overlapping cues reported).
-- Media source commit: `2ea416b220bd423245e5eeb0930264ce3845b028`; the v8 release tag points there. Later documentation-only commits do not change the app/session shown in the film.
+### Sequence (not a frame-accurate EDL)
 
-## What the video really shows
+1. A podcast starts in a generated studio; a robot co-host is introduced.
+2. The human-style synthetic hosts keep discussing the technological singularity.
+3. Someone asks the co-host to check a missing reference.
+4. The real Meta-based app segment shows the lookup continuing while people talk.
+5. Meta reviews the new conversation state; the app sends a concise sourced answer.
+6. Two **prewritten** synthetic follow-up remarks play **after** the actual answer, showing the intended continuation.
+7. The film closes on the idea that the producer helps the conversation instead of taking it over.
 
-1. Newly generated podcast/studio footage, including a robot reveal, produced with Gemini Omni and assembled editorially in FilmCraft. This is **not** the runtime studio UI.
-2. One unbroken app capture/audio core from session `2026-11-02_1908_meta_adc9` (`adc9`) at 1x speed, showing the actual Meta-based request, search, WAIT/current-context review, short sourced answer and the conversation returning to the topic. The hosts in this recorded core are **synthetic fixtures**, not live people.
-3. The actual Meta model produces and authorizes the answer; in the successful source recording the answer voice was rendered by **OpenAI TTS**, then received over LiveKit. No substitute scripted answer was inserted.
-4. The two lines following the answer are **prewritten synthetic reactions**, triggered after observed completion of the actual answer. They are not spontaneous human feedback.
-5. Generated studio dialogue is visibly/editorially separate from the underlying actual app recording. No manual HOLD scene, claimed instantaneous interruption or architecture slideshow is included.
+### What is authentic?
 
-The successful source run is `564027cfb9eefaf6cdba49c43b53563a6fc6582a`; the release package is tagged on a newer commit. It remains inappropriate to claim the current Gemini default co-host TTS route passed end-to-end: its recorded full app attempt was stopped by HTTP 429 after Meta DELIVER.
+- **Real app demonstration:** one continuous screen/audio segment at normal speed, from session `2026-11-02_1908_meta_adc9`. Actual Meta ASR, research, relevance decision and answer; third-party voice rendering; LiveKit receiver evidence.
+- **Editorial visuals:** generated studio/robot material that is not rendered by the live app.
+- **Synthetic performers:** prepared lines, including two post-answer responses triggered only when the actual co-host output had ended. These are **not spontaneous human user reactions**.
+- **No hidden shortcut:** The recorded Meta answer was not prewritten or swapped in. The observed research delay remains in the recorded segment.
 
-## Quality evidence and limitations
+The project does not claim a human field trial, instantaneous replies, general accuracy or a completely autonomous show producer. One original source is a secondary encyclopedic page; a visible source does not guarantee correctness.
 
-The v8 release reports full decode, nine source-audio alignment checks, 34 subtitle cues without overlap, a final automatic speech check, encoded-frame review, and matching decoded audio between the compressed copy and master. These are **production reports from the release**, not proof of an independently completed human watch/listen. The owner should assess character-voice continuity, intelligibility and proper names (especially the cited author) on the complete 2:22 file.
+### Original assets and QA
 
-A recorded research/answer gap of roughly ten seconds remains in the underlying conversation. Do not claim instant lookup, zero-latency speech interruption or a measured user productivity gain. No generalized accuracy or reliability benchmark exists. Keep human-trial claims separate from synthetic fixtures.
+- Review file: `keep-talking-v8.mp4` — **20,954,934 bytes**, SHA-256 `10342ac817c682e3f30f38dfe92589c7f6d7daeb98d2818168dee073328fd75d`.
+- Edit master: `submission-v8-keep-talking.mp4` — **191,616,483 bytes**, SHA-256 `cdc73ac7569e181d52d2aaab138a75ecc0f75b8e596daced38f12dff2288f77f`.
+- Source code at filming: `564027cfb9eefaf6cdba49c43b53563a6fc6582a`. v8 release source snapshot: `2ea416b220bd423245e5eeb0930264ce3845b028`.
 
-## Before the form is submitted
+The release reports successful decode, source-audio alignment, 34 non-overlapping subtitle cues and frame checks. **No independent complete human watch/listen is claimed.** The original SRT is attached to the release; this repository document does not transcribe its contents.
 
-- Watch/listen to the full preferred 21 MB file with English audio and captions, including the answer and follow-up lines.
-- Decide whether to release this exact v8 edit, and confirm rights to Gemini-generated visuals and all synthetic audio.
-- Approve public source and media. The current GitHub prerelease is **not a public video URL** while the repository is private.
-- Open the final video and repository links in a **signed-out** browser. If the form rejects GitHub video links, use a publicly accessible approved video host and record the actual URL.
-- Confirm the live form's current length and link rules; do not pad the 2:22 video to 3:00 without a documented reason.
-
-See [submission copy](SUBMISSION.md), [readiness](SUBMISSION_READINESS.md), [release](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/tag/keep-talking-v8) and [publication review](PUBLICATION_REVIEW.md).
+Before final submission, the entrant must listen to the entire film and verify signed-out video access after approving publication.

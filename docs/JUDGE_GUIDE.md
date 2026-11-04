@@ -1,43 +1,42 @@
-# Judge guide — Keep Talking / Conversation Co-host
+# Reviewer guide — Keep Talking
 
-**Submission candidate:** [Watch 2:22 v8](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/download/keep-talking-v8/keep-talking-v8.mp4) · [Release QA & subtitles](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/tag/keep-talking-v8) · [What the video shows](VIDEO_V8.md).
+**[Watch the English 2:22 demo](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/download/keep-talking-v8/keep-talking-v8.mp4)** · [What is real vs editorial](VIDEO_V8.md)
 
-This is an independent Meta hackathon entry, not an official Meta product. The filmed studio scenes are generated editorial material; the **continuous real Meta application evidence** is from session `2026-11-02_1908_meta_adc9` with **synthetic host inputs**, a genuine searched/sourced Meta response, **OpenAI speech synthesis** and LiveKit reception. The conversation after the answer is a prewritten fixture triggered upon observed completion, not a human trial. The app's current Gemini TTS default was separately quota-blocked at HTTP 429 after Meta DELIVER.
+### One-minute product summary
 
-## No-credential review
+Keep Talking is a **research co-host for podcast conversations**. Rather than requiring everyone to stop while somebody checks a forgotten reference, Meta can use preceding discussion to interpret a short request, research it, review whether the answer is still relevant and speak briefly when no one else is talking.
 
-Node **22.22+** (compatible Node 22), npm:
+The demo includes actual Meta model/search activity from a controlled two-synthetic-speaker session. The surrounding studio imagery is a created presentation, not a real-time 3D studio. The post-answer conversation lines were scripted for the demonstration, not organic human responses.
 
-~~~sh
+### Run the code
+
+Node 22.22+; npm:
+
+```bash
 npm ci
 npm test
 npm run typecheck
 npm run build:web
 npm run build:guest
 npm run dev
-~~~
+```
 
-Studio at http://localhost:4400 and judge summary at http://localhost:4400/?view=judge. Offline tests do not need API keys. The source checkpoint `2ea416b` has [successful GitHub CI](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/actions/runs/41584443719): **132/132 tests**, typecheck and both builds. A later documentation-only update must be checked on its own CI run.
+Open http://localhost:4400 for the studio or http://localhost:4400/?view=judge for the summary. **Offline build and automated tests require no model credentials.** A new live speech session requires your own authorized Meta, LiveKit and external speech-renderer credentials in an ignored local `.env` as described by `.env.example`. Enable Research PD before making an explicit voice lookup request. Real-provider calls may be charged.
 
-### How to inspect the event contribution
+**No public live-app deployment is claimed.** Do not expose the local operator endpoint through a public tunnel.
 
-| Start here | Look for |
+### Inspect the work that was added
+
+| File | Main purpose |
 |---|---|
-| [HACKATHON.md](../HACKATHON.md), [PROVENANCE.md](PROVENANCE.md), [CONTRIBUTIONS.md](CONTRIBUTIONS.md) | Clearly separated inherited studio and new event work |
-| `server/meta/asr-realtime.ts` and `server/meta/director.ts` | Participant transcription and Meta evidence-linked WAIT/ASK/LOOKUP decisions |
-| `server/meta/research.ts`, `server/meta/research-review.ts`, `server/meta/session.ts` | Real web_search evidence; fresh-context WAIT/DELIVER/DISCARD/CANCEL; bounded permission, expiry and source rules |
-| `server/agent/mc-agent.ts`, `server/agent/playout.ts` | Floor policy, Handoff/HOLD, late-output cancellation and audio transport |
-| `tests/research.test.ts`, `tests/background-lookup.test.ts`, `tests/asr-pacing.test.ts` | Source validation, ongoing dialogue/race regressions and audio timing |
-| [EVALUATION.md](EVALUATION.md) | Actual-provider session IDs, failed attempts and limitations |
+| `server/meta/asr-realtime.ts` | Meta speech input per participant |
+| `server/meta/director.ts` | Conversational decisions grounded in actual utterances |
+| `server/meta/research.ts` and `server/meta/session.ts` | Requested lookup, source checks and updated-context delivery |
+| `server/agent/mc-agent.ts` | Control of speaker floor and output permission |
+| `tests/research.test.ts` | Lookup, source and cancellation regression cases |
 
-The demo is **not** a general autonomous fact-checker. Explicit opt-in Research PD is required. Ordinary interventions need operator Handoff, and new speech does not authorize an unrelated autonomous AI monologue.
+[Detailed contribution vs inherited code](CONTRIBUTIONS.md) · [Evaluation records](EVALUATION.md)
 
-## Optional live provider reproduction (may incur charges)
+### Important limits
 
-Copy `.env.example` to an ignored local `.env`, add your **own** keys for `META_API_KEY`, `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`, plus the deliberately selected speech provider. Default `TTS_PROVIDER=gemini` uses `GEMINI_API_KEY` and Kore; the recorded successful app path used explicit `TTS_PROVIDER=openai` with `OPENAI_API_KEY`. There is **no silent fallback**. External quotas can prevent a live spoken result.
-
-Start the studio, enable Research PD in settings, connect a consenting participant and ask for a source during a conversation. For automated synthetic integration, the existing `scripts/probe-conversation.ts` uses OpenAI-generated **input fixtures** and real Meta services; supply authorized provider access. Such runs are paid, and are not a substitute for a human study.
-
-## Security and limitations
-
-The main localhost operator server is **not a public hosted app** and must not be tunneled for judges. The guest-only bundle is not proof of a publicly deployed and tested guest flow. Files in `output/` may contain voice tracks, transcripts and provider metadata; keep them private. No measured p95 latency, generalized fact accuracy, usability lift, real-world microphone acceptance or instantaneous interruption is claimed. See [readiness](SUBMISSION_READINESS.md) for publication and form gates.
+Synthetic-input integration is demonstrated, not a human usability study. The selected film's spoken answer uses a separate speech renderer and a real Meta result; it is not a prewritten model answer. A later default speech configuration has not been verified in a full live session owing to provider availability; see [technical verification](GEMINI_TTS.md) if attempting live reproduction. Audio latency is not claimed to be instantaneous; sources are for inspection, not guaranteed truth.
