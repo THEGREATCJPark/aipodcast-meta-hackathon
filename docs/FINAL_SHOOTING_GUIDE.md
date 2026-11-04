@@ -1,6 +1,6 @@
-# Historical human-filming guide — superseded
+# Historical human-filming guide — superseded by Keep Talking v8
 
-No new human filming is required for the current owner-approved synthetic v3 candidate. See VIDEO_PRODUCTION.md, SUBMISSION_READINESS.md and FINAL_REVIEW.md. The earlier guide below is retained only if a future human demonstration is explicitly chosen.
+No new human filming is required for the selected **Keep Talking v8** candidate (2:21.97). Use VIDEO_V8.md, SUBMISSION_READINESS.md and FINAL_REVIEW.md. The instructions below describe an **older, abandoned human-filming plan** and must not be followed for the present final video.
 
 # 제출용 최종 촬영 가이드 — 영어 3분
 

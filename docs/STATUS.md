@@ -1,3 +1,13 @@
+# Current final-candidate status — 2026-11-04 KST
+
+**Keep Talking v8 (2:21.97)** is the selected English film for the Meta Global AI Developer Hackathon. [Preferred 21 MB copy](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/download/keep-talking-v8/keep-talking-v8.mp4) · [Video identity and disclosure](VIDEO_V8.md) · [Prepared form copy](SUBMISSION.md) · [Readiness/approval gates](SUBMISSION_READINESS.md). The two v8 films and QA artifacts are already attached to an **unpublished-to-the-public, private GitHub prerelease**. Human full-length watch/listen approval, public source/video access, rights/terms acceptance and actual form submission have **not** occurred.
+
+The v8 picture incorporates newly generated Gemini Omni studio scenes plus a continuous real Meta app capture using synthetic hosts; **OpenAI TTS** rendered the app answer in that recorded session. The **current default Gemini 3.8 Flash TTS** still lacks a passing full co-host-output run due to the recorded HTTP 429 spending cap. The app/source checkpoint 2ea416b passed 132 tests and web/guest builds in GitHub CI. Later documentation commits must be checked on their own CI run. No new filming or feature work is a condition of the prepared synthetic-demo scope.
+
+**All status sections dated November 3 or earlier below are historical checkpoints, not the current selected video.** In particular, prior statements about v3/v5/v6 as the latest editing candidate and the earlier lack of Gemini Omni generation are superseded by the completed v8 release. Historical failures and exact provider-run boundaries are intentionally retained.
+
+---
+
 ## Current Gemini 3.8 TTS selection — 2026-11-03 KST
 
 Gemini 3.8 Flash TTS / Kore is the default co-host speech renderer. Two-speaker Gemini audio (38.56 s + 7.72 s) and a ten-second Omni opening were generated successfully after fixing an inherited-key precedence issue. The first complete app attempt reached Meta DELIVER but its Gemini TTS request failed with HTTP 429; recording remains available. **132 tests, typecheck and web/guest builds passed.** See [GEMINI_TTS.md](GEMINI_TTS.md). Earlier OpenAI full-run evidence remains historical, not Gemini-output evidence.

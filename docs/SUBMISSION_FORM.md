@@ -2,7 +2,7 @@
 
 Observed in Chrome at https://cerebralvalley.ai/e/meta-ai-developer-hackathon/hackathon/submit, alongside https://cerebralvalley.ai/e/meta-ai-developer-hackathon/details. This inventory records the actual visible form, not a guessed template. No data was entered, no checkbox was selected and no submission was sent.
 
-English field-mapped copy is in SUBMISSION.md. **Final candidate as of November 4 is Keep Talking v8 (2:21.97), not the historical v3.** The actual compressed review file is present in the private v8 GitHub release. The inspected form state is still dated November 2; no new form visit or submission is claimed. Public access, listening approval and contributor/rights review remain pending. This inventory records the November 2 inspection, not a claim of a fresh form visit.
+English field-mapped copy is in SUBMISSION.md. **Final candidate as of November 4 is Keep Talking v8 (2:21.97), not the historical v3.** The actual compressed review file is present in the private v8 GitHub release. The inspected form state is still dated November 2; no new form visit or submission is claimed. Public access, listening approval and contributor/rights review remain pending.
 
 ## Required text/link fields
 

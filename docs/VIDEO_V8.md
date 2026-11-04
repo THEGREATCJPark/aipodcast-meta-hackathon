@@ -36,4 +36,4 @@ A recorded research/answer gap of roughly ten seconds remains in the underlying 
 - Open the final video and repository links in a **signed-out** browser. If the form rejects GitHub video links, use a publicly accessible approved video host and record the actual URL.
 - Confirm the live form's current length and link rules; do not pad the 2:22 video to 3:00 without a documented reason.
 
-See [submission copy](SUBMISSION.md), [readiness](SUBMISSION_READINESS.md), [release]( https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/tag/keep-talking-v8 ) and [publication review](PUBLICATION_REVIEW.md).
+See [submission copy](SUBMISSION.md), [readiness](SUBMISSION_READINESS.md), [release](https://github.com/THEGREATCJPark/aipodcast-meta-hackathon/releases/tag/keep-talking-v8) and [publication review](PUBLICATION_REVIEW.md).
