@@ -88,7 +88,7 @@ export function Studio() {
       <header className="topbar">
         <div className="brand">
           <span className={`onair ${status.sessionActive ? "live" : ""}`}>{status.sessionActive ? "ON AIR" : "IDLE"}</span>
-          <h1>AI MC <span>/ Studio</span></h1>
+          <h1>Keep Talking <span>/ AI Research Co-host</span></h1>
           {status.recording && <span className="rec" title="Saved locally when the session ends">● REC <Elapsed key={status.sessionId} sessionId={status.sessionId} /></span>}
         </div>
         <div className="top-actions">
@@ -110,7 +110,7 @@ export function Studio() {
       {connectionError && <div className="connection-warning" role="alert">{connectionError} <button className="btn tiny" onClick={() => void refresh().catch(() => undefined)}>Refresh state</button></div>}
       {error && <div className="toast" role="alert">{error}</div>}
 
-      <details className="setup-details"><summary>{consent ? "Connection & recording details" : "Before you start · review recording consent"}</summary>        <div className="badges">
+      <details className="setup-details"><summary>{consent ? "Connection & recording details" : "Connection & studio status"}</summary>        <div className="badges">
           <Badge ok={socketOpen} label="Studio" />
           <Badge ok={status.livekitConfigured} label="LiveKit" />
           <Badge ok={status.metaConfigured} label="Meta key" />

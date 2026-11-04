@@ -15,16 +15,22 @@ export function researchSummary(logs: LogEntry[]) {
   const tts = release ? events.find(e => e.meta?.stage === 'tts-generated' && e.meta?.generation === release.meta?.generation) : undefined;
   const failure = latest('research-failed') ?? latest('research-review-failed');
   const cancelled = latest('research-cancelled');
-  const stopped = release ? events.find(e => e.at >= release.at && ['manual-hold','automatic-interruption','session-close'].includes(String(e.meta?.stage))) : undefined;
+  const durationMs = typeof tts?.meta?.samples === 'number' ? (tts.meta.samples / 24) : 0;
+  const audioFinishedAt = audio ? audio.at + (durationMs || 4000) : Infinity;
+  const stopped = release ? events.find(e => e.at >= release.at && (
+    ['manual-hold', 'session-close'].includes(String(e.meta?.stage)) ||
+    (e.meta?.stage === 'automatic-interruption' && e.at < audioFinishedAt)
+  )) : undefined;
   const ttsFailure = release ? events.find(e => e.meta?.stage === 'provider-failure' && e.meta?.generation === release.meta?.generation) : undefined;
-  let state = 'No pending request';
+  const postDeliverySpeech = Boolean(audio && events.some(e => (e.kind === 'human' && e.at > audio.at) || (e.meta?.stage === 'automatic-interruption' && e.at >= audioFinishedAt)));
+  let state = 'Monitoring · No lookup requested';
   if (request) state = 'Searching';
   if (result) state = 'Result ready · checking context';
   if (currentReview?.meta?.action === 'WAIT') state = result ? 'Waiting · Meta chose WAIT' : 'Searching · Meta chose WAIT';
   if (currentReview?.meta?.action === 'DELIVER' && !release) state = 'Waiting · application speech gate';
   if (release) state = 'Released · preparing speech';
   if (tts) state = 'Speech generated · not yet confirmed sent';
-  if (audio) state = 'Delivered to server transport';
+  if (audio) state = postDeliverySpeech ? 'Delivered · Monitoring conversation' : 'Delivered to server transport';
   if ((failure && (!currentReview || failure.at >= currentReview.at)) || ttsFailure) state = 'Failed · recording retained';
   if (cancelled && !failure) state = 'Cancelled';
   if (stopped) state = stopped.meta?.stage === 'manual-hold' ? 'Stopped · manual HOLD' : stopped.meta?.stage === 'session-close' ? 'Session ended' : 'Output interrupted · speech detected';

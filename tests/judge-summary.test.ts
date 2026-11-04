@@ -8,10 +8,13 @@ test('new result supersedes a pending-result WAIT explanation without inventing 
   assert.equal(r.state,'Result ready · checking context'); assert.equal(r.reason,undefined);
 });
 test('summary distinguishes generated speech from server transport and ignores other generations',()=>{
-  const logs=[e('research-request',{jobId:'a'}),e('research-release',{jobId:'a',generation:4}),e('tts-generated',{generation:4}),e('server-first-audio-accepted',{generation:3})];
+  const logs=[e('research-request',{jobId:'a'},100),e('research-release',{jobId:'a',generation:4},200),e('tts-generated',{generation:4,samples:48000},300),e('server-first-audio-accepted',{generation:3},350)];
   assert.match(researchSummary(logs).state,/not yet confirmed sent/);
-  logs.push(e('server-first-audio-accepted',{generation:4}));
+  logs.push(e('server-first-audio-accepted',{generation:4},400));
   assert.equal(researchSummary(logs).state,'Delivered to server transport');
+  logs.push(e('automatic-interruption',{identity:'host-a'},3000));
+  logs.push({id:'h-1',kind:'human',at:3200,text:'Got it, thanks!',speaker:'Host Maya'});
+  assert.equal(researchSummary(logs).state,'Delivered · Monitoring conversation');
 });
 test('summary keeps cancelled jobs cancelled after an unrelated later audio event and resets for a new job',()=>{
   const logs=[e('research-request',{jobId:'a'}),e('research-cancelled',{jobId:'a'}),e('server-first-audio-accepted',{generation:9})];
